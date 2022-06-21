@@ -17,28 +17,33 @@ MODULES = $(PWOBJS) $(QEMODS)
 
 TLDEPS= pwlibs
 TESTMODS = \
-  v_type.f90\
-  input_parameters_calcmdefect.f90\
-  wavefunctions_calcmdefect.f90\
-  becmod_perturb.f90\
-  gvect_perturb.f90
+edic_mod.f90
+
+
+#  v_type.f90\
+#  input_parameters_calcmdefect.f90\
+#  wavefunctions_calcmdefect.f90\
+#  becmod_perturb.f90\
+#  gvect_perturb.f90
 
 TESTSRC = \
-  main.f90\
+  edic.f90\
   initialization.f90\
-  calcmdefect_noncolin.f90\
   read_perturb_file.f90\
-  get_vloc_colin.f90\
   calc_m.f90\
-  init_us_2_perturb.f90
+  init_us_2_sc.f90
+
+  #get_vloc_colin.f90\
+  #calcmdefect_noncolin.f90\
+#  init_us_2_perturb.f90
 
 OBJ = $(TESTMODS:.f90=.o) $(TESTSRC:.f90=.o)
 
-EXE = edsc.x
+EXE = edic.x
 
 default: $(OBJ)
 	$(LD) $(LDFLAGS) -o $(EXE) $(OBJ) $(MODULES) $(LIBOBJS) $(QELIBS)
 
 clean:
-	rm -f *.o *~ *.d *.mod *.i
+	rm -f *.o *~ *.d *.mod *.i *.x
 

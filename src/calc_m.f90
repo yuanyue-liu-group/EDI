@@ -5,11 +5,11 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     Use fft_base,       Only : dfftp, dffts
     USE fft_interfaces, ONLY : fwfft, invfft
     USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
-    Use wavefunctions_calcmdefect, Only : evc1,evc2,evc3,evc4,&
+    Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
-    USE v_type, Only :  V_0, V_loc
-    Use input_parameters_calcmdefect, Only: m_loc
+    USE edic_mod, Only :  V_0, V_loc
+    Use edic_mod, Only: m_loc
     Implicit None 
 
     complex(dp) :: ml_up, ml_down
@@ -145,13 +145,13 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     Use kinds,    Only : dp
     USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     Use becmod,          Only : calbec, allocate_bec_type, deallocate_bec_type
-    Use becomd_perturb, Only : becp1_perturb,becp2_perturb
-    USE v_type, Only :  V_0, V_p
+    Use edic_mod, Only : becp1_perturb,becp2_perturb
+    USE edic_mod, Only :  V_0, V_p
     USE uspp_param, ONLY: nh
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
     USE uspp, ONLY: nkb, vkb, dvan, dvan_so
-    Use wavefunctions_calcmdefect, Only : evc1,evc2,evc3,evc4
-    Use input_parameters_calcmdefect, Only: m_nloc
+    Use edic_mod,only : evc1,evc2,evc3,evc4
+    Use edic_mod, Only: m_nloc
 
     Implicit None
 
@@ -179,10 +179,10 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
     ALLOCATE(vkb_perturb(npwx,nkb_perturb))
 
-    Call init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_0%nat,V_0%ityp,V_0%tau,nkb_perturb)
+    Call init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_0%nat,V_0%ityp,V_0%tau,nkb_perturb)
     CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
          
-    CALL init_us_2_perturb (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_0%nat,V_0%ityp,V_0%tau,nkb_perturb)
+    CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_0%nat,V_0%ityp,V_0%tau,nkb_perturb)
     CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
          
          
@@ -262,10 +262,10 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
       CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
       ALLOCATE(vkb_perturb(npwx,nkb_perturb))
       
-      CALL init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
       CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
       
-      CALL init_us_2_perturb (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
       CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
       
       

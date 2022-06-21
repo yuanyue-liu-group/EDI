@@ -1,4 +1,4 @@
-SUBROUTINE init_us_2_perturb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
     !----------------------------------------------------------------------
     !! Calculates beta functions (Kleinman-Bylander projectors), with
     !! structure factor, for all atoms, in reciprocal space.
@@ -8,7 +8,7 @@ SUBROUTINE init_us_2_perturb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,ta
     USE cell_base,    ONLY : tpiba, bg
     USE constants,    ONLY : tpi
     USE gvect,        ONLY : eigts1, eigts2, eigts3, mill, g, ngm
-    Use gvect_perturb, Only : eigts1_perturb, eigts2_perturb, eigts3_perturb
+    Use edic_mod, Only : eigts1_perturb, eigts2_perturb, eigts3_perturb
     USE wvfct,        ONLY : npwx
     USE vlocal,       ONLY : strf
     USE fft_base,         ONLY : dfftp
@@ -58,7 +58,7 @@ SUBROUTINE init_us_2_perturb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,ta
     !
     IF (lmaxkb < 0) RETURN
     !
-    CALL start_clock( 'init_us_2_perturb' )
+    CALL start_clock( 'init_us_2_sc' )
     !
     ! write(*,'(3i4,i5,3f10.5)') size(tab,1), size(tab,2), size(tab,3), size(vq), q_
     !
@@ -213,9 +213,9 @@ SUBROUTINE init_us_2_perturb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,ta
     !
     IF (spline_ps) DEALLOCATE( xdata )
     !
-    CALL stop_clock( 'init_us_2_perturb' )
+    CALL stop_clock( 'init_us_2_sc' )
     !
     !
     RETURN
     !
-  END SUBROUTINE init_us_2_perturb
+  END SUBROUTINE init_us_2_sc
