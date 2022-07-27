@@ -1,4 +1,4 @@
-!subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_0, V_loc)
+!subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_d, v_nc)
 subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     Use kinds,          Only : dp
     USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
@@ -9,7 +9,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
-    USE edic_mod, Only :  V_0, V_loc
+    USE edic_mod, Only :  V_d, V_nc
     Use edic_mod, Only: m_loc
     Implicit None 
 
@@ -32,13 +32,13 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     integer :: ir1mod,ir2mod,ir3mod,irnmod
 
 
-!    type(V_file) :: V_0
-!    real(DP) :: V_loc(:,:)
+!    type(V_file) :: V_d
+!    real(DP) :: v_nc(:,:)
 
 
-    !write(*,*) V_loc(20:40,1)
-    !write(*,*) V_loc(20:40,2)
-    !write(*,*) V_0%plot(20:40)
+    !write(*,*) v_nc(20:40,1)
+    !write(*,*) v_nc(20:40,2)
+    !write(*,*) V_d%plot(20:40)
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!! vl in real super2prim, module
@@ -87,11 +87,11 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
 
     arg=0
     inr=0
-    do irz =0, V_0%nr3-1
+    do irz =0, V_d%nr3-1
     ir3mod=irz-(irz/(dffts%nr3))*dffts%nr3
-    do iry =0, V_0%nr2-1
+    do iry =0, V_d%nr2-1
     ir2mod=iry-(iry/(dffts%nr2))*dffts%nr2
-    do irx =0, V_0%nr1-1
+    do irx =0, V_d%nr1-1
     ir1mod=irx-(irx/(dffts%nr1))*dffts%nr1
     
     arg=irz*d3+iry*d2+irx*d1
@@ -104,7 +104,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
         tpi*(real(irx)/dffts%nr1*at(3,1)+real(iry)/dffts%nr2*at(3,2)+real(irz)/dffts%nr3*at(3,3))*(xk(3,ik)-xk(3,ik0))   
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! shift arg center
-    arg=irz*d3+(iry-iry/(V_0%nr2/2+1)*V_0%nr2)*d2+(irx-irx/(V_0%nr1/2+1)*V_0%nr1)*d1
+    arg=irz*d3+(iry-iry/(V_d%nr2/2+1)*V_d%nr2)*d2+(irx-irx/(V_d%nr1/2+1)*V_d%nr1)*d1
     !arg=irz*d3+(iry-iry/(dffts%nr2/2+1)*dffts%nr1)*d2+(irx-irx/(dffts%nr1/2+1)*dffts%nr1)*d1
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !arg=irz*d3+iry*d2+irx*d1
@@ -112,8 +112,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     phase=CMPLX(COS(arg),SIN(arg),kind=dp)
     inr=inr+1
     irnmod=(ir3mod)*dffts%nr1*dffts%nr2+(ir2mod)*dffts%nr1+ir1mod+1
-    ml_up=ml_up+CONJG(psic1(irnmod))*psic2(irnmod)*phase*V_loc(inr, 1)
-    ml_down=ml_down+CONJG(psic3(irnmod))*psic4(irnmod)*phase*V_loc(inr, 2)
+    ml_up=ml_up+CONJG(psic1(irnmod))*psic2(irnmod)*phase*v_nc(inr, 1)
+    ml_down=ml_down+CONJG(psic3(irnmod))*psic4(irnmod)*phase*v_nc(inr, 2)
 
     if ( irnmod<0 .or. irnmod>dffts%nnr ) then
        write (*,*) 'grid mismatch', irnmod, dffts%nnr 

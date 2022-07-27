@@ -2,11 +2,13 @@ Subroutine read_perturb_file(v_file_)
     use kinds,    only: dp
     use edic_mod,   only: V_file   
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+USE clib_wrappers,     ONLY: md5_from_file
     Implicit none
 
     type(V_file) :: v_file_
     integer :: v_file_i_, v_file_ipol_, v_file_nt_, v_file_ir_, v_file_na_
     integer, external :: find_free_unit
+ CHARACTER(len=32)::vf_md5_cksum="NA"
 
 
     v_file_%unit = find_free_unit()
@@ -44,27 +46,11 @@ Subroutine read_perturb_file(v_file_)
     read (v_file_%unit, * ) (v_file_%plot (v_file_ir_), v_file_ir_ = 1, v_file_%nr1 * v_file_%nr2 * v_file_%nr3)
     v_file_%tau(:,:)=v_file_%tau(:,:)*v_file_%alat/alat
 
-   ! CALL md5_from_file(v_file_%filename, vf_md5_cksum)
-    write (*,*) 'Potential files:',TRIM(v_file_%filename)!,'  MD5 sum:',vf_md5_cksum
+    CALL md5_from_file(v_file_%filename, vf_md5_cksum)
+    write (*,*) 'Potential files:',TRIM(v_file_%filename),'  MD5 sum:',vf_md5_cksum
 
 
     
 End Subroutine read_perturb_file
 
 
-
-Subroutine get_vloc_colin()
-    use kinds,    only: dp
-    use edic_mod,   only: V_file, V_loc, V_0, Bxc_3
-    Implicit none
-
-
-
-
-    V_loc(:, 1) = V_0%plot(:) + Bxc_3%plot(:)
-    V_loc(:, 2) = V_0%plot(:) - Bxc_3%plot(:)
-
-    
-    !write(*,*) 'hello'
-    !write(*,*) V_loc(1:100, 2)
-End Subroutine get_vloc_colin

@@ -1,6 +1,6 @@
  
     !SUBROUTINE calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik,evc1,evc2)
-    SUBROUTINE calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik)
+    SUBROUTINE calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik,V_r_sc)
     USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
 USE scf, ONLY: rho, rho_core, rhog_core, v, vltot, vrs
 USE kinds, ONLY: DP,sgl
@@ -12,6 +12,7 @@ USE fft_interfaces, ONLY : fwfft, invfft
 USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     INTEGER :: ibnd, ik, ik0,ibnd0
 
+real(DP),allocatable:: V_r_sc (:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! intermediate data
 COMPLEX(DP), ALLOCATABLE ::   psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
@@ -156,10 +157,10 @@ COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
     phase=CMPLX(COS(arg),SIN(arg),kind=dp)
     inr=inr+1
     irnmod=(ir3mod)*dffts%nr1*dffts%nr2+(ir2mod)*dffts%nr1+ir1mod+1
-    ml=ml+CONJG(psic1(irnmod))*psic2(irnmod)*plot_perturb(inr)*phase
+    ml=ml+CONJG(psic1(irnmod))*psic2(irnmod)*V_r_sc(inr)*phase
     psicprod=psicprod+CONJG(psic1(irnmod))*psic2(irnmod)*phase
     psicprod1=psicprod1+CONJG(psic1(irnmod))*psic2(irnmod)
-    !ml2=ml2+CONJG(psic1(irnmod))*psic2(irnmod)*plot_perturb(inr)*phase
+    !ml2=ml2+CONJG(psic1(irnmod))*psic2(irnmod)*V_r_sc(inr)*phase
     !mltot=mltot+CONJG(psic1(irnmod))*psic2(irnmod)*phase
     !mltot1=mltot1+CONJG(psic1(irnmod))*psic2(irnmod)
     !write (*,*) 'iri',ir1mod,ir2mod,ir3mod

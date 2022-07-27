@@ -1,6 +1,8 @@
 
 
 subroutine h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+USE kinds, ONLY: DP,sgl
+USE HDF5
   CHARACTER(LEN=256) :: h5groupname = "/mats"     ! Dataset name
   CHARACTER(LEN=256) :: h5name_buffer 
   INTEGER(HID_T) :: h5file_id       ! File identifier

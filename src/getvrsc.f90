@@ -67,6 +67,7 @@ real(DP):: d1,d2,d3
     allocate(atm_perturb(ntyp_perturb))
     allocate(tau_perturb(3,nat_perturb))
     
+write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
     read (iunpot_perturb, * ) ibrav_perturb, celldm_perturb
     if (ibrav_perturb == 0) then
        do i_perturb = 1,3

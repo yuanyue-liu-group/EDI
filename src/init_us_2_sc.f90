@@ -64,6 +64,7 @@ SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_per
     !
     ! setting cache blocking size
     numblock = (npw_+blocksize-1)/blocksize
+write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
     ALLOCATE( eigts1_perturb(-dfftp%nr1:dfftp%nr1,nat_perturb) )
     ALLOCATE( eigts2_perturb(-dfftp%nr2:dfftp%nr2,nat_perturb) )
     ALLOCATE( eigts3_perturb(-dfftp%nr3:dfftp%nr3,nat_perturb) )

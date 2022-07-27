@@ -43,8 +43,13 @@ mnl-ks.f90\
 mcharge-lfa.f90\
 mcharge.f90\
 ml-nc.f90\
+mnl-nc.f90\
 mnl-soc.f90\
 read_perturb_file.f90\
+get_gind_rhoandpsi_gw.f90\
+get_vloc_colin.f90\
+gw_eps_init.f90\
+h5gw_read.f90\
 
 #mnl-nc.f90\
   #get_vloc_colin.f90\

@@ -1,11 +1,67 @@
 
-    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik, V_d, V_p)
+ !   SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik, V_d, V_p)
+    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik)
+     Use kinds,          Only : dp
+    USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
+    USE constants, ONLY: tpi, e2, eps6,pi
+    Use fft_base,       Only : dfftp, dffts
+    USE fft_interfaces, ONLY : fwfft, invfft
+    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+    Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+                               psic1, psic2, psic3, psic4
+    USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
+    USE edic_mod, Only :  V_d, V_nc
+    Use edic_mod, Only: m_loc
     
       USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
-      USE becmod, ONLY: becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb 
+!      USE becmod, ONLY: becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb 
        
+
+    Use kinds,    Only : dp
+    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+    USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
+    USE becmod, ONLY: becp1,becp2,becp_perturb
+    Use edic_mod, Only : becp1_perturb,becp2_perturb
+    USE edic_mod, Only :  V_d, V_p,V_file
+    USE uspp_param, ONLY: nh
+    USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
+    USE uspp, ONLY: nkb, vkb, dvan, dvan_so
+    Use edic_mod,only : evc1,evc2,evc3,evc4
+    Use edic_mod, Only: m_nloc
+USE io_global, ONLY: stdout, ionode, ionode_id
+USE control_flags,    ONLY : gamma_only, io_level
+     
+    integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
+                nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
+    integer :: iunplot_perturb, ios_perturb, ipol_perturb, na_perturb, nt_perturb, &
+                ir_perturb, ndum_perturb
+    integer :: ijkb0, ih, jh, ikb, jkb
+ 
+!    type(V_file) :: V_d!, V_p
+
+ 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! intermediate data
+COMPLEX(DP), ALLOCATABLE :: aux(:), auxr(:), auxg(:), psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
+COMPLEX(DP) :: mnl, ml,mltot,mltot1,mltot2,mnltot,psicnorm,psicprod,enl1,phaseft,psicprod1
+COMPLEX(DP) ::  ml_up, ml_down, mnl_d, mnl_p ! rg_spin
+LOGICAL :: offrange
+REAL(dp)::arg,argt,argt2
+COMPLEX(DP)::phase
+INTEGER:: irx,iry,irz
+INTEGER:: irx2,iry2,irz2
+INTEGER:: irx1,iry1,irz1
+
+INTEGER :: ix0,ix1,ix2
+INTEGER :: iy0,iy1,iy2
+INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
+COMPLEX(DP)::vlfft
+COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
+ 
+
+
       INTEGER :: ibnd, ik, ik0,ibnd0
-      type(V_file) :: V_d, V_p
+!      type(V_file) :: V_d, V_p
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!!!! initialization
@@ -32,13 +88,13 @@
       !!!!!! initialization
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-      CALL calbec ( ngk(ik), vkb, evc, becp )
+      !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
+      !CALL calbec ( ngk(ik), vkb, evc, becp )
       
-      CALL init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
       CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
       
-      CALL init_us_2_perturb (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
       CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
       
       
@@ -118,13 +174,13 @@
       !!!!!! initialization
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-      CALL calbec ( ngk(ik), vkb, evc, becp )
+      !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
+      !CALL calbec ( ngk(ik), vkb, evc, becp )
       
-      CALL init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
       CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
       
-      CALL init_us_2_perturb (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
+      CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
       CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
       
       

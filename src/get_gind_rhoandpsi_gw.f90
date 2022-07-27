@@ -2,6 +2,9 @@
 subroutine get_gind_rhoandpsi_gw(gind_rho2psi_gw,gind_psi2rho_gw,gw_ng_data,&
 gw_q_g_commonsubset_size,gvec_gw,gw_bvec_data,gw_q_g_commonsubset_indinrho)
 
+USE kinds, ONLY: DP,sgl
+USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     integer(DP),allocatable ,intent(inout)::gind_rho2psi_gw(:)
     integer(DP),allocatable ,intent(inout)::gind_psi2rho_gw(:)
     real(DP) ,intent(inout)::gvec_gw(3)

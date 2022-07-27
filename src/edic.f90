@@ -3,7 +3,8 @@ Program edic
 
       Use kinds,    only: dp
       USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
-      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use edic_mod,   only: V_file, V_nc, V_colin, V_d, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use edic_mod, only: v_p_shift,v_d_shift
       Use edic_mod
       Use wvfct, ONLY: npwx, nbnd, wg, et, g2kin
       Use fft_base,  ONLY: dfftp, dffts
@@ -20,8 +21,9 @@ Program edic
   USE control_flags, ONLY : gamma_only
   USE environment,   ONLY : environment_start, environment_end
   USE klist,     ONLY : nkstot, two_fermi_energies, nks
-  USE noncollin_module, ONLY : noncolin, i_cons, npol
-  USE lsda_mod,  ONLY : nspin
+!  USE noncollin_module, ONLY : noncolin, i_cons, npol
+  USE noncollin_module, ONLY :  i_cons, npol
+!  USE lsda_mod,  ONLY : nspin
   USE io_global, ONLY : ionode, ionode_id, stdout
   USE mp,        ONLY : mp_bcast
   USE mp_images, ONLY : intra_image_comm
@@ -42,11 +44,15 @@ Program edic
       integer, external :: find_free_unit
       integer :: ios
       integer :: ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
-  CHARACTER (len=256) :: filband, filp, outdir
-  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
-  INTEGER :: spin_component, firstk, lastk
-  NAMELIST / bands / outdir, prefix, filband, filp, spin_component, lsigma,&
-                       lsym, lp, filp, firstk, lastk, no_overlap, plot_2d
+!  CHARACTER (len=256) :: filband, filp, outdir
+!  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
+!  INTEGER :: spin_component, firstk, lastk
+integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
+nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
+!  NAMELIST / bands / outdir, prefix, filband, filp, spin_component, lsigma,&
+!                       lsym, lp, filp, firstk, lastk, no_overlap, plot_2d
+
+
 
   CALL mp_startup ( )
 write(*,*) '0start '
@@ -55,7 +61,7 @@ write(*,*) '1start '
   !
   !   set default values for variables in namelist
   !
-  prefix = 'pwscf'
+!  prefix = 'pwscf'
 !  CALL get_environment_variable( 'ESPRESSO_TMPDIR', outdir )
 !  IF ( trim( outdir ) == ' ' ) outdir = './'
   !filband = 'bands.out'
@@ -74,17 +80,23 @@ write(*,*) '1start '
 !  IF ( ionode )  THEN
 !     !
 write(*,*) '0'
-     CALL input_from_file ( )
+!     CALL input_from_file ( )
 write(*,*) '1'
 !     !
-     READ (5, bands, iostat = ios)
-write(*,*) '2',prefix,outdir
+!     READ (5, bands, iostat = ios)
+!write(*,*) '2',prefix,outdir
 !     !
 !     lsigma(4)=.false.
-     tmp_dir = trimcheck (outdir)
 !     !
 !  ENDIF
 
+      tmp_unit = find_free_unit()
+      OPEN(unit=tmp_unit,file = 'calcmdefect.dat',status='old',err=20)
+      20 continue
+         READ(tmp_unit,calcmcontrol,iostat=ios)
+      CLOSE(tmp_unit)
+
+     tmp_dir = trimcheck (outdir)
 
   wfc_is_collected=.true.
   CALL read_file_new(wfc_is_collected)
@@ -95,39 +107,49 @@ write(*,*) '2',prefix,outdir
   nwordwfc = nbnd*npwx*npol
   io_level = 1
   
-
-      tmp_unit = find_free_unit()
-
-      OPEN(unit=tmp_unit,file = 'calcmdefect.dat',status='old',err=20)
-      20 continue
-         READ(tmp_unit,calcmcontrol,iostat=ios)
-      CLOSE(tmp_unit)
-call getvrsc()
+!write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
+!call getvrsc()
+!write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
 
 call getepsdata()
 
-!       V_0%filename = V_0_filename
-!      Bxc_1%filename = Bxc_1_filename
-!      Bxc_2%filename = Bxc_2_filename
-!      Bxc_3%filename = Bxc_3_filename
-!      V_p%filename = V_p_filename
-!      
-!
-!      call read_perturb_file(V_0)
-!      
-!      ! call read_perturb_file(Bxc_1)
-!      ! call read_perturb_file(Bxc_2)
-!       call read_perturb_file(Bxc_3)
-!       
-!       call read_perturb_file(V_p)
-      
-      
+    V_d%filename = V_d_filename
+    V_p%filename = V_p_filename
+    call read_perturb_file(V_d)
+    call read_perturb_file(V_p)
+    if (lvacalign) then
+        v_d_shift = sum(V_d%plot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
+        v_p_shift = sum(v_p%plot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
+    elseif (lcorealign) then
+        v_d_shift = core_v_d
+        v_p_shift = core_v_p
+    endif
+ 
+if (noncolin .or. lspinorb)then
+    Bxc_1%filename = Bxc_1_filename
+    Bxc_2%filename = Bxc_2_filename
+    Bxc_3%filename = Bxc_3_filename
+    !call read_perturb_file(Bxc_1)
+    !call read_perturb_file(Bxc_2)
+    call read_perturb_file(Bxc_3)
+    allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
+       V_nc(:, 1) = V_d%plot(:) -V_p%plot(:) + Bxc_3%plot(:) - V_d_shift + V_p_shift
+        V_nc(:, 2) = V_d%plot(:) -V_p%plot(:) - Bxc_3%plot(:) - V_d_shift + V_p_shift
+else
+    allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
+    V_colin(:) = V_d%plot(:) -V_p%plot(:) - V_d_shift + V_p_shift
+endif
 
-!       allocate(V_loc( V_0%nr1 * V_0%nr2 * V_0%nr3, 2))
+!       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
 !       call get_vloc_colin()
        
+if (noncolin .or. lspinorb)then
       allocate(evc1(2*npwx,nbnd))
       allocate(evc2(2*npwx,nbnd))
+else
+      allocate(evc1(1*npwx,nbnd))
+      allocate(evc2(1*npwx,nbnd))
+endif
       !allocate(evc3(2*npwx,nbnd))
       !allocate(evc4(2*npwx,nbnd))
       allocate(psic1(dfftp%nnr))
@@ -150,14 +172,32 @@ call getepsdata()
                   ikk0 = ik0
            
                   CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
-      write(*,*)'evc2',evc2(1,2),size(evc2)
+!      write(*,*)'evc2',evc2(1,2),size(evc2)
                   CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
+
+if (noncolin )then
+                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ikk0,ikk)
+endif
+
+if ( lspinorb)then
+                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk)
+endif
+if ( (.not. lspinorb ).and. (.not. noncolin ))then
                   call calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik)
-      write(*,*)'evc2',evc2(1,1)
                   call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik)
+endif
+!      write(*,*)'evc2',evc2(1,1)
+!      write(*,*)'evc2',evc2(1,1)
                   
-                  !call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-                  !call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk)
+if (calcmcharge) then
+if (mcharge_dolfa) then
+                  call calcmdefect_charge_lfa(ibnd0,ibnd,ikk0,ikk)
+else
+                  call calcmdefect_charge_nolfa(ibnd0,ibnd,ikk0,ikk)
+endif
+endif
 
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
             write (*,1003) 'M_tot ni ki --> nf kf ', ibnd0,ikk0, '-->', ibnd,ikk, &
