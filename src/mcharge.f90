@@ -1,6 +1,105 @@
 
     SUBROUTINE calcmdefect_charge_nolfa(ibnd0,ibnd,ik0,ik)
+USE kinds, ONLY: DP,sgl
+USE fft_base,  ONLY: dfftp, dffts
+USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+                               psic1, psic2, psic3, psic4
     use splinelib, only: dosplineint,spline,splint
+
+USE HDF5
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! charge
+COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+INTEGER :: iscx, iscy,nscx,nscy
+REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+INTEGER:: icount,jcount,kcount
+real(DP):: mscreen,mcharge, rmod
+INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
+!!!!! eps data file 
+integer :: nepslines
+real(DP),allocatable:: eps_data (:,:)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+!!!!!!!!!!hdf5
+  CHARACTER(LEN=256) :: h5filename      ! Dataset name
+  CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
+ INTEGER     ::   h5rank,h5error ! Error flag
+  !INTEGER     ::  i, j
+!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
+  integer, allocatable :: h5dataset_data_integer(:)
+  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
+
+
+!  real(dp), allocatable :: gw_epsmat_diag_data(:,:,2),  gw_eps0mat_diag_data(:,:,2)
+  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
+  !complex(dp), allocatable :: gw_epsmat_diag_data(:,:,:),  gw_eps0mat_diag_data(:,:,:)
+!  real(dp), allocatable :: gw_epsmat_full_data(:,1,1,:,:,2),  gw_eps0mat_full_data(:,1,1,:,:,2)
+  real(dp), allocatable :: gw_epsmat_full_data_q1(:,:,:,:,:,:),  gw_epsmat_full_data_q0(:,:,:,:,:,:)
+!  real(dp), allocatable :: gw_epsallmat_full_data(:,1,1,:,:,2)
+  real(dp), allocatable :: gw_epsmat_full_data_qall(:,:,:,:,:,:)
+
+  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_qpts_Data_q1(:,:)
+  real(dp), allocatable :: gw_blat_data_q1(:),gw_bvec_Data_q1(:,:)
+  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_gind_rho2eps_data_q1(:,:),gw_nmtx_data_q1(:)
+
+!q0
+  real(dp), allocatable :: gw_vcoul_data_q0(:,:),gw_qpts_Data_q0(:,:)
+  real(dp), allocatable :: gw_blat_data_q0(:),gw_bvec_Data_q0(:,:)
+  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_gind_rho2eps_data_q0(:,:),gw_nmtx_data_q0(:)
+!q0
+
+  integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
+
+   integer, allocatable :: gw_grho_data_q1(:),  gw_geps_data_q1(:),gw_g_components_data_q1(:,:)
+  integer, allocatable :: gw_nq_data_q1(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
+
+!q0
+   integer, allocatable :: gw_grho_data_q0(:),  gw_geps_data_q0(:),gw_g_components_data_q0(:,:)
+  integer, allocatable :: gw_nq_data_q0(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
+!q0
+
+
+!  integer(i8b), allocatable :: gw_nqi8(:)
+
+    real(DP),allocatable ::gw_qabs_q1(:)
+    INTEGER :: gw_q_g_commonsubset_size_q1
+    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q1(:)
+
+!q0
+    real(DP),allocatable ::gw_qabs_q0(:)
+    INTEGER :: gw_q_g_commonsubset_size_q0
+    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q0(:)
+!q0
+
+
+!!!!!!!!!!!!!!!!!!
+    integer(DP),allocatable ::gind_rho2psi_gw(:)
+    real(DP) ::gvec_gw(3)
+    integer(DP),allocatable ::gind_psi2rho_gw(:)
+
+    integer(DP),allocatable ::gind_rho2psi_gw_q0(:)
+    real(DP) ::gvec_gw_q0(3)
+    integer(DP),allocatable ::gind_psi2rho_gw_q0(:)
+
+    integer(DP),allocatable ::gind_rho2psi_gw_q1(:)
+    real(DP) ::gvec_gw_q1(3)
+    integer(DP),allocatable ::gind_psi2rho_gw_q1(:)
+!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
     COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
     INTEGER :: ibnd, ik, ik0,ibnd0
     real(DP) , allocatable::  eps_data_dy(:)

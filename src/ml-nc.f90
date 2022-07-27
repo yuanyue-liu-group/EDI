@@ -1,33 +1,39 @@
-subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_0, V_loc)
-
+!subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_0, V_loc)
+subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
+    Use kinds,          Only : dp
     USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
-    INTEGER :: ibnd, ik, ik0,ibnd0
-    type(V_file) :: V_0
-    real(DP) :: V_loc(:,:)
+    USE constants, ONLY: tpi, e2, eps6,pi
+    Use fft_base,       Only : dfftp, dffts
+    USE fft_interfaces, ONLY : fwfft, invfft
+    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+    Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+                               psic1, psic2, psic3, psic4
+    USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
+    USE edic_mod, Only :  V_0, V_loc
+    Use edic_mod, Only: m_loc
+    Implicit None 
+
+    complex(dp) :: ml_up, ml_down
+    real(dp) :: d1, d2, d3
+
+    INTEGER :: ibnd, ik, ik0,ibnd0, ig
+
+    REAL(dp)::arg,argt,argt2
+    COMPLEX(DP)::phase
+    INTEGER :: npw,  ispin, nbndup, nbnddown, &
+                nk , ikk,ikk0,  inr, ig1, ig2
+    INTEGER:: irx,iry,irz
+    INTEGER:: irx2,iry2,irz2
+    INTEGER:: irx1,iry1,irz1
+    
+    INTEGER :: ix0,ix1,ix2
+    INTEGER :: iy0,iy1,iy2
+    INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
+    integer :: ir1mod,ir2mod,ir3mod,irnmod
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+!    type(V_file) :: V_0
+!    real(DP) :: V_loc(:,:)
 
 
     !write(*,*) V_loc(20:40,1)
@@ -36,9 +42,9 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_0, V_loc)
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!! vl in real super2prim, module
-    auxr(:) =  vrs(:,1)
-    psiprod(:)=0.00
-    vgk_perturb(:)=0.00
+    !auxr(:) =  vrs(:,1)
+    !psiprod(:)=0.00
+    !vgk_perturb(:)=0.00
     ml_up=0
     ml_down=0
     d1=((1.0/dffts%nr1*at(1,1))*(xk(1,ik)-xk(1,ik0)) +&

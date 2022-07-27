@@ -2,9 +2,30 @@
     SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
 USE kinds, ONLY: DP,sgl
 USE fft_base,  ONLY: dfftp, dffts
+USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+                               psic1, psic2, psic3, psic4
     use splinelib, only: dosplineint,spline,splint
     COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
     INTEGER :: ibnd, ik, ik0,ibnd0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! charge
+COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+INTEGER :: iscx, iscy,nscx,nscy
+REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+INTEGER:: icount,jcount,kcount
+real(DP):: mscreen,mcharge, rmod
+INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
+!!!!! eps data file 
+integer :: nepslines
+real(DP),allocatable:: eps_data (:,:)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
     real(DP) , allocatable::  eps_data_dy(:)
     real(DP) :: epsk, deltak_para,q2d_coeff
     !k0screen=tpiba*0.01

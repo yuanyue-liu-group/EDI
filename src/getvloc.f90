@@ -1,4 +1,4 @@
-subroutine getvloc()
+subroutine getvrsc()
     use kinds,    only: dp
 USE clib_wrappers,     ONLY: md5_from_file
     use edic_mod,   only: V_file   
@@ -126,7 +126,7 @@ real(DP):: d1,d2,d3
     allocate(mlat1(dfftp%nr3))
 !end subroutine getvloc0
 
-end subroutine getvloc
+end subroutine getvrsc
 
 
 subroutine getepsdat()

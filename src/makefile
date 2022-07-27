@@ -16,7 +16,7 @@ QEMODS = ../../Modules/libqemod.a\
 MODULES = $(PWOBJS) $(QEMODS)
 
 TLDEPS= pwlibs
-TESTMODS = \
+EDICMODS = \
 edic_mod.f90
 
 
@@ -26,18 +26,32 @@ edic_mod.f90
 #  becmod_perturb.f90\
 #  gvect_perturb.f90
 
-TESTSRC = \
-  edic.f90\
-  initialization.f90\
-  read_perturb_file.f90\
-  calc_m.f90\
-  init_us_2_sc.f90
+#EDICSRC = \
+#  edic.f90\
+#  initialization.f90\
+#  read_perturb_file.f90\
+#  calc_m.f90\
+#  init_us_2_sc.f90\
 
+EDICSRC = \
+  edic.f90\
+  init_us_2_sc.f90\
+getvrsc.f90\
+getepsdata.f90\
+ml-rs.f90\
+mnl-ks.f90\
+mcharge-lfa.f90\
+mcharge.f90\
+ml-nc.f90\
+mnl-soc.f90\
+read_perturb_file.f90\
+
+#mnl-nc.f90\
   #get_vloc_colin.f90\
   #calcmdefect_noncolin.f90\
 #  init_us_2_perturb.f90
 
-OBJ = $(TESTMODS:.f90=.o) $(TESTSRC:.f90=.o)
+OBJ = $(EDICMODS:.f90=.o) $(EDICSRC:.f90=.o)
 
 EXE = edic.x
 

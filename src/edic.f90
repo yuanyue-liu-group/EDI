@@ -102,9 +102,9 @@ write(*,*) '2',prefix,outdir
       20 continue
          READ(tmp_unit,calcmcontrol,iostat=ios)
       CLOSE(tmp_unit)
-call getvloc()
+call getvrsc()
 
-call getepsdat()
+call getepsdata()
 
 !       V_0%filename = V_0_filename
 !      Bxc_1%filename = Bxc_1_filename

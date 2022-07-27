@@ -1,10 +1,29 @@
- SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik, V_d, V_p)
-    
+! SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik, V_d, V_p)
+ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik)
+    Use kinds,    Only : dp
+    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
-    USE becmod, ONLY: becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb 
+    USE becmod, ONLY: becp1,becp2,becp_perturb
+    Use edic_mod, Only : becp1_perturb,becp2_perturb
+    USE edic_mod, Only :  V_0, V_p,V_file
+    USE uspp_param, ONLY: nh
+    USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
+    USE uspp, ONLY: nkb, vkb, dvan, dvan_so
+    Use edic_mod,only : evc1,evc2,evc3,evc4
+    Use edic_mod, Only: m_nloc
+USE io_global, ONLY: stdout, ionode, ionode_id
+USE control_flags,    ONLY : gamma_only, io_level
      
     INTEGER :: ibnd, ik, ik0,ibnd0
-    type(V_file) :: V_d, V_p
+    integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
+                nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
+    integer :: iunplot_perturb, ios_perturb, ipol_perturb, na_perturb, nt_perturb, &
+                ir_perturb, ndum_perturb
+    integer :: ijkb0, ih, jh, ikb, jkb
+    Complex(dp) :: mnl, mnl_d, mnl_p, mnltot
+    Complex(dp), allocatable :: vkb_perturb(:,:)
+ 
+    type(V_file) :: V_d!, V_p
 
     nkb_perturb=0
     
@@ -24,8 +43,8 @@
     CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
     ALLOCATE(vkb_perturb(npwx,nkb_perturb))
 
-    CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-    CALL calbec ( ngk(ik), vkb, evc, becp )
+    !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
+    !CALL calbec ( ngk(ik), vkb, evc, becp )
     
     CALL init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
     CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
@@ -136,8 +155,8 @@
       !!!!!! initialization
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-      CALL calbec ( ngk(ik), vkb, evc, becp )
+      !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
+      !CALL calbec ( ngk(ik), vkb, evc, becp )
       
       CALL init_us_2_perturb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_p%nat,V_p%ityp,V_p%tau,nkb_perturb)
       CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
@@ -227,4 +246,3 @@
       write (stdout,1001) 'Mnl_p ki->kf ', ik0,ik, mnl_p, abs(mnl_p)
       write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl_d-mnl_p, abs(mnl_d-mnl_p)
  END SUBROUTINE calcmdefect_mnl_ks_soc
-E
