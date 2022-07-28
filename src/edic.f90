@@ -4,6 +4,7 @@ Program edic
       Use kinds,    only: dp
       USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
       Use edic_mod,   only: V_file, V_nc, V_colin, V_d, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use edic_mod,   only: gw_epsq_data,gw_epsq0_data
       Use edic_mod, only: v_p_shift,v_d_shift
       Use edic_mod
       Use wvfct, ONLY: npwx, nbnd, wg, et, g2kin
@@ -111,7 +112,20 @@ write(*,*) '1'
 !call getvrsc()
 !write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
 
+if (calcmcharge) then
+
 call getepsdata()
+ 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ call gw_eps_init(gw_epsmat_filename,gw_epsq_data)
+ call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+call get_gind_rhoandpsi_gw(gw_epsq_data)
+call get_gind_rhoandpsi_gw(gw_epsq0_data)
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+endif
+
+
 
     V_d%filename = V_d_filename
     V_p%filename = V_p_filename
@@ -192,6 +206,8 @@ endif
 !      write(*,*)'evc2',evc2(1,1)
                   
 if (calcmcharge) then
+
+
 if (mcharge_dolfa) then
                   call calcmdefect_charge_lfa(ibnd0,ibnd,ikk0,ikk)
 else

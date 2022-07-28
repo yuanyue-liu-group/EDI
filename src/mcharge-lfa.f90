@@ -4,7 +4,7 @@ USE kinds, ONLY: DP,sgl
 USE fft_base,  ONLY: dfftp, dffts
 USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
 USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
-      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+ !     Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
       Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
     use splinelib, only: dosplineint,spline,splint

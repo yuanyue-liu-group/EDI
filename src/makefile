@@ -36,7 +36,6 @@ edic_mod.f90
 EDICSRC = \
   edic.f90\
   init_us_2_sc.f90\
-getvrsc.f90\
 getepsdata.f90\
 ml-rs.f90\
 mnl-ks.f90\
@@ -47,11 +46,12 @@ mnl-nc.f90\
 mnl-soc.f90\
 read_perturb_file.f90\
 get_gind_rhoandpsi_gw.f90\
-get_vloc_colin.f90\
 gw_eps_init.f90\
 h5gw_read.f90\
 
 #mnl-nc.f90\
+get_vloc_colin.f90\
+getvrsc.f90\
   #get_vloc_colin.f90\
   #calcmdefect_noncolin.f90\
 #  init_us_2_perturb.f90
