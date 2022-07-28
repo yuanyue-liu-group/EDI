@@ -4,7 +4,7 @@ Program edic
       Use kinds,    only: dp
       USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
       Use edic_mod,   only: V_file, V_nc, V_colin, V_d, Bxc_1, Bxc_2, Bxc_3, V_p
-      Use edic_mod,   only: gw_epsq_data,gw_epsq0_data
+      Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
       Use edic_mod, only: v_p_shift,v_d_shift
       Use edic_mod
       Use wvfct, ONLY: npwx, nbnd, wg, et, g2kin
@@ -55,8 +55,10 @@ nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_pertu
 
 
 
+      write(*,"(///A56)")'----------------------------'
+      write (*,"(/A55/)") 'Start EDIC program '
+      write(*,"(A56//)")'----------------------------'
   CALL mp_startup ( )
-write(*,*) '0start '
   CALL environment_start ( 'BANDS' )
 write(*,*) '1start '
   !
@@ -114,12 +116,16 @@ write(*,*) '1'
 
 if (calcmcharge) then
 
+      write(*,"(///A56)")'----------------------------'
+      write (*,"(/A55/)") 'Read QEH dielectric data '
 call getepsdata()
  
+      write(*,"(///A56)")'----------------------------'
+      write (*,"(/A55/)") 'Read BGW dielectric data '
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- call gw_eps_init(gw_epsmat_filename,gw_epsq_data)
+ call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
  call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
-call get_gind_rhoandpsi_gw(gw_epsq_data)
+call get_gind_rhoandpsi_gw(gw_epsq1_data)
 call get_gind_rhoandpsi_gw(gw_epsq0_data)
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  

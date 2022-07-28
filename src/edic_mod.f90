@@ -178,7 +178,7 @@ type :: gw_eps_data
     real(DP) ::gvec(3)
     integer(DP),allocatable ::gind_psi2rho(:)
 end type  gw_eps_data
-type(gw_eps_data),target:: gw_epsq_data
+type(gw_eps_data),target:: gw_epsq1_data
 type(gw_eps_data),target:: gw_epsq0_data
 
 End Module edic_mod

@@ -9,7 +9,7 @@ USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
                                psic1, psic2, psic3, psic4
     use splinelib, only: dosplineint,spline,splint
 
-      Use edic_mod,   only: gw_epsq_data,gw_epsq0_data
+      Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
 USE HDF5
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -45,45 +45,45 @@ real(DP),allocatable:: eps_data (:,:)
 !  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
 !  !complex(dp), allocatable :: gw_epsmat_diag_data(:,:,:),  gw_eps0mat_diag_data(:,:,:)
 !!  real(dp), allocatable :: gw_epsmat_full_data(:,1,1,:,:,2),  gw_eps0mat_full_data(:,1,1,:,:,2)
-!  real(dp), allocatable :: gw_epsmat_full_data_q1(:,:,:,:,:,:),  gw_epsmat_full_data_q0(:,:,:,:,:,:)
+!  real(dp), allocatable :: gw_epsq1_data%epsmat_full_data(:,:,:,:,:,:),  gw_epsq0_data%epsmat_full_data(:,:,:,:,:,:)
 !!  real(dp), allocatable :: gw_epsallmat_full_data(:,1,1,:,:,2)
 !  real(dp), allocatable :: gw_epsmat_full_data_qall(:,:,:,:,:,:)
 !
-!  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_qpts_Data_q1(:,:)
-!  real(dp), allocatable :: gw_blat_data_q1(:),gw_bvec_Data_q1(:,:)
-!  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_gind_rho2eps_data_q1(:,:),gw_nmtx_data_q1(:)
+!  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_epsq0_data%qpts_data(:,:)
+!  real(dp), allocatable :: gw_blat_data_q1(:),gw_epsq1_data%bvec_data(:,:)
+!  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_epsq1_data%gind_rho2eps_data(:,:),gw_epsq1_data%nmtx_data(:)
 !
 !!q0
 !  real(dp), allocatable :: gw_vcoul_data_q0(:,:),gw_qpts_Data_q0(:,:)
 !  real(dp), allocatable :: gw_blat_data_q0(:),gw_bvec_Data_q0(:,:)
-!  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_gind_rho2eps_data_q0(:,:),gw_nmtx_data_q0(:)
+!  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_epsq0_data%gind_rho2eps_data(:,:),gw_epsq0_data%nmtx_data(:)
 !!q0
 !
 !
 !   integer, allocatable :: gw_grho_data_q1(:),  gw_geps_data_q1(:),gw_g_components_data_q1(:,:)
-!  integer, allocatable :: gw_nq_data_q1(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
+!  integer, allocatable :: gw_epsq1_data%nq_data(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
 !
 !!q0
 !   integer, allocatable :: gw_grho_data_q0(:),  gw_geps_data_q0(:),gw_g_components_data_q0(:,:)
-!  integer, allocatable :: gw_nq_data_q0(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
+!  integer, allocatable :: gw_epsq0_data%nq_data(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
 !!q0
 !
 !
 !!  integer(i8b), allocatable :: gw_nqi8(:)
 !
-!    real(DP),allocatable ::gw_qabs_q1(:)
+!    real(DP),allocatable ::gw_epsq1_data%qabs(:)
 !    INTEGER :: gw_q_g_commonsubset_size_q1
-!    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q1(:)
+!    integer(DP),allocatable ::gw_epsq1_data%q_g_commonsubset_indinrho(:)
 !
 !!q0
-!    real(DP),allocatable ::gw_qabs_q0(:)
+!    real(DP),allocatable ::gw_epsq0_data%qabs(:)
 !    INTEGER :: gw_q_g_commonsubset_size_q0
-!    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q0(:)
+!    integer(DP),allocatable ::gw_epsq0_data%q_g_commonsubset_indinrho(:)
 !!q0
 !!!!!!!!!!!!!!!!!!!
 !    integer(DP),allocatable ::gind_rho2psi_gw(:)
 !    real(DP) ::gvec_gw(3)
-!    integer(DP),allocatable ::gind_psi2rho_gw(:)
+    integer(DP),allocatable ::gind_psi2rho_gw(:)
 !
 !    integer(DP),allocatable ::gind_rho2psi_gw_q0(:)
 !    real(DP) ::gvec_gw_q0(3)
@@ -142,10 +142,10 @@ logical:: interpolate_2d,interpolate_smallq1d=.false.
 ! get interpolated eps matrix
 ! eps(0,0) fine after check
     icount=0
-    allocate(epsint_q0_tmp1(gw_nq_data_q0(1)))
-    allocate(epsint_q0_tmp2(gw_nq_data_q0(1)))
-    allocate(epsint_q0_tmp3(gw_nq_data_q0(1)))
-    allocate(epsint_q0_tmp4(gw_nq_data_q0(1)))
+    allocate(epsint_q0_tmp1(gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
 
 
     allocate(epsmat_inted(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
@@ -165,12 +165,12 @@ if(interpolate_2d) then
 ! 2d simple interpolate prepare fixme
     deltakG=norm2(xk(1:3,ik0)-xk(1:3,ik))*tpiba
              deltakG_para=deltakG
-    allocate(w1(gw_nq_data_q1(1)))
+    allocate(w1(gw_epsq1_data%nq_data(1)))
     w1(:)=0.0
-    do iq1 = 1, gw_nq_data_q1(1)
-        q1(:)=   gw_qpts_data_q1(1,iq1)*gw_bvec_data_q1(:,1)+ &
-              gw_qpts_data_q1(2,iq1)*gw_bvec_data_q1(:,2)+ &
-              gw_qpts_data_q1(3,iq1)*gw_bvec_data_q1(:,3)
+    do iq1 = 1, gw_epsq1_data%nq_data(1)
+        q1(:)=   gw_epsq0_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
+              gw_epsq0_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
+              gw_epsq0_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
        if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*1.0/nqgrid_gw) then
          w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
        endif
@@ -214,28 +214,28 @@ endif
         !write(*,*) 'gw3.1',gw_q_g_commonsubset_indinrho(1:5)
         !write(*,*) 'gw3.1',gw_gind_rho2eps_data(1,1:5)
         !write(*,*) 'gw3.1',ig1,ig2
-                do iq1=1,gw_nq_data_q0(1)
+                do iq1=1,gw_epsq0_data%nq_data(1)
         !write(*,*) 'gw3.1.1',iq1, gind_gw_eps2,gw_q_g_commonsubset_indinrho(ig2),gw_gind_rho2eps_data(gw_q_g_commonsubset_indinrho(ig2),iq1)
-                   gind_gw_eps1=gw_gind_rho2eps_data_q0(gw_q_g_commonsubset_indinrho_q0(ig1),iq1)
-                   gind_gw_eps2=gw_gind_rho2eps_data_q0(gw_q_g_commonsubset_indinrho_q0(ig2),iq1)
+                   gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),iq1)
+                   gind_gw_eps2=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig2),iq1)
         !write(*,*) 'gw3.1.2',iq1
-                   if  (gind_gw_eps2>gw_nmtx_data_q0(iq1).or. gind_gw_eps2>gw_nmtx_data_q0(iq1)  )  &
+                   if  (gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1).or. gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1)  )  &
 write(*,*) 'gindex of eps qpts messedup'
         !write(*,*) 'gw3.1.3',1,gind_gw_eps1,gind_gw_eps2,1,1,iq1
         !write(*,*) 'gw3.1.3',gw_epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                   epsint_q0_tmp1(iq1)=gw_epsmat_full_data_q0(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                   epsint_q0_tmp1(iq1)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
         !write(*,*) 'gw3.1.3',iq1
-                   epsint_q0_tmp2(iq1)=gw_epsmat_full_data_q0(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                   epsint_q0_tmp2(iq1)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
         !write(*,*) 'gw3.1.4',iq1
                 enddo
         !write(*,*) 'gw3.2',ig1,ig2
-                call  spline(gw_qabs_q0(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
-                epsinttmp1s= splint(gw_qabs_q0(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltakG_para)
-                if (deltakG_para>maxval(gw_qabs_q0(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
+                call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
+                epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltakG_para)
+                if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
         
-                call  spline(gw_qabs_q0(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
-                epsinttmp2s= splint(gw_qabs_q0(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltakG_para)
-                if (deltakG_para>maxval(gw_qabs_q0(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
+                call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
+                epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltakG_para)
+                if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
         !        epsmat_inted(gw_gind_rho2eps_data(ig1,iq1),gw_gind_rho2eps_data(ig2,iq1))=complex(epsinttmp1s,epsinttmp2s)
                 epsmat_inted(ig1,ig2)=complex(epsinttmp1s,epsinttmp2s)
         
@@ -250,11 +250,11 @@ stop -1
 endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 2d simple interpolate  fixme
-                 do iq1 = 1, gw_nq_data_q1(1)
-                   gind_gw_eps1=gw_gind_rho2eps_data_q1(gw_q_g_commonsubset_indinrho_q1(ig1),iq1)
-                   gind_gw_eps2=gw_gind_rho2eps_data_q1(gw_q_g_commonsubset_indinrho_q1(ig2),iq1)
-                   epsinttmp1s=gw_epsmat_full_data_q1(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                   epsinttmp2s=gw_epsmat_full_data_q1(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                 do iq1 = 1, gw_epsq1_data%nq_data(1)
+                   gind_gw_eps1=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig1),iq1)
+                   gind_gw_eps2=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig2),iq1)
+                   epsinttmp1s=gw_epsq1_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                   epsinttmp2s=gw_epsq1_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
                    epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)
                  enddo
                  epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)/sum(w1(:))

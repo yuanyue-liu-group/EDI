@@ -13,17 +13,20 @@ USE HDF5
 
   INTEGER :: h5dataype       ! Dataset identifier
  
-  CHARACTER(LEN=256) :: h5filename      ! Dataset name
-  CHARACTER(LEN=256) :: h5datasetname      ! Dataset name
-  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
-  integer, allocatable :: h5dataset_data_integer(:)
+  CHARACTER(LEN=256), intent(in) :: h5filename      ! Dataset name
+  CHARACTER(LEN=256) , intent(in) :: h5datasetname      ! Dataset name
+  real(dp), allocatable , intent(inout) :: h5dataset_data_double(:)
+  real(dp), allocatable :: data_out(:)
+  integer, allocatable , intent(inout) :: h5dataset_data_integer(:)
   LOGICAL :: h5flag,h5flag_integer,h5flag_double           ! TRUE/FALSE flag to indicate 
-  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
-  INTEGER     ::   h5rank,h5nmembers,i,h5datasize
-  INTEGER     ::   h5error ! Error flag
+  INTEGER(HSIZE_T), allocatable :: h5maxdims(:)
+  INTEGER     ::  h5nmembers,i,h5datasize
+  INTEGER(HSIZE_T), allocatable , intent(inout) :: h5dims(:)
+  INTEGER  , intent(inout)    ::   h5rank
+  INTEGER  , intent(inout)    ::   h5error ! Error flag
   INTEGER(HID_T) :: file_s1_t,h5_file_datatype 
   INTEGER(HID_T) :: mem_s1_t  ,h5_mem_datatype  
-  INTEGER(HID_T) :: debugflag=00
+  INTEGER(HID_T) :: debugflag=02
   CALL h5open_f(h5error)
   if (h5error<debugflag) then
     write(*,*)  'h5error',h5error
@@ -55,7 +58,8 @@ USE HDF5
           ! rank and shape
           call h5sget_simple_extent_ndims_f(h5dataspace_id, h5rank, h5error) 
           if (h5error<debugflag) then
-            write(*,*)  'h5error',       h5error,'h5rank',h5rank, h5dims,h5maxdims
+            write(*,*)  'h5error',       h5error,'h5rank',h5rank
+!            if (h5rank>0) write(*,*)   h5dims,h5maxdims
           elseif (h5error<0)  then
             return(h5error)
           endif
