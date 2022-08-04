@@ -8,7 +8,16 @@ Module edic_mod
   
     Implicit None
     Save
+!scattering weight sum delta(Ei-Ef)
+type ::s_wt
 
+integer,allocatable::idx(:,:)!i_pair, kif
+real,allocatable::coord(:,:,:)! i_pair, kxyz,kif
+real,allocatable::wt(:)!i_pair
+end type 
+
+
+type(S_wt)::kpair
 ! <beta|psi> with proper supercell handling 
     TYPE (bec_type) :: becp1_perturb  ! <beta|psi>
     TYPE (bec_type) :: becp2_perturb  ! <beta|psi>

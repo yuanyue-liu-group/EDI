@@ -40,10 +40,13 @@ Program edic
   USE wavefunctions_gpum, ONLY : using_evc
   USE buffers,        ONLY : open_buffer, close_buffer, save_buffer
 use hdf5
+USE mp_pools, ONLY : npool, my_pool_id
+use edic_mod, only: kpair
  
       Implicit none
       
       
+
   CHARACTER(LEN=256), EXTERNAL :: trimcheck
       integer :: tmp_unit
       integer, external :: find_free_unit
@@ -66,6 +69,7 @@ CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )
       write (*,"(/A55/)") 'Start EDIC program '
       write(*,"(A56//)")'----------------------------'
   CALL mp_startup ( )
+      write(*,*)'ik, pool_id',ik,my_pool_id
   CALL environment_start ( 'BANDS' )
 write(*,*) '1start '
   !
@@ -121,6 +125,7 @@ write(*,*) '1'
 !call getvrsc()
 !write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
 
+call getwtdata()
 if (calcmcharge) then
 
       write(*,"(///A56)")'----------------------------'
@@ -171,6 +176,7 @@ write(*,*) 'vcolin' ,shape(v_colin)
 !       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
 !       call get_vloc_colin()
        
+
 if (noncolin .or. lspinorb)then
       allocate(evc1(2*npwx,nbnd))
       allocate(evc2(2*npwx,nbnd))
@@ -193,9 +199,13 @@ endif
       ibnd0=bnd_initial
       ibnd=bnd_final
 
+! k pair parralellization
       do ik0 = kpoint_initial,kpoint_final
             do ik = 1, nk
-      write(*,*)'ik',ik
+
+      write(*,*)'ik, pool_id',ik,my_pool_id
+if (ik<=nk/npool/(my_pool_id+1)*(my_pool_id+1) .and. ik>npool/(my_pool_id+1)*(my_pool_id) ) then
+      write(*,*)'ik, pool_id',ik,my_pool_id
                   ikk = ik 
                   ikk0 = ik0
            
@@ -241,6 +251,7 @@ endif
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
             write (*,1003) 'M_tot ni ki --> nf kf ', ibnd0,ikk0, '-->', ibnd,ikk, &
             m_loc+m_nloc, abs(m_loc+m_nloc)
+endif
             end do
       end do
   call environment_end('BANDS')

@@ -46,6 +46,7 @@ mnl-nc.f90\
 mnl-soc.f90\
 read_perturb_file.f90\
 get_gind_rhoandpsi_gw.f90\
+getwtdata.f90\
 gw_eps_init.f90\
 
 #h5gw_read.f90\
