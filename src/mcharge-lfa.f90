@@ -8,6 +8,10 @@ USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
       Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
     use splinelib, only: dosplineint,spline,splint
+    use edic_mod,   only: V_file,eps_data   
+    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+ USE constants, ONLY: tpi, e2, eps6,pi
+use edic_mod, only: machine_eps
     COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
     INTEGER :: ibnd, ik, ik0,ibnd0
 
@@ -21,13 +25,17 @@ real(DP):: mscreen,mcharge, rmod
 INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
 !!!!! eps data file 
 integer :: nepslines
-real(DP),allocatable:: eps_data (:,:)
+!real(DP),allocatable:: eps_data (:,:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
     real(DP) , allocatable::  eps_data_dy(:)
     real(DP) :: epsk, deltak_para,q2d_coeff
+
+ Nlzcutoff=dffts%nr3/2
+    lzcutoff=Nlzcutoff*alat/dffts%nr1
+
     !k0screen=tpiba*0.01
     allocate(eps_data_dy(size(eps_data(1,:))))
     call spline(eps_data(1,:),eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
@@ -37,6 +45,7 @@ real(DP),allocatable:: eps_data (:,:)
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
         if (sum(abs(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
+             write(*,*)'psi add',ig1,ig2
              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
         endif
       Enddo
@@ -62,6 +71,7 @@ real(DP),allocatable:: eps_data (:,:)
     mcharge4=mcharge4/dffts%nnr
     mcharge5=mcharge5/dffts%nnr
     mcharge6=mcharge6/dffts%nnr
+write(*,*) 'deltak',deltak
     write(*,*)  'mcharge0           ki->kf ',ik0,ik,    mcharge0, abs(mcharge0)
     write(*,*)  'Mcharge3DLFAns     ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
     write(*,*)  'Mcharge3DLFAs      ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
@@ -83,6 +93,7 @@ real(DP),allocatable:: eps_data (:,:)
     deltak=((xk(1,ik)-xk(1,ik0))**2&
            +(xk(2,ik)-xk(2,ik0))**2)**0.5*tpiba
     
+write(*,*) 'deltak',deltak
     mcharge1=mcharge0*tpi/deltak
     mcharge2=mcharge0*tpi/(deltak**2+k0screen**2)**0.5
     mcharge3=mcharge0*tpi/(deltak**2)**0.5*epsk

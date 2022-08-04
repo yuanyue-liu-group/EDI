@@ -27,6 +27,9 @@ Program edic
 !  USE lsda_mod,  ONLY : nspin
   USE io_global, ONLY : ionode, ionode_id, stdout
   USE mp,        ONLY : mp_bcast
+
+  USE mp_global, ONLY: mp_global_end
+
   USE mp_images, ONLY : intra_image_comm
   USE parameters,ONLY : npk
   USE wavefunctions,    ONLY : evc
@@ -36,6 +39,7 @@ Program edic
   !
   USE wavefunctions_gpum, ONLY : using_evc
   USE buffers,        ONLY : open_buffer, close_buffer, save_buffer
+use hdf5
  
       Implicit none
       
@@ -54,6 +58,9 @@ nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_pertu
 !                       lsym, lp, filp, firstk, lastk, no_overlap, plot_2d
 
 
+    INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
+integer :: ierr
+CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
 
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Start EDIC program '
@@ -83,7 +90,7 @@ write(*,*) '1start '
 !  IF ( ionode )  THEN
 !     !
 write(*,*) '0'
-!     CALL input_from_file ( )
+     CALL input_from_file ( )
 write(*,*) '1'
 !     !
 !     READ (5, bands, iostat = ios)
@@ -138,8 +145,8 @@ endif
     call read_perturb_file(V_d)
     call read_perturb_file(V_p)
     if (lvacalign) then
-        v_d_shift = sum(V_d%plot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
-        v_p_shift = sum(v_p%plot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
+        v_d_shift = sum(V_d%pot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
+        v_p_shift = sum(v_p%pot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
     elseif (lcorealign) then
         v_d_shift = core_v_d
         v_p_shift = core_v_p
@@ -153,12 +160,13 @@ if (noncolin .or. lspinorb)then
     !call read_perturb_file(Bxc_2)
     call read_perturb_file(Bxc_3)
     allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
-       V_nc(:, 1) = V_d%plot(:) -V_p%plot(:) + Bxc_3%plot(:) - V_d_shift + V_p_shift
-        V_nc(:, 2) = V_d%plot(:) -V_p%plot(:) - Bxc_3%plot(:) - V_d_shift + V_p_shift
+       V_nc(:, 1) = V_d%pot(:) -V_p%pot(:) + Bxc_3%pot(:) - V_d_shift + V_p_shift
+        V_nc(:, 2) = V_d%pot(:) -V_p%pot(:) - Bxc_3%pot(:) - V_d_shift + V_p_shift
 else
     allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
-    V_colin(:) = V_d%plot(:) -V_p%plot(:) - V_d_shift + V_p_shift
+    V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
 endif
+write(*,*) 'vcolin' ,shape(v_colin)
 
 !       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
 !       call get_vloc_colin()
@@ -191,22 +199,31 @@ endif
                   ikk = ik 
                   ikk0 = ik0
            
+  ! allocate(evc(1*npwx,nbnd))
+write(*,*)'evc size',shape(evc),shape(evc1)
+write(*,*)' restart_dir()', restart_dir()
+write(*,*)'ikk,ikk0',ikk,ikk0
+   !CALL read_collected_wfc ( restart_dir(), ikk, evc )
+
                   CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
-!      write(*,*)'evc2',evc2(1,2),size(evc2)
+      write(*,*)'evc2',evc2(1,1),size(evc2)
+      write(*,*)'evc',evc(1,1),size(evc)
                   CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
+      write(*,*)'evc1',evc1(1,1),shape(evc1)
 
 if (noncolin )then
                   call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-                  call calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ikk0,ikk,v_d)
 endif
 
 if ( lspinorb)then
                   call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk,v_d)
 endif
 if ( (.not. lspinorb ).and. (.not. noncolin ))then
-                  call calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik)
-                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik)
+                  call calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik,V_colin)
+                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_d)
+                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_p)
 endif
 !      write(*,*)'evc2',evc2(1,1)
 !      write(*,*)'evc2',evc2(1,1)
@@ -227,6 +244,9 @@ endif
             end do
       end do
   call environment_end('BANDS')
+
+  CALL mp_global_end()
+
 End Program edic
 
 

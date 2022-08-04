@@ -11,6 +11,9 @@ USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
 
       Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
 USE HDF5
+use edic_mod, only: machine_eps
+    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+ USE constants, ONLY: tpi, e2, eps6,pi
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! charge
@@ -25,19 +28,19 @@ integer :: nepslines
 real(DP),allocatable:: eps_data (:,:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-
-!!!!!!!!!!hdf5
-  CHARACTER(LEN=256) :: h5filename      ! Dataset name
-  CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
- INTEGER     ::   h5rank,h5error ! Error flag
-  !INTEGER     ::  i, j
-!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
-!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
-  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
-  integer, allocatable :: h5dataset_data_integer(:)
-  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
- integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
+!!
+!!
+!!!!!!!!!!!!hdf5
+!!  CHARACTER(LEN=256) :: h5filename      ! Dataset name
+!!  CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
+!! INTEGER     ::   h5rank,h5error ! Error flag
+!!  !INTEGER     ::  i, j
+!!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+!!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+!!  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
+!!  integer, allocatable :: h5dataset_data_integer(:)
+!!  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
+!! integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
 
 
 !
@@ -138,6 +141,9 @@ logical:: interpolate_2d,interpolate_smallq1d=.false.
     INTEGER :: gw_q_g_commonsubset_size
     COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
+
+ Nlzcutoff=dffts%nr3/2
+    lzcutoff=Nlzcutoff*alat/dffts%nr1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! get interpolated eps matrix
 ! eps(0,0) fine after check

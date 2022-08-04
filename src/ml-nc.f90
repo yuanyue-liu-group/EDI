@@ -11,6 +11,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
     USE edic_mod, Only :  V_d, V_nc
     Use edic_mod, Only: m_loc
+      USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
+      USE pw_restart_new,   ONLY : read_collected_wfc
     Implicit None 
 
     complex(dp) :: ml_up, ml_down
@@ -32,6 +34,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     integer :: ir1mod,ir2mod,ir3mod,irnmod
 
 
+!ikk=ik
+!                  CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
 !    type(V_file) :: V_d
 !    real(DP) :: v_nc(:,:)
 
@@ -45,6 +49,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     !auxr(:) =  vrs(:,1)
     !psiprod(:)=0.00
     !vgk_perturb(:)=0.00
+      write(*,*)'ML1'
     ml_up=0
     ml_down=0
     d1=((1.0/dffts%nr1*at(1,1))*(xk(1,ik)-xk(1,ik0)) +&
@@ -57,14 +62,24 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
         (1.0/dffts%nr3*at(2,3))*(xk(2,ik)-xk(2,ik0)) +&
         (1.0/dffts%nr3*at(3,3))*(xk(3,ik)-xk(3,ik0)) )*tpi 
     
+    write(*,*) 'v_colin',shape(v_nc),V_d%nr1,V_d%nr2,V_d%nr3
+    write(*,*) 'psi',shape(psic1),dffts%nr1,dffts%nr2,dffts%nr3
+      write(*,*)'ML2',size(psic2),shape(psic2),shape(psic1),dffts%nnr
     psic2(1:dffts%nnr) = (0.d0,0.d0)
     psic1(1:dffts%nnr) = (0.d0,0.d0)
     psic4(1:dffts%nnr) = (0.d0,0.d0)
     psic3(1:dffts%nnr) = (0.d0,0.d0)
+      ig=1
+     write(*,*)'ML2.0',shape(igk_k)
+     write(*,*)'ML2.1',igk_k(1:4,ikk)
+     write(*,*)'ML2.2',ngk(ikk)
+     write(*,*)'ML2.3',dffts%nl (igk_k(1:4,ikk) ) ,ikk, ibnd
 
     DO ig = 1, ngk(ikk)
        psic2 (dffts%nl (igk_k(ig,ikk) ) ) = evc2 (ig, ibnd)
     ENDDO
+      write(*,*)'ML3' , sum(psic2),sum(Evc1)
+      write(*,*)'ML3.1'
     DO ig = 1, ngk(ik0)
        psic1 (dffts%nl (igk_k(ig,ik0) ) ) = evc1 (ig, ibnd0)
     ENDDO
@@ -76,17 +91,25 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
        psic3 (dffts%nl (igk_k(ig,ik0) ) ) = evc1 (ig+npwx, ibnd0)
     ENDDO
     CALL invfft ('Wave', psic2, dffts)
+      write(*,*)'ML4' , sum(psic2),sum(Evc1)
+      write(*,*)'ML4.1' , psic1(1),Evc1(1,ibnd0)
+      write(*,*)'ML4.2' , psic1(2),Evc1(2,ibnd0)
+      write(*,*)'ML4.3' , psic2(1),Evc2(1,ibnd0)
+      write(*,*)'ML4.4' , psic2(2),Evc2(2,ibnd0)
     CALL invfft ('Wave', psic1, dffts)
     CALL invfft ('Wave', psic4, dffts)
     CALL invfft ('Wave', psic3, dffts)
     
-    !write(*,*) psic1(1:10)
-    !write(*,*) psic2(1:10)
-    !write(*,*) psic3(1:10)
-    !write(*,*) psic4(1:10)
+    write(*,*) psic1(1:10)
+    write(*,*) psic2(1:10)
+    write(*,*) psic3(1:10)
+    write(*,*) psic4(1:10)
 
     arg=0
     inr=0
+    write(*,*) 'xk-xk01',xk(1,ik)-xk(1,ik0)
+    write(*,*) 'xk-xk02',xk(2,ik)-xk(2,ik0)
+    write(*,*) 'xk-xk03',xk(3,ik)-xk(3,ik0)
     do irz =0, V_d%nr3-1
     ir3mod=irz-(irz/(dffts%nr3))*dffts%nr3
     do iry =0, V_d%nr2-1

@@ -2,11 +2,11 @@
 
 subroutine getepsdata()
     use kinds,    only: dp
-    use edic_mod,   only: V_file   
+    use edic_mod,   only: V_file,eps_data   
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
 USE clib_wrappers,     ONLY: md5_from_file
  CHARACTER(len=32)::epsf_md5_cksum="NA"
-real(DP),allocatable:: eps_data (:,:)
+!real(DP),allocatable:: eps_data (:,:)
           CHARACTER(LEN=256) :: eps_filename='eps.dat'
 character (len=75) :: filpot_perturb
     iunpot_perturb=99 

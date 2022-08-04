@@ -1,6 +1,6 @@
 
 
-subroutine h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+subroutine h5gw_read1(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
 USE kinds, ONLY: DP,sgl
 USE HDF5
   CHARACTER(LEN=256) :: h5groupname = "/mats"     ! Dataset name
@@ -19,8 +19,8 @@ USE HDF5
   real(dp), allocatable :: data_out(:)
   integer, allocatable , intent(inout) :: h5dataset_data_integer(:)
   LOGICAL :: h5flag,h5flag_integer,h5flag_double           ! TRUE/FALSE flag to indicate 
-  INTEGER(HSIZE_T), allocatable :: h5maxdims(:)
   INTEGER     ::  h5nmembers,i,h5datasize
+  INTEGER(HSIZE_T), allocatable :: h5maxdims(:)
   INTEGER(HSIZE_T), allocatable , intent(inout) :: h5dims(:)
   INTEGER  , intent(inout)    ::   h5rank
   INTEGER  , intent(inout)    ::   h5error ! Error flag
@@ -66,9 +66,13 @@ USE HDF5
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111
 ! rank=0 scalar
           if(h5rank==0) then
+            !write(*,*)  'h5error',       h5error,'h5rank',h5rank
             h5rank=1
-            allocate(h5dims(h5rank))
+!            write(*,*)  'h5error',       h5error,'h5rank',h5rank
             allocate(h5maxdims(h5rank))
+!            write(*,*)  'h5error',       h5error,'h5dimssize',size(h5maxdims)
+!            write(*,*)  'h5error',       h5error,'h5dimssize',size(h5dims)
+            allocate(h5dims(h5rank))
             h5maxdims(1)=1
             h5dims(1)=1
             h5datasize=1
@@ -233,7 +237,7 @@ USE HDF5
       CALL h5dclose_f(h5dataset_id, h5error)
     CALL h5fclose_f(h5file_id, h5error)
   CALL h5close_f(h5error)
-end subroutine h5gw_read
+end subroutine h5gw_read1
 
 
 

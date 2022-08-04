@@ -20,7 +20,7 @@ USE clib_wrappers,     ONLY: md5_from_file
     read (v_file_%unit, * ) v_file_%nr1x, v_file_%nr2x, v_file_%nr3x,&
       v_file_%nr1, v_file_%nr2, v_file_%nr3, v_file_%nat, v_file_%ntyp
     
-    allocate(v_file_%plot ( v_file_%nr1*v_file_%nr2*v_file_%nr3))
+    allocate(v_file_%pot ( v_file_%nr1*v_file_%nr2*v_file_%nr3))
     allocate(v_file_%ityp (v_file_%nat))
     allocate(v_file_%zv (v_file_%ntyp))
     allocate(v_file_%atm (v_file_%ntyp))
@@ -43,7 +43,7 @@ USE clib_wrappers,     ONLY: md5_from_file
             (v_file_%intyp(v_file_nt_), v_file_%atm(v_file_nt_), v_file_%zv(v_file_nt_), v_file_nt_=1, v_file_%ntyp)
     read (v_file_%unit, *) (v_file_%ndum,  (v_file_%tau (v_file_ipol_, v_file_na_), v_file_ipol_ = 1, 3 ), &
          v_file_%ityp(v_file_na_), v_file_na_ = 1, v_file_%nat)
-    read (v_file_%unit, * ) (v_file_%plot (v_file_ir_), v_file_ir_ = 1, v_file_%nr1 * v_file_%nr2 * v_file_%nr3)
+    read (v_file_%unit, * ) (v_file_%pot (v_file_ir_), v_file_ir_ = 1, v_file_%nr1 * v_file_%nr2 * v_file_%nr3)
     v_file_%tau(:,:)=v_file_%tau(:,:)*v_file_%alat/alat
 
     CALL md5_from_file(v_file_%filename, vf_md5_cksum)

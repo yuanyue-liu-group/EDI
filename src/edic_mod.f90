@@ -29,6 +29,7 @@ Module edic_mod
         psic3(:), &
         psic4(:) 
 
+real(DP),allocatable:: eps_data (:,:)
 ! input parameter
 !   CHARACTER(LEN=256) :: vperturb_filename_p='vloc-p.dat'
 !   CHARACTER(LEN=256) :: vperturb_filename_d='vloc-d.dat'
@@ -59,6 +60,8 @@ Module edic_mod
                 integer :: vac_idx=0
           REAL :: core_v_d=0.0
           REAL :: core_v_p=0.0
+REAL(dp), PARAMETER :: machine_eps = 1.d-4
+
 
 !  NAMELIST / calcmcontrol / vperturb_filename_p,vperturb_filename_d,eps_filename, kpoint_initial, kpoint_final, &
   NAMELIST / calcmcontrol / eps_filename,gw_epsmat_filename,gw_eps0mat_filename, kpoint_initial, kpoint_final, &
@@ -84,7 +87,7 @@ noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
 !                integer :: vac_direction
                 real(dp) :: celldm(6), gcutm, dual, ecut,  at(3,3), omega, alat
                 integer, allocatable:: ityp(:), intyp(:)
-                real(dp),allocatable:: zv(:), tau(:, :)  , plot(:)
+                real(dp),allocatable:: zv(:), tau(:, :)  , pot(:)
         end type V_file
 
         type(V_file), target :: V_d, Bxc_1, Bxc_2, Bxc_3, V_p

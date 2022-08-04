@@ -1,5 +1,6 @@
 
-    SUBROUTINE calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik)
+    SUBROUTINE calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_mnl)
+    !SUBROUTINE calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik)
     !USE becmod, ONLY: becp,becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb, calbec, allocate_bec_type, deallocate_bec_type
     !USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
     
@@ -11,10 +12,13 @@ USE kinds, ONLY: DP,sgl
 !USE wavefunctions, ONLY : evc,evc1,evc2,evc3,evc4, psic, psic1, psic2, psic3, psic4
       Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
+!use edic_mod, only: v_d,v_p
+      Use edic_mod,   only: V_file
 USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
     USE becmod, ONLY: becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb 
     
+    USE uspp_param, ONLY: nh
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! intermediate data
 COMPLEX(DP), ALLOCATABLE :: aux(:), auxr(:), auxg(:), psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
@@ -26,6 +30,7 @@ COMPLEX(DP)::phase
 INTEGER:: irx,iry,irz
 INTEGER:: irx2,iry2,irz2
 INTEGER:: irx1,iry1,irz1
+type(V_file):: v_mnl
 
 INTEGER :: ix0,ix1,ix2
 INTEGER :: iy0,iy1,iy2
@@ -55,10 +60,15 @@ real(DP):: d1,d2,d3
 
 
     INTEGER :: ibnd, ik, ik0,ibnd0
+nat_perturb=v_mnl%nat
+ntyp_perturb=v_mnl%ntyp
+ityp_perturb=v_mnl%ityp
+tau_perturb=v_mnl%tau
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!! initialization
     nkb_perturb=0
+
 
 
     DO nt_perturb = 1, ntyp_perturb

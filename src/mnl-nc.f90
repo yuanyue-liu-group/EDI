@@ -1,6 +1,6 @@
 
  !   SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik, V_d, V_p)
-    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik)
+    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik,v_mnl)
      Use kinds,          Only : dp
     USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
     USE constants, ONLY: tpi, e2, eps6,pi
@@ -101,12 +101,15 @@ COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
       ijkb0 = 0
       mnl_d=0
       mnltot=0
+write(*,*)'dvan',shape(dvan),shape(becp1_perturb%nc)
       DO nt_perturb = 1, V_d%ntyp
          DO na_perturb = 1, V_d%nat
             IF(V_d%ityp (na_perturb) == nt_perturb)THEN
                DO ih = 1, nh (nt_perturb)
                   ikb = ijkb0 + ih
                   IF(gamma_only)THEN
+write(*,*)'gamma ',shape(dvan)
+
                      mnl_d=mnl_d+becp1%r(ikb,ibnd0)*becp2%r(ikb,ibnd) &
                         * dvan(ih,ih,nt_perturb)
                   ELSE

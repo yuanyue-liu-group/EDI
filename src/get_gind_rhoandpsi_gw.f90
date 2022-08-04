@@ -7,6 +7,7 @@ USE kinds, ONLY: DP,sgl
 USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
 USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
 use edic_mod, only: gw_eps_data
+use edic_mod, only: machine_eps
 !type(gw_eps_data),target:: gw_
 type(gw_eps_data),intent (inout) ,target:: gw_
 
