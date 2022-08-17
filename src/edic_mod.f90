@@ -14,13 +14,30 @@ type ::s_wt
 integer,allocatable::idx(:,:)!i_pair, kif
 real,allocatable::coord(:,:,:)! i_pair, kxyz,kif
 real,allocatable::wt(:)!i_pair
+integer:: npairs
 end type 
 
 
 type(S_wt)::kpair
+
+!scattering weight sum delta(Ei-Ef)
+type ::s_wt_rj
+integer::k_initial!i_pair, kif
+integer::k_final! i_pair, kxyz,kif
+integer::bnd_initial!i_pair, kif
+integer::bnd_final! i_pair, kxyz,kif
+real::wt!i_pair
+end type 
+
+type(S_wt_rj),allocatable::wfc_pair(:)
+
+
+
 ! <beta|psi> with proper supercell handling 
     TYPE (bec_type) :: becp1_perturb  ! <beta|psi>
     TYPE (bec_type) :: becp2_perturb  ! <beta|psi>
+
+
 
 ! factor with proper supercell handling 
     Complex(dp), allocatable :: eigts1_perturb(:,:), eigts2_perturb(:,:), eigts3_perturb(:,:)
