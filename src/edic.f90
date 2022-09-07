@@ -140,6 +140,7 @@ write(*,*) '1'
       CLOSE(tmp_unit)
 
      tmp_dir = trimcheck (outdir)
+call  mpi_barrier(mpi_comm_world)
 
   wfc_is_collected=.true.
   CALL read_file_new(wfc_is_collected)
@@ -150,6 +151,7 @@ write(*,*) '1'
   nwordwfc = nbnd*npwx*npol
   !io_level = 1
   
+call  mpi_barrier(mpi_comm_world)
 !write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
 !call getvrsc()
 !write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
@@ -207,6 +209,7 @@ write(*,*) 'vcolin' ,shape(v_colin)
 !       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
 !       call get_vloc_colin()
        
+call  mpi_barrier(mpi_comm_world)
 
 if (noncolin .or. lspinorb)then
       allocate(evc1(2*npwx,nbnd))
@@ -221,7 +224,7 @@ endif
       allocate(psic2(dfftp%nnr))
       allocate(psic3(dfftp%nnr))
       allocate(psic4(dfftp%nnr))
-      write(*,*)'ML2',size(psic2)
+!      write(*,*)'ML2',size(psic2)
 
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Start M calculation k loop'
@@ -236,6 +239,7 @@ endif
 !      do ik0 = kpoint_initial,kpoint_final
 !            do ik = 1, nk
 
+call  mpi_barrier(mpi_comm_world)
 do ig = 1,bndkp_pair%npairs
       write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
 if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
@@ -248,8 +252,8 @@ if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*
                   ibnd0 = bndkp_pair%bnd_idx(ig,2) 
            
   ! allocate(evc(1*npwx,nbnd))
-write(*,*)'evc size',shape(evc),shape(evc1)
-write(*,*)' restart_dir()', restart_dir()
+write(*,*)'evc1 size',shape(evc1)
+write(*,*)'restart_dir()', restart_dir()
 write(*,*)'ikk,ikk0',ikk,ikk0
    !CALL read_collected_wfc ( restart_dir(), ikk, evc )
 
@@ -258,19 +262,20 @@ write(*,*)'ikk,ikk0',ikk,ikk0
                   CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
       write(*,*)'evc1',evc1(1,1),shape(evc1)
 
-if (noncolin )then
+if (noncolin .and. .not. lspinorb )then
 !                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
 !                  call calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ikk0,ikk,v_d)
 endif
 
-if ( lspinorb)then
+if (noncolin .and. lspinorb )then
 !                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-!                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk,v_d)
+                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk,v_d)
 endif
-if ( (.not. lspinorb ).and. (.not. noncolin ))then
+if ( .not. noncolin )then
                   call calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik,V_colin)
-                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_d)
-                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_p)
+!                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_d)
+!                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_p)
 endif
 !      write(*,*)'evc2',evc2(1,1)
 !      write(*,*)'evc2',evc2(1,1)
