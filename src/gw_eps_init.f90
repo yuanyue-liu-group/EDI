@@ -760,7 +760,7 @@ write(*,*) 'ierr        H5T_NATIVE_INTEGER',ierr,H5T_NATIVE_INTEGER, mem_type,si
 
 
 ! leads to bug in later read_wfc in qe
-  CALL h5close_f(h5error)
+!  CALL h5close_f(h5error)
 ! if uncomment leads to bug in later read_wfc in qe
 end subroutine h5gw_read
 
