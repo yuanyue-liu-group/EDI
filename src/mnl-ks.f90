@@ -1,6 +1,6 @@
 
-    SUBROUTINE calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_mnl)
-    !SUBROUTINE calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik)
+    SUBROUTINE calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_mnl)
+    !SUBROUTINE calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,ik0,ik)
     !USE becmod, ONLY: becp,becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb, calbec, allocate_bec_type, deallocate_bec_type
     !USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
     
@@ -60,6 +60,7 @@ real(DP):: d1,d2,d3
 
 
     INTEGER :: ibnd, ik, ik0,ibnd0
+    INTEGER,intent(in) :: bnd_idx_i, kp_idx_i, kp_idx_f,bnd_idx_f
 nat_perturb=v_mnl%nat
 ntyp_perturb=v_mnl%ntyp
 ityp_perturb=v_mnl%ityp
@@ -90,11 +91,11 @@ tau_perturb=v_mnl%tau
     !write (*,*) '1 ', shape(vkb_perturb),'becp',shape(becp1_perturb%k),nkb_perturb,nbnd
     ALLOCATE(vkb_perturb(npwx,nkb_perturb))
     !        CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
-    !do ik=1,nk
+    !do kp_idx_i=1,nk
     !
-    !        CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
-    !        CALL save_buffer ( evc, nwordwfc, iuntmp, ik )
-    !write (*,*) "save" ,ik
+    !        CALL get_buffer ( evc, nwordwfc, iunwfc, kp_idx_i )
+    !        CALL save_buffer ( evc, nwordwfc, iuntmp, kp_idx_i )
+    !write (*,*) "save" ,kp_idx_i
     !enddo
     !        CALL close_buffer ( iuntmp, 'KEEP' )
     !        CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
@@ -115,15 +116,15 @@ tau_perturb=v_mnl%tau
     !mnl=0
     
     !
-    !            IF( nks > 1 ) CALL get_buffer (evc, nwordwfc, iunwfc, ik )
+    !            IF( nks > 1 ) CALL get_buffer (evc, nwordwfc, iunwfc, kp_idx_i )
     
-    !npw = ngk(ik)
-!    CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-!    CALL calbec ( ngk(ik), vkb, evc, becp )
+    !npw = ngk(kp_idx_i)
+!    CALL init_us_2 (ngk(kp_idx_i), igk_k(1,kp_idx_i), xk (1, kp_idx_i), vkb)
+!    CALL calbec ( ngk(kp_idx_i), vkb, evc, becp )
     
-    !write (*,*) 'primitive', ngk(ik), igk_k(1,ik), xk (1, ik)
+    !write (*,*) 'primitive', ngk(kp_idx_i), igk_k(1,kp_idx_i), xk (1, kp_idx_i)
     !nat_perturb=1
-                !CALL init_us_2 (ngk(ik), igk_k(1,ik0), xk (1, ik0), vkb)
+                !CALL init_us_2 (ngk(kp_idx_i), igk_k(1,kp_idx_f), xk (1, kp_idx_f), vkb)
     !write (*,*) 'shape(vkb_perturb) ', shape(vkb_perturb),'becp',shape(becp1_perturb)
     !write (*,*) 'nat_perturb ', shape(nat_perturb),nat_perturb
     !write (*,*) 'ityp_perturb, ', shape(ityp_perturb),ityp_perturb
@@ -133,29 +134,31 @@ tau_perturb=v_mnl%tau
     
     
     
-    !npw = ngk(ik0)
-    CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
-    CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
+    !npw = ngk(kp_idx_f)
+    CALL init_us_2_sc (ngk(kp_idx_f), igk_k(1,kp_idx_f), xk (1, kp_idx_f),&
+                     vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+    CALL calbec ( ngk(kp_idx_f), vkb_perturb, evc2, becp2_perturb )
     
-    !write (*,*) '1 ', shape(vkb_perturb),shape(evc1),ngk(ik0),npwx
+    !write (*,*) '1 ', shape(vkb_perturb),shape(evc1),ngk(kp_idx_f),npwx
     !write (*,*) 'evc1 ', evc1
     !write (*,*) 'vkb ', vkb
     !write (*,*) '1 ', shape(vkb_perturb),shape(becp1_perturb)
     
-    !npw = ngk(ik)
-    CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
-    CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
+    !npw = ngk(kp_idx_i)
+    CALL init_us_2_sc (ngk(kp_idx_i), igk_k(1,kp_idx_i), xk (1, kp_idx_i),&
+                     vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+    CALL calbec ( ngk(kp_idx_i), vkb_perturb, evc1, becp1_perturb )
     
     !write (*,*) 'becp1 ', shape(vkb),shape(becp1)
     !write (*,*) 'becp1 ', shape(vkb),shape(becp1)
     !write (*,*) '1 ', shape(vkb_perturb),shape(becp1_perturb)
     !write (*,*) 'evc2 ', evc2
     !write (*,*) 'vkb ', vkb
-                !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
+                !CALL init_us_2 (ngk(kp_idx_i), igk_k(1,kp_idx_i), xk (1, kp_idx_i), vkb)
     !evc1(:,:)=0.0
     !        CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
-    !        CALL save_buffer ( evc, nwordwfc, iuntmp, ik0 )
-    !        CALL get_buffer ( evc1, nwordwfc, iuntmp, ik0 )
+    !        CALL save_buffer ( evc, nwordwfc, iuntmp, kp_idx_f )
+    !        CALL get_buffer ( evc1, nwordwfc, iuntmp, kp_idx_f )
     !write (*,*) 'evc1', evc1
     !write (*,*) 'evc ', evc
     !write (*,*) 'log evc1', log(evc1)
@@ -165,8 +168,8 @@ tau_perturb=v_mnl%tau
     !write (*,*) 'gtoig ', gtoig(:)
     !write (*,*) 'tau ', tau
     
-    !            CALL calbec ( ngk(ik0), vkb, evc1, becp1 )
-    !            CALL calbec ( ngk(ik), vkb, evc2, becp2 )
+    !            CALL calbec ( ngk(kp_idx_f), vkb, evc1, becp1 )
+    !            CALL calbec ( ngk(kp_idx_i), vkb, evc2, becp2 )
     ijkb0 = 0
     !write (stdout,*) 'mnl: ',mnl
     mnl=0
@@ -174,8 +177,8 @@ tau_perturb=v_mnl%tau
     write (stdout,*) 'gamma_only:',gamma_only
     DO nt_perturb = 1, ntyp_perturb
        DO na_perturb = 1, nat_perturb
-          !     arg=(xk(1,ik)*tau(1,na_perturb)+xk(2,ik)*tau(2,na_perturb)+xk(3,ik)*tau(3,na_perturb))*tpi/alat
-          !     arg=arg-(xk(1,ik0)*tau(1,na_perturb)+xk(2,ik0)*tau(2,na_perturb)+xk(3,ik0)*tau(3,na_perturb))*tpi/alat
+          !     arg=(xk(1,kp_idx_i)*tau(1,na_perturb)+xk(2,kp_idx_i)*tau(2,na_perturb)+xk(3,kp_idx_i)*tau(3,na_perturb))*tpi/alat
+          !     arg=arg-(xk(1,kp_idx_f)*tau(1,na_perturb)+xk(2,kp_idx_f)*tau(2,na_perturb)+xk(3,kp_idx_f)*tau(3,na_perturb))*tpi/alat
           !phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
 
           !phase = 1
@@ -184,36 +187,24 @@ tau_perturb=v_mnl%tau
              write (stdout,*) 'dvan: ', dvan(:,:,nt_perturb)
              DO ih = 1, nh (nt_perturb)
                 ikb = ijkb0 + ih
-                IF(gamma_only)THEN
-                   mnl=mnl+becp1%r(ikb,ibnd0)*becp2%r(ikb,ibnd) &
+                   mnl=mnl+conjg(becp1_perturb%k(ikb,bnd_idx_i))*becp2_perturb%k(ikb,bnd_idx_f) &
                       * dvan(ih,ih,nt_perturb)
-                ELSE
-                   mnl=mnl+conjg(becp1_perturb%k(ikb,ibnd0))*becp2_perturb%k(ikb,ibnd) &
-                      * dvan(ih,ih,nt_perturb)
-                ENDIF
                 write (stdout,*) 'mnl: ',mnl
-                write (stdout,*) 'becp1: ',becp1_perturb%k(ikb,ibnd0)
-                write (stdout,*) 'becp2: ',becp2_perturb%k(ikb,ibnd)
+                write (stdout,*) 'becp1: ',becp1_perturb%k(ikb,bnd_idx_i)
+                write (stdout,*) 'becp2: ',becp2_perturb%k(ikb,bnd_idx_f)
                 write (stdout,*) 'dvan: ', dvan(ih,ih,nt_perturb)
                 DO jh = ( ih + 1 ), nh(nt_perturb)
                    jkb = ijkb0 + jh
-                   IF(gamma_only)THEN
                       mnl=mnl + &
-                         (becp1%r(ikb,ibnd0)*becp2%r(jkb,ibnd)+&
-                            becp1%r(jkb,ibnd0)*becp2%r(ikb,ibnd))&
-                          * dvan(ih,jh,nt_perturb)
-                   ELSE
-                      mnl=mnl + &
-                         (conjg(becp1_perturb%k(ikb,ibnd0))*becp2_perturb%k(jkb,ibnd)+&
-                            conjg(becp1_perturb%k(jkb,ibnd0))*becp2_perturb%k(ikb,ibnd))&
+                         (conjg(becp1_perturb%k(ikb,bnd_idx_i))*becp2_perturb%k(jkb,bnd_idx_f)+&
+                            conjg(becp1_perturb%k(jkb,bnd_idx_i))*becp2_perturb%k(ikb,bnd_idx_f))&
                           * dvan(ih,jh,nt_perturb) !*phase
-                   ENDIF
                    !write (stdout,*) 'mnl: ',mnl
 !                write (stdout,*) 'mnl:ij ',mnl
-!                write (stdout,*) 'becp1:i ',becp1_perturb%k(ikb,ibnd0)
-!                write (stdout,*) 'becp2:i ',becp2_perturb%k(ikb,ibnd)
-!                write (stdout,*) 'becp1:j ',becp1_perturb%k(jkb,ibnd0)
-!                write (stdout,*) 'becp2:j ',becp2_perturb%k(jkb,ibnd)
+!                write (stdout,*) 'becp1:i ',becp1_perturb%k(ikb,bnd_idx_f)
+!                write (stdout,*) 'becp2:i ',becp2_perturb%k(ikb,bnd_idx_i)
+!                write (stdout,*) 'becp1:j ',becp1_perturb%k(jkb,bnd_idx_f)
+!                write (stdout,*) 'becp2:j ',becp2_perturb%k(jkb,bnd_idx_i)
 !                write (stdout,*) 'dvan:ij ', dvan(ih,jh,nt_perturb)
  
     
@@ -224,7 +215,7 @@ tau_perturb=v_mnl%tau
           ENDIF
        ENDDO
     ENDDO
-    mnltot=mnltot+mnl*wg(ibnd,ik)!
+    mnltot=mnltot+mnl*wg(bnd_idx_i,kp_idx_i)!
      
     CALL deallocate_bec_type (  becp )
     CALL deallocate_bec_type (  becp1 )
@@ -237,13 +228,13 @@ tau_perturb=v_mnl%tau
     DEALLOCATE(vkb_perturb)
     
     !mnl=mnl/nr1_perturb/nr2_perturb/nr3_perturb
-    !if(ibnd .eq.9) 
-    !write (stdout,*) 'ik0,ik,ibnd: super2primitive', ik0, ik, ibnd, 'mnl', mnl,'abs mnl', abs(mnl),'mnltot', mnltot
-    !write (stdout,*) 'modmnl ik0,ik super2primitive', ik0,ik, abs(enl1)
-    !write (stdout,*) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
-    !write (stdout,*) 'Mnl ki->kf ', ik0,ik, xk(:,ik0),xk(:,ik), mnl, abs(mnl)
+    !if(bnd_idx_i .eq.9) 
+    !write (stdout,*) 'kp_idx_f,kp_idx_i,bnd_idx_i: super2primitive', kp_idx_f, kp_idx_i, bnd_idx_i, 'mnl', mnl,'abs mnl', abs(mnl),'mnltot', mnltot
+    !write (stdout,*) 'modmnl kp_idx_f,kp_idx_i super2primitive', kp_idx_f,kp_idx_i, abs(enl1)
+    !write (stdout,*) 'Mnl ki->kf ', kp_idx_f,kp_idx_i, mnl, abs(mnl)
+    !write (stdout,*) 'Mnl ki->kf ', kp_idx_f,kp_idx_i, xk(:,kp_idx_f),xk(:,kp_idx_i), mnl, abs(mnl)
 
 1001 format(A,I9,I9,3F14.9,3F14.9," ( ",e17.9," , ",e17.9," ) ",e17.9)
-    write (stdout,1001) 'Mnl ki->kf ', ik0,ik, xk(:,ik0),xk(:,ik), mnl, abs(mnl)
+    write (stdout,1001) 'Mnl ki->kf ', kp_idx_i,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), mnl, abs(mnl)
     END SUBROUTINE calcmdefect_mnl_ks
     

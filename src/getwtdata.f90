@@ -84,7 +84,7 @@ bndkp_pair%npairs=nlines-1
     do ig= 1, bndkp_pair%npairs
          read (iunpot_perturb, * ) bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1),buf,&
                                    bndkp_pair%k_coord(ig,1,1),bndkp_pair%k_coord(ig,2,1),buf,buf,&
-                                   bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,2),buf,&
+                                   bndkp_pair%bnd_idx(ig,2),bndkp_pair%kp_idx(ig,2),buf,&
                                    bndkp_pair%k_coord(ig,1,2),bndkp_pair%k_coord(ig,2,2),buf, bndkp_pair%wt(ig)
     enddo
     CALL md5_from_file(wt_filename, wt_md5_cksum)

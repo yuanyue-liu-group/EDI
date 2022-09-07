@@ -53,6 +53,7 @@ use hdf5
       integer, external :: find_free_unit
       integer :: ios
       integer :: ig,ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
+      integer :: kp_idx_i,kp_idx_f, bnd_idx_i,bnd_idx_f
 integer:: p_rank,p_size
 !  CHARACTER (len=256) :: filband, filp, outdir
 !  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
@@ -246,36 +247,37 @@ if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*
                         .or.(p_rank==p_size-1 .and. ig>bndkp_pair%npairs/p_size*(p_rank)) ) then
 
       write(*,*)'in loop, image_id',ig,my_image_id
-                  ikk = bndkp_pair%kp_idx(ig,1) 
-                  ikk0 = bndkp_pair%kp_idx(ig,2) 
-                  ibnd = bndkp_pair%bnd_idx(ig,1) 
-                  ibnd0 = bndkp_pair%bnd_idx(ig,2) 
+                  kp_idx_i = bndkp_pair%kp_idx(ig,1) 
+                  kp_idx_f = bndkp_pair%kp_idx(ig,2) 
+                  bnd_idx_i = bndkp_pair%bnd_idx(ig,1) 
+                  bnd_idx_f = bndkp_pair%bnd_idx(ig,2) 
            
   ! allocate(evc(1*npwx,nbnd))
 write(*,*)'evc1 size',shape(evc1)
 write(*,*)'restart_dir()', restart_dir()
-write(*,*)'ikk,ikk0',ikk,ikk0
-   !CALL read_collected_wfc ( restart_dir(), ikk, evc )
+write(*,*)'kp_idx_i,kp_idx_f',kp_idx_i,kp_idx_f
+write(*,*)'bnd_idx_i,bnd_idx_f',bnd_idx_i,bnd_idx_f
+   !CALL read_collected_wfc ( restart_dir(), kp_idx_i, evc )
 
-                  CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
-      write(*,*)'evc2',evc2(1,1),size(evc2)
-                  CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
-      write(*,*)'evc1',evc1(1,1),shape(evc1)
+                  CALL read_collected_wfc ( restart_dir(), kp_idx_i, evc1 )
+      write(*,*)'evc1',evc1(1,1),size(evc1)
+                  CALL read_collected_wfc ( restart_dir(), kp_idx_f, evc2 )
+      write(*,*)'evc2',evc2(1,1),shape(evc2)
 
 if (noncolin .and. .not. lspinorb )then
-!                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-!                  call calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ikk0,ikk,v_d)
+                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                  call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
 endif
 
 if (noncolin .and. lspinorb )then
-!                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
-                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk,v_d)
+                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                  call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
 endif
 if ( .not. noncolin )then
-                  call calcmdefect_ml_rs(ibnd0,ibnd,ik0,ik,V_colin)
-!                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_d)
-!                  call calcmdefect_mnl_ks(ibnd0,ibnd,ik0,ik,v_p)
+                  call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
+                  call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+                  call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
 endif
 !      write(*,*)'evc2',evc2(1,1)
 !      write(*,*)'evc2',evc2(1,1)
@@ -284,14 +286,14 @@ if (calcmcharge) then
 
 
 if (mcharge_dolfa) then
-                  call calcmdefect_charge_lfa(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
 else
-                  call calcmdefect_charge_nolfa(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
 endif
 endif
 
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
-            write (*,1003) 'M_tot ni ki --> nf kf ', ibnd0,ikk0, '-->', ibnd,ikk, &
+            write (*,1003) 'M_tot ni ki --> nf kf ', bnd_idx_f,kp_idx_f, '-->', bnd_idx_i,kp_idx_i, &
             m_loc+m_nloc, abs(m_loc+m_nloc)
 endif
 !            end do

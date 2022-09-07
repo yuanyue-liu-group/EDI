@@ -1,5 +1,5 @@
 !subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_d, v_nc)
-subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
+subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
     Use kinds,          Only : dp
     USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
     USE constants, ONLY: tpi, e2, eps6,pi
@@ -71,12 +71,12 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     psic3(1:dffts%nnr) = (0.d0,0.d0)
       ig=1
      write(*,*)'ML2.0',shape(igk_k)
-     write(*,*)'ML2.1',igk_k(1:4,ikk)
-     write(*,*)'ML2.2',ngk(ikk)
-     write(*,*)'ML2.3',dffts%nl (igk_k(1:4,ikk) ) ,ikk, ibnd
+     write(*,*)'ML2.1',igk_k(1:4,ik)
+     write(*,*)'ML2.2',ngk(ik)
+     write(*,*)'ML2.3',dffts%nl (igk_k(1:4,ik) ) ,ik, ibnd
 
-    DO ig = 1, ngk(ikk)
-       psic2 (dffts%nl (igk_k(ig,ikk) ) ) = evc2 (ig, ibnd)
+    DO ig = 1, ngk(ik)
+       psic2 (dffts%nl (igk_k(ig,ik) ) ) = evc2 (ig, ibnd)
     ENDDO
       write(*,*)'ML3' , sum(psic2),sum(Evc1)
       write(*,*)'ML3.1'
@@ -84,8 +84,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
        psic1 (dffts%nl (igk_k(ig,ik0) ) ) = evc1 (ig, ibnd0)
     ENDDO
 
-    DO ig = 1, ngk(ikk)
-       psic4 (dffts%nl (igk_k(ig,ikk) ) ) = evc2 (ig+npwx, ibnd)
+    DO ig = 1, ngk(ik)
+       psic4 (dffts%nl (igk_k(ig,ik) ) ) = evc2 (ig+npwx, ibnd)
     ENDDO
     DO ig = 1, ngk(ik0)
        psic3 (dffts%nl (igk_k(ig,ik0) ) ) = evc1 (ig+npwx, ibnd0)
@@ -130,7 +130,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik)
     arg=irz*d3+(iry-iry/(V_d%nr2/2+1)*V_d%nr2)*d2+(irx-irx/(V_d%nr1/2+1)*V_d%nr1)*d1
     !arg=irz*d3+(iry-iry/(dffts%nr2/2+1)*dffts%nr1)*d2+(irx-irx/(dffts%nr1/2+1)*dffts%nr1)*d1
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !arg=irz*d3+iry*d2+irx*d1
+    arg=irz*d3+iry*d2+irx*d1
     
     phase=CMPLX(COS(arg),SIN(arg),kind=dp)
     inr=inr+1

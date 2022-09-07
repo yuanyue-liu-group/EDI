@@ -1,5 +1,5 @@
 ! SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik, V_d, V_p)
- SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik)
+ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0)
     Use kinds,    Only : dp
     USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type

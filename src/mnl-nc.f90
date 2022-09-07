@@ -1,12 +1,12 @@
 
  !   SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik, V_d, V_p)
-    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik,v_mnl)
+    SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl)
      Use kinds,          Only : dp
-    USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
-    USE constants, ONLY: tpi, e2, eps6,pi
-    Use fft_base,       Only : dfftp, dffts
-    USE fft_interfaces, ONLY : fwfft, invfft
-    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+!    USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
+!    USE constants, ONLY: tpi, e2, eps6,pi
+!    Use fft_base,       Only : dfftp, dffts
+!    USE fft_interfaces, ONLY : fwfft, invfft
+!    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
@@ -26,7 +26,7 @@
     USE uspp_param, ONLY: nh
     USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
     USE uspp, ONLY: nkb, vkb, dvan, dvan_so
-    Use edic_mod,only : evc1,evc2,evc3,evc4
+!    Use edic_mod,only : evc1,evc2,evc3,evc4
     Use edic_mod, Only: m_nloc
 USE io_global, ONLY: stdout, ionode, ionode_id
 USE control_flags,    ONLY : gamma_only, io_level
@@ -51,6 +51,7 @@ COMPLEX(DP)::phase
 INTEGER:: irx,iry,irz
 INTEGER:: irx2,iry2,irz2
 INTEGER:: irx1,iry1,irz1
+type(V_file):: v_mnl
 
 INTEGER :: ix0,ix1,ix2
 INTEGER :: iy0,iy1,iy2
