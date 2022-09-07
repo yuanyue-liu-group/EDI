@@ -64,11 +64,12 @@ integer:: p_rank,p_size
 !                       lsym, lp, filp, firstk, lastk, no_overlap, plot_2d
 
 
-!!!!!!!!!!!! hdf5 debug
+!!!!!!!!!!!!! hdf5 debug
 !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
 !integer :: ierr
 !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
-!!!!!!!!!!!! hdf5 debug
+!write(*,*) 'ierr        ', ierr
+!!!!!!!!!!!!! hdf5 debug
 
   CALL mp_startup( start_images=.TRUE. )
   !CALL mp_startup ( )
@@ -159,6 +160,7 @@ call  mpi_barrier(mpi_comm_world)
 
 call getwtdata()
 
+call  mpi_barrier(mpi_comm_world)
 if (calcmcharge) then
 
       write(*,"(///A56)")'----------------------------'
