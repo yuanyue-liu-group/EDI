@@ -8,7 +8,7 @@ Program edic
 !      Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
 !      Use edic_mod, only: v_p_shift,v_d_shift
       Use edic_mod
-!      use edic_mod, only: kpair
+!      use edic_mod, only: bndkp_pair
 !      Use edic_mod, Only : evc1,evc2,evc3,evc4,psic1, psic2, psic3, psic4
 !      Use edic_mod, Only: m_loc, m_nloc
 
@@ -53,6 +53,7 @@ use hdf5
       integer, external :: find_free_unit
       integer :: ios
       integer :: ig,ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
+integer:: p_rank,p_size
 !  CHARACTER (len=256) :: filband, filp, outdir
 !  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
 !  INTEGER :: spin_component, firstk, lastk
@@ -68,7 +69,8 @@ use hdf5
 !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
 !!!!!!!!!!!! hdf5 debug
 
-  CALL mp_startup ( )
+  CALL mp_startup( start_images=.TRUE. )
+  !CALL mp_startup ( )
   IF ( ionode )  THEN
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Start EDIC program '
@@ -76,10 +78,10 @@ use hdf5
   ENDIF
 !      write(*,*)' pool_id',my_pool_id
 !      write(*,*)' pool_id',my_pool_id
-      write(*,*)' 1pool_id',my_pool_id
+      write(*,*)' 1image_id',my_image_id,nimage
 call  mpi_comm_rank(mpi_comm_world,ig,ik)
 call  mpi_barrier(mpi_comm_world)
-      write(*,*)' 2pool_id',mpi_comm_world,my_pool_id,ig,ik
+      write(*,*)' 2image_id',mpi_comm_world,my_image_id,ig,ik
 call  mpi_barrier(mpi_comm_world)
 
 
@@ -94,9 +96,10 @@ call  mpi_barrier(mpi_comm_world)
 
 
 
-call  mpi_comm_rank(mpi_comm_world,ig,ik)
+call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
+call  mpi_comm_size(mpi_comm_world,p_size,ik)
 
-      write(*,*)' 2pool_id',my_pool_id,ig,ik
+      write(*,*)' 2image_id',my_image_id,p_rank,p_size,ik
 write(*,*) '1start '
   !
   !   set default values for variables in namelist
@@ -233,13 +236,16 @@ endif
 !      do ik0 = kpoint_initial,kpoint_final
 !            do ik = 1, nk
 
-do ig = 1,kpair%npairs
+do ig = 1,bndkp_pair%npairs
+      write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
+if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
+                        .or.(p_rank==p_size-1 .and. ig>bndkp_pair%npairs/p_size*(p_rank)) ) then
 
-      write(*,*)'ig pool_id_loop',ig,my_pool_id
-if (ig<=kpair%npairs/nimage*(my_image_id+1) .and. ig>kpair%npairs/nimage*(my_image_id) ) then
       write(*,*)'in loop, image_id',ig,my_image_id
-                  ikk = kpair%idx(ig,1) 
-                  ikk0 = kpair%idx(ig,2) 
+                  ikk = bndkp_pair%kp_idx(ig,1) 
+                  ikk0 = bndkp_pair%kp_idx(ig,2) 
+                  ibnd = bndkp_pair%bnd_idx(ig,1) 
+                  ibnd0 = bndkp_pair%bnd_idx(ig,2) 
            
   ! allocate(evc(1*npwx,nbnd))
 write(*,*)'evc size',shape(evc),shape(evc1)
@@ -249,7 +255,6 @@ write(*,*)'ikk,ikk0',ikk,ikk0
 
                   CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
       write(*,*)'evc2',evc2(1,1),size(evc2)
-      write(*,*)'evc',evc(1,1),size(evc)
                   CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
       write(*,*)'evc1',evc1(1,1),shape(evc1)
 

@@ -11,14 +11,15 @@ Module edic_mod
 !scattering weight sum delta(Ei-Ef)
 type ::s_wt
 
-integer,allocatable::idx(:,:)!i_pair, kif
-real,allocatable::coord(:,:,:)! i_pair, kxyz,kif
+integer,allocatable::kp_idx(:,:)!i_pair, kif
+integer,allocatable::bnd_idx(:,:)!i_pair, kif
+real,allocatable::k_coord(:,:,:)! i_pair, kxyz,kif
 real,allocatable::wt(:)!i_pair
 integer:: npairs
 end type 
 
 
-type(S_wt)::kpair
+type(S_wt)::bndkp_pair
 
 !scattering weight sum delta(Ei-Ef)
 type ::s_wt_rj
@@ -76,6 +77,7 @@ real(DP),allocatable:: eps_data (:,:)
           REAL :: k0screen_read=0.0
   !CHARACTER (len=256) :: filband, filp, outdir
   CHARACTER (len=256) ::  outdir
+  CHARACTER (len=256) ::  wt_filename,klist_filename,ev_filename
   !LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
   LOGICAL ::  wfc_is_collected, exst
   LOGICAL :: lspinorb=.false., noncolin =.false.
@@ -94,6 +96,7 @@ REAL(dp), PARAMETER :: machine_eps = 1.d-4
             bnd_initial, bnd_final, calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
             V_d_filename, Bxc_1_filename, Bxc_2_filename, Bxc_3_filename, V_p_filename,&
             V_up_filename, V_down_filename,&
+wt_filename,klist_filename,ev_filename,&
    outdir, prefix, &!filband, filp, spin_component, lsigma,&
                     !   lsym, lp, filp, firstk, lastk, no_overlap, plot_2d,&
 noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p

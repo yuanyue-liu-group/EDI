@@ -116,6 +116,7 @@ COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
     DO ig = 1, ngk(ik0)
        psic1 (dffts%nl (igk_k(ig,ik0) ) ) = evc1 (ig, ibnd0)
     ENDDO
+      write(*,*)'ML3.1'
     CALL invfft ('Wave', psic2, dffts)
       write(*,*)'ML4' , sum(psic2),sum(Evc1)
       write(*,*)'ML4.1' , psic1(1),Evc1(1,ibnd0)
