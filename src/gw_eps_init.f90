@@ -23,6 +23,9 @@ type(gw_eps_data),intent (inout) ,target:: gw_
   INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
 
   integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
+integer:: p_rank,p_size,ik
+
+
 !
 !!!  real(dp), allocatable :: gw_epsmat_diag_data(:,:,2),  gw_eps0mat_diag_data(:,:,2)
 !!  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
@@ -162,7 +165,13 @@ h5filename=eps_filename_      ! Dataset name
 
 
 
+!integer:: p_rank,p_size,ik
+!call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
+!call  mpi_comm_size(mpi_comm_world,p_size,ik)
+! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
+
 h5datasetname='/mf_header/gspace/ng'      !i4 (nq,ng)
+! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
 call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
 if (h5error<0)  write(*,*)  'h5error',h5error
 if (h5rank/=1) then
@@ -531,9 +540,18 @@ USE HDF5
   INTEGER  , intent(inout)    ::   h5error ! Error flag
   INTEGER(HID_T) :: file_s1_t,h5_file_datatype 
   INTEGER(HID_T) :: mem_s1_t  ,h5_mem_datatype  
-  INTEGER(HID_T) :: debugflag=00
+  INTEGER(HID_T) :: debugflag=01
+! if debugflag<=10, not print epsilon data, else, print
 INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
+integer:: p_rank,p_size,ik
 !  CALL h5open_f(h5error)
+
+
+!call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
+!call  mpi_comm_size(mpi_comm_world,p_size,ik)
+! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
+
+
   if (h5error<debugflag) then
     write(*,*)  'h5error',h5error
   elseif (h5error<0) then 
@@ -650,7 +668,7 @@ INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_
 
 ! qeh5_module bug
 !        CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )
-write(*,*) 'ierr        H5T_NATIVE_INTEGER',ierr,H5T_NATIVE_INTEGER, mem_type,sizeof(H5T_NATIVE_INTEGER), sizeof(mem_type)
+!write(*,*) 'ierr        H5T_NATIVE_INTEGER',ierr,H5T_NATIVE_INTEGER, mem_type,sizeof(H5T_NATIVE_INTEGER), sizeof(mem_type)
 ! qeh5_module bug
 
 
@@ -728,14 +746,14 @@ write(*,*) 'ierr        H5T_NATIVE_INTEGER',ierr,H5T_NATIVE_INTEGER, mem_type,si
             call h5tequal_F(h5_file_datatype,H5T_NATIVE_double,h5flag_double,h5error)
             if (h5flag_integer) then
               CALL h5dread_f(h5dataset_id,  h5_file_datatype, h5dataset_Data_integer, h5dims, h5error)
-              if (h5error<debugflag) then
+              if (h5error<debugflag-10) then
                 write(*,*)  'h5data',h5error,       h5dataset_Data_integer
               elseif (h5error<0)  then
                 return(h5error)
               endif
             elseif (h5flag_double) then
               CALL h5dread_f(h5dataset_id,  h5_file_datatype, h5dataset_Data_double, h5dims, h5error)
-              if (h5error<debugflag) then
+              if (h5error<debugflag-10) then
                 write(*,*)  'h5data',h5error,       h5dataset_Data_double
               elseif (h5error<0)  then
                 return(h5error)

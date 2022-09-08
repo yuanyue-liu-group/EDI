@@ -36,7 +36,7 @@ Program edic
   USE mp_global, ONLY : mp_startup,mp_global_end
   USE io_global, ONLY : ionode
   !USE io_global, ONLY : ionode, ionode_id, stdout
-  !USE mp,        ONLY : mp_bcast
+  USE mp,        ONLY : mp_bcast
   !USE mp_images, ONLY : intra_image_comm
   USE mp_pools, ONLY : npool, my_pool_id
   USE mp_images, ONLY : nimage, my_image_id
@@ -55,6 +55,7 @@ use hdf5
       integer :: ig,ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
       integer :: kp_idx_i,kp_idx_f, bnd_idx_i,bnd_idx_f
 integer:: p_rank,p_size
+  CHARACTER(LEN=6), EXTERNAL :: int_to_char  
 !  CHARACTER (len=256) :: filband, filp, outdir
 !  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
 !  INTEGER :: spin_component, firstk, lastk
@@ -170,10 +171,85 @@ call getepsdata()
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Read BGW dielectric data '
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
- call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
-call get_gind_rhoandpsi_gw(gw_epsq1_data)
-call get_gind_rhoandpsi_gw(gw_epsq0_data)
+
+
+
+!!!!!!!!!!!!! test 1
+ ! IF ( ionode )  THEN
+!do ig=0,p_size-1
+!if ( p_rank==ig) then
+! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+!endif
+!call  mpi_barrier(mpi_comm_world)
+!enddo
+
+!!!!!!!!!!!!! test 2
+!if ( p_rank==1) then
+! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+!      write (*,*) 'rank0',p_rank
+!endif
+!      write (*,*) 'rank1',p_rank
+!call  mpi_barrier(mpi_comm_world)
+!      write (*,*) 'rank2',p_rank
+!
+!
+!if ( p_rank==0) then
+!      write (*,*) 'rank3',p_rank
+! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+!      write (*,*) 'rank4',p_rank
+!endif
+!      write (*,*) 'rank5',p_rank
+!call  mpi_barrier(mpi_comm_world)
+!
+!
+
+!!!!!!!!!!!!!! test 3 work
+!if ( p_rank==0) then
+! call gw_eps_init('epsmat.h5.0',gw_epsq1_data)
+!endif
+!if ( p_rank==1) then
+! call gw_eps_init('epsmat.h5.1',gw_epsq1_data)
+!endif
+
+!!!!!!!!!!!!! test 4
+!if ( p_rank==0) then
+!      write (*,*) 'rank3',p_rank
+! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+!call get_gind_rhoandpsi_gw(gw_epsq1_data)
+!call get_gind_rhoandpsi_gw(gw_epsq0_data)
+!      write (*,*) 'rank4',p_rank
+!
+!endif
+!call  mpi_barrier(mpi_comm_world)
+!
+!      write (*,*) 'rank5',p_rank
+!mpi_bcast(gw_epsq1_data%q_g_commonsuset_size,1,mpi_integer,0,mpi_comm_world)
+!      write (*,*) 'rank6',p_rank
+!
+!!!!!!!!!!!!!!!!!! test 3.2
+do ig=0,p_size-1
+if ( p_rank==ig) then
+
+ call gw_eps_init(trim(gw_epsmat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq1_data)
+ call gw_eps_init(trim(gw_eps0mat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq0_data)
+endif
+!call  mpi_barrier(mpi_comm_world)
+enddo
+
+
+
+
+! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+
+!call get_gind_rhoandpsi_gw(gw_epsq1_data)
+!call get_gind_rhoandpsi_gw(gw_epsq0_data)
+!  write(*,*) 'rank, eps', p_rank,gw_epsq1_data%gind_rho2psi(:)
+ ! ENDIF
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
 endif
@@ -266,32 +342,35 @@ write(*,*)'bnd_idx_i,bnd_idx_f',bnd_idx_i,bnd_idx_f
                   CALL read_collected_wfc ( restart_dir(), kp_idx_f, evc2 )
       write(*,*)'evc2',evc2(1,1),shape(evc2)
 
-if (noncolin .and. .not. lspinorb )then
-                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                  call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-endif
-
-if (noncolin .and. lspinorb )then
-                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                  call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                  call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-endif
-if ( .not. noncolin )then
-                  call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
-                  call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-                  call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
-endif
-!      write(*,*)'evc2',evc2(1,1)
-!      write(*,*)'evc2',evc2(1,1)
-                  
+                 
 if (calcmcharge) then
 
 
-if (mcharge_dolfa) then
-                  call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    if (mcharge_dolfa) then
+                      call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    else
+                      call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    endif
+    
 else
-                  call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-endif
+    if (noncolin .and. .not. lspinorb )then
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+    endif
+    
+    if (noncolin .and. lspinorb )then
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+    endif
+    if ( .not. noncolin )then
+                      call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
+                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
+    endif
+    !      write(*,*)'evc2',evc2(1,1)
+    !      write(*,*)'evc2',evc2(1,1)
+ 
 endif
 
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
