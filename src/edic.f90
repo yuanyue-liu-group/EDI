@@ -67,7 +67,7 @@ integer:: p_rank,p_size
 
 !!!!!!!!!!!!! hdf5 debug
 !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
-!integer :: ierr
+integer :: ierr
 !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
 !write(*,*) 'ierr        ', ierr
 !!!!!!!!!!!!! hdf5 debug
@@ -178,16 +178,16 @@ call getepsdata()
  ! IF ( ionode )  THEN
 !do ig=0,p_size-1
 !if ( p_rank==ig) then
-! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
-! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
 !endif
 !call  mpi_barrier(mpi_comm_world)
 !enddo
 
 !!!!!!!!!!!!! test 2
 !if ( p_rank==1) then
-! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
-! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
 !      write (*,*) 'rank0',p_rank
 !endif
 !      write (*,*) 'rank1',p_rank
@@ -197,8 +197,8 @@ call getepsdata()
 !
 !if ( p_rank==0) then
 !      write (*,*) 'rank3',p_rank
-! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
-! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
 !      write (*,*) 'rank4',p_rank
 !endif
 !      write (*,*) 'rank5',p_rank
@@ -208,17 +208,17 @@ call getepsdata()
 
 !!!!!!!!!!!!!! test 3 work
 !if ( p_rank==0) then
-! call gw_eps_init('epsmat.h5.0',gw_epsq1_data)
+! call gw_eps_read('epsmat.h5.0',gw_epsq1_data)
 !endif
 !if ( p_rank==1) then
-! call gw_eps_init('epsmat.h5.1',gw_epsq1_data)
+! call gw_eps_read('epsmat.h5.1',gw_epsq1_data)
 !endif
 
 !!!!!!!!!!!!! test 4
 !if ( p_rank==0) then
 !      write (*,*) 'rank3',p_rank
-! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
-! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
 !call get_gind_rhoandpsi_gw(gw_epsq1_data)
 !call get_gind_rhoandpsi_gw(gw_epsq0_data)
 !      write (*,*) 'rank4',p_rank
@@ -230,21 +230,46 @@ call getepsdata()
 !mpi_bcast(gw_epsq1_data%q_g_commonsuset_size,1,mpi_integer,0,mpi_comm_world)
 !      write (*,*) 'rank6',p_rank
 !
-!!!!!!!!!!!!!!!!!! test 3.2
-do ig=0,p_size-1
-if ( p_rank==ig) then
 
- call gw_eps_init(trim(gw_epsmat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq1_data)
- call gw_eps_init(trim(gw_eps0mat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq0_data)
+!!!!!!!!!!!!!!!!!!! test 3.2
+!do ig=0,p_size-1
+! if ( p_rank==ig) then
+!!
+! call gw_eps_read(trim(gw_epsmat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq1_data)
+! call gw_eps_read(trim(gw_eps0mat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq0_data)
+!endif
+!enddo
+
+!!!!!!!!!!!!!!!!!! test 3.3
+call flush(6)
+ if ( p_rank==0) then
+write(*,*)'gw read 1', p_rank
+ call gw_eps_read(trim(gw_epsmat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq1_data)
+ call gw_eps_read(trim(gw_eps0mat_filename)//'.'//trim(int_to_char(p_rank)),gw_epsq0_data)
 endif
-!call  mpi_barrier(mpi_comm_world)
-enddo
 
 
+write(*,*)'gw read 2', p_rank
+call  mpi_barrier(mpi_comm_world)
+write(*,*)'gw read 3', p_rank
+call  mpi_barrier(mpi_comm_world)
+write(*,*)'gw read 4', p_rank
+! call gw_eps_bcast(gw_epsq0_data)
 
 
-! call gw_eps_init(gw_epsmat_filename,gw_epsq1_data)
-! call gw_eps_init(gw_eps0mat_filename,gw_epsq0_data)
+          ! CALL MPI_BCAST( array, n, MPI_DOUBLE_PRECISION, root, gid, ierr )
+! if ( p_rank/=0) then
+!allocate(gw_epsq0_data%ng_data(1))
+!endif 
+!write(*,*)'gw read 5 rank1', gw_epsq0_data%ng_data, 1, MPI_integer, 0, mpi_comm_world, ierr
+!           CALL MPI_BCAST( gw_epsq0_data%ng_data, 1, MPI_integer, 0, mpi_comm_world, ierr )
+write(*,*)'gw read 5 rank', p_rank,gw_epsq0_data%ng_data,MPI_comm_world 
+ call gw_eps_bcast(p_rank,0,gw_epsq1_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
+ call gw_eps_bcast(p_rank,0,gw_epsq0_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
+write(*,*)'gw read 5 rank', p_rank,gw_epsq0_data%ng_data 
+
+! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
+! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
 
 !call get_gind_rhoandpsi_gw(gw_epsq1_data)
 !call get_gind_rhoandpsi_gw(gw_epsq0_data)
@@ -252,6 +277,9 @@ enddo
  ! ENDIF
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
+ call gw_eps_init(gw_epsq1_data)
+ call gw_eps_init(gw_epsq0_data)
+
 endif
 
 
