@@ -63,8 +63,8 @@ real(DP),allocatable:: eps_data (:,:)
   CHARACTER(LEN=256) :: eps_filename='eps.dat'
   CHARACTER(LEN=256) :: gw_epsmat_filename='epsmat.h5'
   CHARACTER(LEN=256) :: gw_eps0mat_filename='epsmat.h5'
-          character(len=256) :: V_d_filename = 'none', Bxc_1_filename='none', Bxc_2_filename='none', Bxc_3_filename='none'
-          character(len=256) :: V_p_filename='none'
+          character(len=256) :: V_d_filename = 'none', Bxc_1_d_filename='none', Bxc_2_d_filename='none', Bxc_3_d_filename='none'
+          character(len=256) :: V_p_filename = 'none', Bxc_1_p_filename='none', Bxc_2_p_filename='none', Bxc_3_p_filename='none'
           character(len=256) :: V_up_filename='none', V_down_filename='none'
           INTEGER :: kpoint_initial
           INTEGER :: kpoint_final
@@ -94,7 +94,8 @@ REAL(dp), PARAMETER :: machine_eps = 1.d-4
 !  NAMELIST / calcmcontrol / vperturb_filename_p,vperturb_filename_d,eps_filename, kpoint_initial, kpoint_final, &
   NAMELIST / calcmcontrol / eps_filename,gw_epsmat_filename,gw_eps0mat_filename, kpoint_initial, kpoint_final, &
             bnd_initial, bnd_final, calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
-            V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename, V_p_filename,&
+            V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
+            V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
             V_up_filename, V_down_filename,&
 wt_filename,klist_filename,ev_filename,&
    outdir, prefix, &!filband, filp, spin_component, lsigma,&
@@ -119,7 +120,8 @@ noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
                 real(dp),allocatable:: zv(:), tau(:, :)  , pot(:)
         end type V_file
 
-        type(V_file), target :: V_d, Bxc_1, Bxc_2, Bxc_3, V_p
+        type(V_file), target :: V_d, Bxc_1_d, Bxc_2_d, Bxc_3_d, V_p, Bxc_1_p, Bxc_2_p, Bxc_3_p
+
 
                 real(dp) :: v_p_shift,v_d_shift
         real(dp), allocatable, target :: &

@@ -44,7 +44,7 @@ USE control_flags,    ONLY : gamma_only, io_level
 ! intermediate data
 COMPLEX(DP), ALLOCATABLE :: aux(:), auxr(:), auxg(:), psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
 COMPLEX(DP) :: mnl, ml,mltot,mltot1,mltot2,mnltot,psicnorm,psicprod,enl1,phaseft,psicprod1
-COMPLEX(DP) ::  ml_up, ml_down, mnl ! rg_spin
+!COMPLEX(DP) ::  ml_up, ml_down, mnl ! rg_spin
 LOGICAL :: offrange
 REAL(dp)::arg,argt,argt2
 COMPLEX(DP)::phase

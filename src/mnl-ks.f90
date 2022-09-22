@@ -1,18 +1,14 @@
 
     SUBROUTINE calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_mnl)
     !SUBROUTINE calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,ik0,ik)
-    !USE becmod, ONLY: becp,becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb, calbec, allocate_bec_type, deallocate_bec_type
-    !USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
     
 USE wvfct, ONLY: npwx, nbnd, wg, et
 USE io_global, ONLY: stdout, ionode, ionode_id
 USE uspp, ONLY: nkb, vkb, dvan
 USE control_flags,    ONLY : gamma_only, io_level
 USE kinds, ONLY: DP,sgl
-!USE wavefunctions, ONLY : evc,evc1,evc2,evc3,evc4, psic, psic1, psic2, psic3, psic4
       Use edic_mod, Only : evc1,evc2,evc3,evc4,&
                                psic1, psic2, psic3, psic4
-!use edic_mod, only: v_d,v_p
       Use edic_mod,   only: V_file
 USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
     USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
@@ -22,44 +18,38 @@ USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! intermediate data
 COMPLEX(DP), ALLOCATABLE :: aux(:), auxr(:), auxg(:), psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
-COMPLEX(DP) :: mnl, ml,mltot,mltot1,mltot2,mnltot,psicnorm,psicprod,enl1,phaseft,psicprod1
-COMPLEX(DP) ::  ml_up, ml_down, mnl_d, mnl_p ! rg_spin
-LOGICAL :: offrange
-REAL(dp)::arg,argt,argt2
-COMPLEX(DP)::phase
-INTEGER:: irx,iry,irz
-INTEGER:: irx2,iry2,irz2
-INTEGER:: irx1,iry1,irz1
+COMPLEX(DP) :: mnl!, ml,mltot,mltot1,mltot2,mnltot,psicnorm,psicprod,enl1,phaseft,psicprod1
+!COMPLEX(DP) ::  ml_up, ml_down, mnl_d, mnl_p ! rg_spin
+!LOGICAL :: offrange
+!REAL(dp)::arg,argt,argt2
+!COMPLEX(DP)::phase
+!INTEGER:: irx,iry,irz
+!INTEGER:: irx2,iry2,irz2
+!INTEGER:: irx1,iry1,irz1
 type(V_file):: v_mnl
 
-INTEGER :: ix0,ix1,ix2
-INTEGER :: iy0,iy1,iy2
-INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
-COMPLEX(DP)::vlfft
-COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
+!INTEGER :: ix0,ix1,ix2
+!INTEGER :: iy0,iy1,iy2
+!INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
+!COMPLEX(DP)::vlfft
+!COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
  
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!! vl  supercell
-integer ::  unit_pert !rg_spin
-character (len=75) ::  perturb_file_name!rg_spin
-integer :: iunpot_perturb
-character (len=75) :: filpot_perturb
-character (len=75) :: title_perturb
-character (len=3) ,allocatable :: atm_perturb(:)
-integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
-nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
-integer :: iunplot_perturb, ios_perturb, ipol_perturb, na_perturb, nt_perturb, &
-ir_perturb, ndum_perturb
+!integer ::  unit_pert !rg_spin
+!character (len=75) ::  perturb_file_name!rg_spin
+!integer :: iunpot_perturb
+!character (len=75) :: filpot_perturb
+!character (len=75) :: title_perturb
+!character (len=3) ,allocatable :: atm_perturb(:)
+!integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
+ integer ::nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
 real(DP) :: celldm_perturb (6), gcutm_perturb, dual_perturb, ecut_perturb,  at_perturb(3,3), omega_perturb, alat_perturb
-integer, allocatable:: ityp_perturb (:)
-real(DP),allocatable:: zv_perturb (:), tau_perturb (:, :)  , plot_perturb (:)
-real(DP),allocatable::  V_loc(:,:) !rg_spin
-integer :: ir1mod,ir2mod,ir3mod,irnmod
-real(DP):: d1,d2,d3
+integer, allocatable::  tau_perturb (:, :)  ,ityp_perturb (:)
 
 
-    INTEGER :: ibnd, ik, ik0,ibnd0
+    INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
     INTEGER,intent(in) :: bnd_idx_i, kp_idx_i, kp_idx_f,bnd_idx_f
 nat_perturb=v_mnl%nat
 ntyp_perturb=v_mnl%ntyp
@@ -173,7 +163,7 @@ tau_perturb=v_mnl%tau
     ijkb0 = 0
     !write (stdout,*) 'mnl: ',mnl
     mnl=0
-    mnltot=0
+    !mnltot=0
     write (stdout,*) 'gamma_only:',gamma_only
     DO nt_perturb = 1, ntyp_perturb
        DO na_perturb = 1, nat_perturb
@@ -215,7 +205,7 @@ tau_perturb=v_mnl%tau
           ENDIF
        ENDDO
     ENDDO
-    mnltot=mnltot+mnl*wg(bnd_idx_i,kp_idx_i)!
+!    mnltot=mnltot+mnl*wg(bnd_idx_i,kp_idx_i)!
      
     CALL deallocate_bec_type (  becp )
     CALL deallocate_bec_type (  becp1 )
