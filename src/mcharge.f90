@@ -393,12 +393,12 @@ integer :: nepslines
              !epsk= splint(eps_data(1,:),eps_data(2,:),eps_data_dy(:),deltakG)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              if (deltak>maxval(eps_data(1,:)))      epsk=minval(eps_data(2,:))
-q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+             q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
 
              mcharge1=mcharge1+mcharge0*4*pi/(deltakG**2)
              mcharge2=mcharge2+mcharge0*4*pi/(deltakG**2+k0screen**2)
              mcharge3=mcharge3+mcharge0*4*pi/(deltakG**2)*epsk
-! write(*,*) 'mcharge3',mcharge3,mcharge0,4*pi,(deltakG**2),epsk
+             !write(*,*) 'mcharge3',mcharge3,mcharge0,4*pi,(deltakG**2),epsk
              mcharge4=mcharge4+mcharge0*4*pi/(deltakG**2)            *q2d_coeff
              mcharge5=mcharge5+mcharge0*4*pi/(deltakG**2+k0screen**2)*q2d_coeff
              mcharge6=mcharge6+mcharge0*4*pi/(deltakG**2)*epsk       *q2d_coeff
@@ -410,7 +410,7 @@ q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
                  mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
                  mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
                  write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
-           ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
+                           ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
                endif
             
              Enddo
