@@ -346,7 +346,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
                       -g(1:3,igk_k(ig2,ik))&
                       +xk(1:3,ik0)-xk(1:3,ik))*tpiba
            !w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*(tpi/(deltakG))
-           w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
       Enddo
 
       write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
