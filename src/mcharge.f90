@@ -1,31 +1,43 @@
-
 SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
-USE kinds, ONLY: DP,sgl
-USE fft_base,  ONLY: dfftp, dffts
-USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
-USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  USE kinds, ONLY: DP
+  Use edic_mod, Only : evc1,evc2,eps_data
+  USE fft_base,  ONLY: dfftp, dffts
+  USE gvect, ONLY: g
+  !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+  USE klist , ONLY:  xk, igk_k, ngk
+  !USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  use splinelib, only: spline,splint
+  USE cell_base, ONLY:  alat, tpiba
+  !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+  USE constants, ONLY: tpi, pi
+  use edic_mod, only: machine_eps
+ 
+!USE kinds, ONLY: DP,sgl
+!USE fft_base,  ONLY: dfftp, dffts
+!USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+!USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
 !      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
-      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
-                               psic1, psic2, psic3, psic4
-    use splinelib, only: dosplineint,spline,splint
+!      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+!                               psic1, psic2, psic3, psic4
+!    use splinelib, only: dosplineint,spline,splint
 
       Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
 USE HDF5
-use edic_mod, only: machine_eps
-    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
- USE constants, ONLY: tpi, e2, eps6,pi
+!use edic_mod, only: machine_eps
+!    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+! USE constants, ONLY: tpi, e2, eps6,pi
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! charge
-COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
-INTEGER :: iscx, iscy,nscx,nscy
+!COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+!INTEGER :: iscx, iscy,nscx,nscy
 REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
 INTEGER:: icount,jcount,kcount
 real(DP):: mscreen,mcharge, rmod
 INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
 !!!!! eps data file 
 integer :: nepslines
-real(DP),allocatable:: eps_data (:,:)
+!real(DP),allocatable:: eps_data (:,:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!
@@ -396,8 +408,8 @@ q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
              Enddo
       Enddo
     Enddo
-    mcharge1gw=mcharge1/dffts%nnr
-    mcharge2gw=mcharge2/dffts%nnr
+    mcharge1gw=mcharge1gw/dffts%nnr
+    mcharge2gw=mcharge2gw/dffts%nnr
     mcharge1=mcharge1/dffts%nnr
     mcharge2=mcharge2/dffts%nnr
     mcharge3=mcharge3/dffts%nnr

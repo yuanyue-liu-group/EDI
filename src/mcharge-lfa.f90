@@ -14,23 +14,15 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
   COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
   INTEGER :: ibnd, ik, ik0,ibnd0
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! charge
-COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
-INTEGER :: iscx, iscy,nscx,nscy
-REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
-INTEGER:: icount,jcount,kcount
-real(DP):: mscreen,mcharge, rmod
-INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
-!!!!! eps data file 
-integer :: nepslines
-!real(DP),allocatable:: eps_data (:,:)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-    real(DP) , allocatable::  eps_data_dy(:)
-    real(DP) :: epsk, deltak_para,q2d_coeff
+!  COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+!  INTEGER :: iscx, iscy,nscx,nscy
+  REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  INTEGER:: icount,jcount,kcount
+  real(DP):: mscreen,mcharge, rmod
+  INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
+  integer :: nepslines
+  real(DP) , allocatable::  eps_data_dy(:)
+  real(DP) :: epsk, deltak_para,q2d_coeff
 
  Nlzcutoff=dffts%nr3/2
     lzcutoff=Nlzcutoff*alat/dffts%nr1
@@ -111,3 +103,5 @@ write(*,*) 'deltak',deltak
 
     END SUBROUTINE calcmdefect_charge_lfa
  
+           mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                            +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)

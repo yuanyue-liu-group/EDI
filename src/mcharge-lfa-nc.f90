@@ -1,37 +1,29 @@
-  
-    SUBROUTINE calcmdefect_charge_lfa_nc(ibnd0,ibnd,ik0,ik)
-USE kinds, ONLY: DP,sgl
-USE fft_base,  ONLY: dfftp, dffts
-USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
-USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
- !     Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
-      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
-                               psic1, psic2, psic3, psic4
-    use splinelib, only: dosplineint,spline,splint
-    use edic_mod,   only: V_file,eps_data   
-    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
- USE constants, ONLY: tpi, e2, eps6,pi
-use edic_mod, only: machine_eps
-    COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
-    INTEGER :: ibnd, ik, ik0,ibnd0
+SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
+  USE kinds, ONLY: DP
+  Use edic_mod, Only : evc1,evc2,eps_data
+  USE wvfct, ONLY: npwx
+  USE fft_base,  ONLY: dfftp, dffts
+  USE gvect, ONLY: g
+  !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+  USE klist , ONLY:  xk, igk_k, ngk
+  !USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  use splinelib, only: spline,splint
+  USE cell_base, ONLY:  alat, tpiba
+  !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+  USE constants, ONLY: tpi, pi
+  use edic_mod, only: machine_eps
+  COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  INTEGER :: ibnd, ik, ik0,ibnd0
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! charge
-COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
-INTEGER :: iscx, iscy,nscx,nscy
-REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
-INTEGER:: icount,jcount,kcount
-real(DP):: mscreen,mcharge, rmod
-INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
-!!!!! eps data file 
-integer :: nepslines
-!real(DP),allocatable:: eps_data (:,:)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-    real(DP) , allocatable::  eps_data_dy(:)
-    real(DP) :: epsk, deltak_para,q2d_coeff
+!  COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+!  INTEGER :: iscx, iscy,nscx,nscy
+  REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  INTEGER:: icount,jcount,kcount
+  real(DP):: mscreen,mcharge, rmod
+  INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
+  integer :: nepslines
+  real(DP) , allocatable::  eps_data_dy(:)
+  real(DP) :: epsk, deltak_para,q2d_coeff
 
  Nlzcutoff=dffts%nr3/2
     lzcutoff=Nlzcutoff*alat/dffts%nr1
@@ -46,7 +38,8 @@ integer :: nepslines
       Do ig2=1, ngk(ik)
         if (sum(abs(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
              write(*,*)'psi add',ig1,ig2
-             mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                            +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
         endif
       Enddo
     Enddo
@@ -110,5 +103,5 @@ write(*,*) 'deltak',deltak
     
 
 
-    END SUBROUTINE calcmdefect_charge_lfa_nc
+    END SUBROUTINE calcmdefect_charge_lfa
  
