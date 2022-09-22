@@ -80,44 +80,49 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
   psicprod=0
   psicprod1=0
   !mltot=0
+
   !mltot1=0
-  d1=((1.0/dffts%nr1*at(1,1))*(xk(1,kp_idx_i)-xk(1,kp_idx_f)) +&
-      (1.0/dffts%nr1*at(2,1))*(xk(2,kp_idx_i)-xk(2,kp_idx_f)) +&
-      (1.0/dffts%nr1*at(3,1))*(xk(3,kp_idx_i)-xk(3,kp_idx_f)) )*tpi 
-  d2=((1.0/dffts%nr2*at(1,2))*(xk(1,kp_idx_i)-xk(1,kp_idx_f)) +&
-      (1.0/dffts%nr2*at(2,2))*(xk(2,kp_idx_i)-xk(2,kp_idx_f)) +&
-      (1.0/dffts%nr2*at(3,2))*(xk(3,kp_idx_i)-xk(3,kp_idx_f)) )*tpi 
-  d3=((1.0/dffts%nr3*at(1,3))*(xk(1,kp_idx_i)-xk(1,kp_idx_f)) +&
-      (1.0/dffts%nr3*at(2,3))*(xk(2,kp_idx_i)-xk(2,kp_idx_f)) +&
-      (1.0/dffts%nr3*at(3,3))*(xk(3,kp_idx_i)-xk(3,kp_idx_f)) )*tpi 
+
+    !!!!!!!!!!!!!!!!!psi=u*exp(i*k*x)
+    !!!!!!!!!!!!!!!!!V_g=int V(r)*exp(-i*g*r)
+
+  d1=((1.0/dffts%nr1*at(1,1))*(xk(1,kp_idx_f)-xk(1,kp_idx_i)) +&
+      (1.0/dffts%nr1*at(2,1))*(xk(2,kp_idx_f)-xk(2,kp_idx_i)) +&
+      (1.0/dffts%nr1*at(3,1))*(xk(3,kp_idx_f)-xk(3,kp_idx_i)) )*tpi 
+  d2=((1.0/dffts%nr2*at(1,2))*(xk(1,kp_idx_f)-xk(1,kp_idx_i)) +&
+      (1.0/dffts%nr2*at(2,2))*(xk(2,kp_idx_f)-xk(2,kp_idx_i)) +&
+      (1.0/dffts%nr2*at(3,2))*(xk(3,kp_idx_f)-xk(3,kp_idx_i)) )*tpi 
+  d3=((1.0/dffts%nr3*at(1,3))*(xk(1,kp_idx_f)-xk(1,kp_idx_i)) +&
+      (1.0/dffts%nr3*at(2,3))*(xk(2,kp_idx_f)-xk(2,kp_idx_i)) +&
+      (1.0/dffts%nr3*at(3,3))*(xk(3,kp_idx_f)-xk(3,kp_idx_i)) )*tpi 
   
-  write(*,*) 'v_colin',shape(v_colin),V_d%nr1,V_d%nr2,V_d%nr3
-  write(*,*) 'psi',shape(psic1),dffts%nr1,dffts%nr2,dffts%nr3
-  write(*,*)'ML2',size(psic2),shape(psic2),shape(psic1),dffts%nnr
+  !write(*,*) 'v_colin',shape(v_colin),V_d%nr1,V_d%nr2,V_d%nr3
+  !write(*,*) 'psi',shape(psic1),dffts%nr1,dffts%nr2,dffts%nr3
+  !write(*,*)'ML2',size(psic2),shape(psic2),shape(psic1),dffts%nnr
 
   psic2(1:dffts%nnr) = (0.d0,0.d0)
   psic1(1:dffts%nnr) = (0.d0,0.d0)
   ig=1
-  write(*,*)'ML2.0',shape(igk_k)
-  write(*,*)'ML2.1',igk_k(1:4,kp_idx_i)
-  write(*,*)'ML2.2',ngk(kp_idx_i)
-  write(*,*)'ML2.3',dffts%nl (igk_k(1:4,kp_idx_i) ) ,kp_idx_i, bnd_idx_i
+  !write(*,*)'ML2.0',shape(igk_k)
+  !write(*,*)'ML2.1',igk_k(1:4,kp_idx_i)
+  !write(*,*)'ML2.2',ngk(kp_idx_i)
+  !write(*,*)'ML2.3',dffts%nl (igk_k(1:4,kp_idx_i) ) ,kp_idx_i, bnd_idx_i
   DO ig = 1, ngk(kp_idx_i)
      psic1 (dffts%nl (igk_k(ig,kp_idx_i) ) ) = evc1 (ig, bnd_idx_i)
   ENDDO
-  write(*,*)'ML3' , sum(psic1),sum(Evc1)
-  write(*,*)'ML3.1'
+  !write(*,*)'ML3' , sum(psic1),sum(Evc1)
+  !write(*,*)'ML3.1'
   DO ig = 1, ngk(kp_idx_f)
      psic2 (dffts%nl (igk_k(ig,kp_idx_f) ) ) = evc2 (ig, bnd_idx_f)
   ENDDO
-  write(*,*)'ML3.1'
+  !write(*,*)'ML3.1'
   CALL invfft ('Wave', psic2, dffts)
-  write(*,*)'ML4' , sum(psic2),sum(Evc2)
+  !write(*,*)'ML4' , sum(psic2),sum(Evc2)
 
-  write(*,*)'ML4.1' , psic1(1),Evc1(1,bnd_idx_i)
-  write(*,*)'ML4.2' , psic1(2),Evc1(2,bnd_idx_i)
-  write(*,*)'ML4.3' , psic2(1),Evc2(1,bnd_idx_f)
-  write(*,*)'ML4.4' , psic2(2),Evc2(2,bnd_idx_f)
+  !write(*,*)'ML4.1' , psic1(1),Evc1(1,bnd_idx_i)
+  !write(*,*)'ML4.2' , psic1(2),Evc1(2,bnd_idx_i)
+  !write(*,*)'ML4.3' , psic2(1),Evc2(1,bnd_idx_f)
+  !write(*,*)'ML4.4' , psic2(2),Evc2(2,bnd_idx_f)
   CALL invfft ('Wave', psic1, dffts)
   
   
@@ -158,11 +163,11 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
           !arg=ir3mod*d3+ir2mod*d2+ir1mod*d1
           
           arg=tpi*(real(irx)/dffts%nr1*at(1,1)+real(iry)/dffts%nr2*at(1,2)+&
-                                               real(irz)/dffts%nr3*at(1,3))*(xk(1,kp_idx_i)-xk(1,kp_idx_f)) +&
+                                               real(irz)/dffts%nr3*at(1,3))*(xk(1,kp_idx_f)-xk(1,kp_idx_i)) +&
               tpi*(real(irx)/dffts%nr1*at(2,1)+real(iry)/dffts%nr2*at(2,2)+&
-                                               real(irz)/dffts%nr3*at(2,3))*(xk(2,kp_idx_i)-xk(2,kp_idx_f)) +&
+                                               real(irz)/dffts%nr3*at(2,3))*(xk(2,kp_idx_f)-xk(2,kp_idx_i)) +&
               tpi*(real(irx)/dffts%nr1*at(3,1)+real(iry)/dffts%nr2*at(3,2)+&
-                                               real(irz)/dffts%nr3*at(3,3))*(xk(3,kp_idx_i)-xk(3,kp_idx_f))   
+                                               real(irz)/dffts%nr3*at(3,3))*(xk(3,kp_idx_f)-xk(3,kp_idx_i))   
           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           ! shift arg center
           arg=irz*d3+(iry-iry/(V_d%nr2/2+1)*V_d%nr2)*d2+(irx-irx/(V_d%nr1/2+1)*V_d%nr1)*d1
@@ -170,7 +175,7 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           arg=irz*d3+iry*d2+irx*d1
           
-          phase=CMPLX(COS(-arg),SIN(-arg),kind=dp)
+          phase=CMPLX(COS(arg),SIN(arg),kind=dp)
           inr=inr+1
           irnmod=(ir3mod)*dffts%nr1*dffts%nr2+(ir2mod)*dffts%nr1+ir1mod+1
           !write(*,*)'irnmod,inr',ir1mod,ir2mod,ir3mod,irx,iry,irz, irnmod,inr
@@ -220,7 +225,7 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
   !write (*,*) 'mlpsi*psi0*phase to primitive ki->kf',kp_idx_f,kp_idx_i, mltot, abs(mltot), log(mltot)
   !write (*,*) 'modml super  ki->kf',kp_idx_f,kp_idx_i, abs(ml)
   !write (*,*) 'Ml ki->kf ',kp_idx_f,kp_idx_i, ml, abs(ml)
-  write (*,1001) 'Ml ki->kf ',kp_idx_i,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), ml, abs(ml)
+  write (*,1001) 'Ml ibnd,ki->fbnd,kf ',bnd_idx_i,kp_idx_i,bnd_idx_f,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), ml, abs(ml)
   !write(*,*) 'nrx_perturb',V_d%nr1,V_d%nr2,V_d%nr3
   !write(*,*) 'nrx_perturb',at,at_perturb, alat
   !write (*,*) 'dvgk', vgk(:)-vgk_perturb(:)

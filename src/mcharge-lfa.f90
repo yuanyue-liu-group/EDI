@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik,noncolin,k0screen)
+SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,eps_data
   USE fft_base,  ONLY: dfftp, dffts
@@ -38,7 +38,7 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik,noncolin,k0screen)
   DO ig1 = 1, ngk(ik0)
     Do ig2=1, ngk(ik)
       if (sum(abs(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
-           write(*,*)'psi add',ig1,ig2
+!           write(*,*)'psi add',ig1,ig2
         if (.not. noncolin )then
            mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
         else

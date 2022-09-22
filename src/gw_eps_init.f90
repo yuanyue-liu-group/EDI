@@ -1105,8 +1105,8 @@ CALL MPI_BCAST( gw_%epsmat_full_data, datasize, my_MPI_dp,p_source, gid, ierr )
 
 
 
-call  mpi_barrier(gid)
-call flush(6)
+!call  mpi_barrier(gid)
+!call flush(6)
 
 
 
