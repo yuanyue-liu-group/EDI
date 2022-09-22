@@ -1100,7 +1100,7 @@ allocate(gw_%epsmat_full_data(datadims6(1),datadims6(2),datadims6(3),datadims6(4
 endif
 write(*,*)'gw read 5.3 rank shape epsmat_full', p_rank,shape(gw_%epsmat_full_data )
 CALL MPI_BCAST( gw_%epsmat_full_data, datasize, my_MPI_dp,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank epsmat_full', p_rank,gw_%epsmat_full_data 
+!!write(*,*)'gw read 5.3 rank epsmat_full', p_rank,gw_%epsmat_full_data 
 
 
 

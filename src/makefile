@@ -41,6 +41,8 @@ ml-rs.f90\
 mnl-ks.f90\
 mcharge-lfa.f90\
 mcharge.f90\
+mcharge-lfa-nc.f90\
+mcharge-nc.f90\
 ml-nc.f90\
 mnl-nc.f90\
 mnl-soc.f90\

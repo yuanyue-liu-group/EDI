@@ -297,16 +297,24 @@ endif
     endif
  
 if (noncolin .or. lspinorb)then
-    Bxc_1%filename = Bxc_1_filename
-    Bxc_2%filename = Bxc_2_filename
-    Bxc_3%filename = Bxc_3_filename
-    !call read_perturb_file(Bxc_1)
-    !call read_perturb_file(Bxc_2)
-    call read_perturb_file(Bxc_3)
+    Bxc_1_p%filename = Bxc_1_p_filename
+    Bxc_2_p%filename = Bxc_2_p_filename
+    Bxc_3_p%filename = Bxc_3_p_filename
+    call read_perturb_file(Bxc_1_p)
+    call read_perturb_file(Bxc_2_p)
+    call read_perturb_file(Bxc_3_p)
+    Bxc_1_d%filename = Bxc_1_d_filename
+    Bxc_2_d%filename = Bxc_2_d_filename
+    Bxc_3_d%filename = Bxc_3_d_filename
+    call read_perturb_file(Bxc_1_d)
+    call read_perturb_file(Bxc_2_d)
+    call read_perturb_file(Bxc_3_d)
 
-    allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
-       V_nc(:, 1) = V_d%pot(:) -V_p%pot(:) + Bxc_3%pot(:) - V_d_shift + V_p_shift
-        V_nc(:, 2) = V_d%pot(:) -V_p%pot(:) - Bxc_3%pot(:) - V_d_shift + V_p_shift
+    allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+       V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
+       V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:) 
+       V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:) 
+       V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:) 
 else
     allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
     V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
@@ -371,6 +379,43 @@ write(*,*)'bnd_idx_i,bnd_idx_f',bnd_idx_i,bnd_idx_f
       write(*,*)'evc2',evc2(1,1),shape(evc2)
 
                  
+   if (noncolin .and. .not. lspinorb )then
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+if (calcmcharge) then
+
+
+    if (mcharge_dolfa) then
+                      call calcmdefect_charge_lfa_nc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    else
+                      call calcmdefect_charge_nolfa_nc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    endif
+    
+endif
+ 
+    endif
+    
+    if (noncolin .and. lspinorb )then
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+                      call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+if (calcmcharge) then
+
+
+    if (mcharge_dolfa) then
+                      call calcmdefect_charge_lfa_nc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    else
+                      call calcmdefect_charge_nolfa_nc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+    endif
+    
+endif
+ 
+
+    endif
+    if ( .not. noncolin )then
+                      call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
+                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
+                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
 if (calcmcharge) then
 
 
@@ -380,26 +425,13 @@ if (calcmcharge) then
                       call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
     endif
     
-else
-    if (noncolin .and. .not. lspinorb )then
-                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                      call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-    endif
-    
-    if (noncolin .and. lspinorb )then
-                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                      call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
-                      call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-    endif
-    if ( .not. noncolin )then
-                      call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
-                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-                      call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
+endif
+ 
+
     endif
     !      write(*,*)'evc2',evc2(1,1)
     !      write(*,*)'evc2',evc2(1,1)
  
-endif
 
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
             write (*,1003) 'M_tot ni ki --> nf kf ', bnd_idx_f,kp_idx_f, '-->', bnd_idx_i,kp_idx_i, &

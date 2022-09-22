@@ -15,7 +15,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
       USE pw_restart_new,   ONLY : read_collected_wfc
     Implicit None 
 
-    complex(dp) :: ml_up, ml_down
+    complex(dp) :: ml_up, ml_down,ml
     real(dp) :: d1, d2, d3
 
     INTEGER :: ibnd, ik, ik0,ibnd0, ig
@@ -52,6 +52,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
       write(*,*)'ML1'
     ml_up=0
     ml_down=0
+    ml=0.0
     d1=((1.0/dffts%nr1*at(1,1))*(xk(1,ik)-xk(1,ik0)) +&
         (1.0/dffts%nr1*at(2,1))*(xk(2,ik)-xk(2,ik0)) +&
         (1.0/dffts%nr1*at(3,1))*(xk(3,ik)-xk(3,ik0)) )*tpi 
@@ -135,8 +136,12 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
     phase=CMPLX(COS(arg),SIN(arg),kind=dp)
     inr=inr+1
     irnmod=(ir3mod)*dffts%nr1*dffts%nr2+(ir2mod)*dffts%nr1+ir1mod+1
-    ml_up=ml_up+CONJG(psic1(irnmod))*psic2(irnmod)*phase*v_nc(inr, 1)
-    ml_down=ml_down+CONJG(psic3(irnmod))*psic4(irnmod)*phase*v_nc(inr, 2)
+    ml=ml+CONJG(psic1(irnmod))*psic2(irnmod)*phase*(v_nc(inr, 1)+v_nc(inr,4))&
+         +CONJG(psic3(irnmod))*psic4(irnmod)*phase*(v_nc(inr, 1)-v_nc(inr,4))&
+         +CONJG(psic1(irnmod))*psic2(irnmod)*phase*(v_nc(inr, 2)+v_nc(inr,3))&
+         +CONJG(psic3(irnmod))*psic4(irnmod)*phase*(v_nc(inr, 2)-v_nc(inr,3)) 
+    !ml_up=ml_up+CONJG(psic1(irnmod))*psic2(irnmod)*phase*v_nc(inr, 1)
+    !ml_down=ml_down+CONJG(psic3(irnmod))*psic4(irnmod)*phase*v_nc(inr, 2)
 
     if ( irnmod<0 .or. irnmod>dffts%nnr ) then
        write (*,*) 'grid mismatch', irnmod, dffts%nnr 
@@ -155,9 +160,11 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
     enddo
     ml_up=ml_up/dffts%nnr
     ml_down=ml_down/dffts%nnr
-    write (*,1001) 'Ml_up ki->kf ',ik0,ik, ml_up, abs(ml_up)
-    write (*,1001) 'Ml_down ki->kf ',ik0,ik,  ml_down, abs(ml_down)
-    write (*,1002) 'Ml ki->kf ',ik0,ik,  ml_up+ml_down, abs(ml_up+ml_down)
+    ml=ml/dffts%nnr
+    write (*,1001) 'Ml ki->kf ',ik0,ik, ml, abs(ml)
+    !write (*,1001) 'Ml_up ki->kf ',ik0,ik, ml_up, abs(ml_up)
+    !write (*,1001) 'Ml_down ki->kf ',ik0,ik,  ml_down, abs(ml_down)
+    !write (*,1002) 'Ml ki->kf ',ik0,ik,  ml_up+ml_down, abs(ml_up+ml_down)
 1001 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
    
