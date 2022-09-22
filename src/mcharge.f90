@@ -11,6 +11,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
   !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
   USE constants, ONLY: tpi, pi
   use edic_mod, only: machine_eps
+
+  Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
+  USE HDF5
  
 !USE kinds, ONLY: DP,sgl
 !USE fft_base,  ONLY: dfftp, dffts
@@ -21,8 +24,6 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
 !                               psic1, psic2, psic3, psic4
 !    use splinelib, only: dosplineint,spline,splint
 
-      Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
-USE HDF5
 !use edic_mod, only: machine_eps
 !    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
 ! USE constants, ONLY: tpi, e2, eps6,pi
@@ -144,18 +145,19 @@ integer :: nepslines
     COMPLEX(DP) :: epstmp1,epstmp2
     INTEGER :: iq1,iq2,nqgrid_gw=48!fixme
 !    INTEGER :: gw_ng
-    INTEGER :: gind_gw_eps1,gind_gw_eps2
-    INTEGER :: gind_psi1,gind_psi2
-    INTEGER :: gind_gwrho1,gind_gwrho2
-real(dp)::q1(3)
-logical:: interpolate_2d,interpolate_smallq1d=.false.
+  INTEGER :: gind_gw_eps1,gind_gw_eps2
+  INTEGER :: gind_psi1,gind_psi2
+  INTEGER :: gind_gwrho1,gind_gwrho2
+  real(dp)::q1(3)
+  logical:: interpolate_2d,interpolate_smallq1d=.false.
 
-    INTEGER :: gw_q_g_commonsubset_size
-    COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
+  INTEGER :: gw_q_g_commonsubset_size
+  COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
 
- Nlzcutoff=dffts%nr3/2
+    Nlzcutoff=dffts%nr3/2
     lzcutoff=Nlzcutoff*alat/dffts%nr1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! get interpolated eps matrix
 ! eps(0,0) fine after check
@@ -170,134 +172,134 @@ logical:: interpolate_2d,interpolate_smallq1d=.false.
     epsmat_inted(:,:)=0.0
     
 
-interpolate_2d=.false.
-interpolate_smallq1d=.false.
-       if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw) then
-             interpolate_smallq1d=.true.
-       else
-             interpolate_2d=.true.
-       endif
+    interpolate_2d=.false.
+    interpolate_smallq1d=.false.
+    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw) then
+          interpolate_smallq1d=.true.
+    else
+          interpolate_2d=.true.
+    endif
 
-if(interpolate_2d) then
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 2d simple interpolate prepare fixme
-    deltakG=norm2(xk(1:3,ik0)-xk(1:3,ik))*tpiba
-             deltakG_para=deltakG
-    allocate(w1(gw_epsq1_data%nq_data(1)))
-    w1(:)=0.0
-    do iq1 = 1, gw_epsq1_data%nq_data(1)
-        q1(:)=   gw_epsq0_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
-              gw_epsq0_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
-              gw_epsq0_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
-       if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*1.0/nqgrid_gw) then
-         w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
-       endif
-    enddo
-    write(*,*) 'gw_debug w1',w1(:)
-    !do iq1 = 1, gw_nq_data(1)
-    !   if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1))<machine_eps*1e-6) 
-    !enddo
-! 2d simple interpolate prepare fixme
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-endif
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! 2d simple interpolate prepare fixme
+    if(interpolate_2d) then
+        deltakG=norm2(xk(1:3,ik0)-xk(1:3,ik))*tpiba
+                 deltakG_para=deltakG
+        allocate(w1(gw_epsq1_data%nq_data(1)))
+        w1(:)=0.0
+        do iq1 = 1, gw_epsq1_data%nq_data(1)
+           q1(:)= gw_epsq0_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
+                  gw_epsq0_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
+                  gw_epsq0_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
+           if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*1.0/nqgrid_gw) then
+             w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
+           endif
+        enddo
 
+        write(*,*) 'gw_debug w1',w1(:)
 
+        if(sum(w1(:))<machine_eps) then
+            write(*,*) 'eps 2d interpolation error'
+            stop -1
+        endif
+        !do iq1 = 1, gw_nq_data(1)
+        !   if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1))<machine_eps*1e-6) 
+        !enddo
+    endif
+    ! 2d simple interpolate prepare fixme
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     do ig1 = 1, gw_q_g_commonsubset_size
       do ig2 = 1, gw_q_g_commonsubset_size
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! simple interpolate
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! simple interpolate
         !epstmp1=(gw_epsmat_full_data(1,ig1,ig2,1,1,iq1),&
         !         gw_epsmat_full_data(2,ig1,ig2,1,1,iq1))
         !epstmp2=(gw_epsmat_full_data(1,ig1,ig2,1,1,iq2),&
         !         gw_epsmat_full_data(2,ig1,ig2,1,1,iq2))
-
         !      eps_gw=gw_epsmat_full_data(:,ig1,ig2,1,1,iq1)*wq1+&
         !       gw_epsmat_full_data(:,ig1,ig2,1,1,iq2)*wq2
-! simple interpolate
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! simple interpolate
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-             if( interpolate_smallq1d) then
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!spline interpolate fixme 
-!! change to 2d space matrix interpolate
-!! change boundary condition
-
-        !*gw_blat_data(1)
-        !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(1,1:5)
-        !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(2,1:5)
-        !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(3,1:5)
-        !write(*,*) 'gw3.1',gw_q_g_commonsubset_indinrho(1:5)
-        !write(*,*) 'gw3.1',gw_gind_rho2eps_data(1,1:5)
-        !write(*,*) 'gw3.1',ig1,ig2
-                do iq1=1,gw_epsq0_data%nq_data(1)
-        !write(*,*) 'gw3.1.1',iq1, gind_gw_eps2,gw_q_g_commonsubset_indinrho(ig2),gw_gind_rho2eps_data(gw_q_g_commonsubset_indinrho(ig2),iq1)
-                   gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),iq1)
-                   gind_gw_eps2=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig2),iq1)
-        !write(*,*) 'gw3.1.2',iq1
-                   if  (gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1).or. gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1)  )  &
-write(*,*) 'gindex of eps qpts messedup'
-        !write(*,*) 'gw3.1.3',1,gind_gw_eps1,gind_gw_eps2,1,1,iq1
-        !write(*,*) 'gw3.1.3',gw_epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                   epsint_q0_tmp1(iq1)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-        !write(*,*) 'gw3.1.3',iq1
-                   epsint_q0_tmp2(iq1)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-        !write(*,*) 'gw3.1.4',iq1
-                enddo
-        !write(*,*) 'gw3.2',ig1,ig2
-                call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
-                epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltakG_para)
-                if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!spline interpolate fixme 
+        !! change to 2d space matrix interpolate
+        !! change boundary condition
+        if( interpolate_smallq1d) then
         
-                call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
-                epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltakG_para)
-                if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
-        !        epsmat_inted(gw_gind_rho2eps_data(ig1,iq1),gw_gind_rho2eps_data(ig2,iq1))=complex(epsinttmp1s,epsinttmp2s)
-                epsmat_inted(ig1,ig2)=complex(epsinttmp1s,epsinttmp2s)
-        
-!!spline interpolate fixme 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-endif
+            !*gw_blat_data(1)
+            !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(1,1:5)
+            !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(2,1:5)
+            !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(3,1:5)
+            !write(*,*) 'gw3.1',gw_q_g_commonsubset_indinrho(1:5)
+            !write(*,*) 'gw3.1',gw_gind_rho2eps_data(1,1:5)
+            !write(*,*) 'gw3.1',ig1,ig2
+            do iq1=1,gw_epsq0_data%nq_data(1)
+               !write(*,*) 'gw3.1.1',iq1, gind_gw_eps2,gw_q_g_commonsubset_indinrho(ig2),gw_gind_rho2eps_data(gw_q_g_commonsubset_indinrho(ig2),iq1)
+               gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),iq1)
+               gind_gw_eps2=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig2),iq1)
+               !write(*,*) 'gw3.1.2',iq1
+               if  (gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1).or. gind_gw_eps2>gw_epsq0_data%nmtx_data(iq1)  )  &
+                    write(*,*) 'gindex of eps qpts messedup'
+               !write(*,*) 'gw3.1.3',1,gind_gw_eps1,gind_gw_eps2,1,1,iq1
+               !write(*,*) 'gw3.1.3',gw_epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+               epsint_q0_tmp1(iq1)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+               !write(*,*) 'gw3.1.3',iq1
+               epsint_q0_tmp2(iq1)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+               !write(*,*) 'gw3.1.4',iq1
+            enddo
+            !write(*,*) 'gw3.2',ig1,ig2
+            call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
+            epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltakG_para)
+            if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
+                
+            call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
+            epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltakG_para)
+            if (deltakG_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
+            !epsmat_inted(gw_gind_rho2eps_data(ig1,iq1),gw_gind_rho2eps_data(ig2,iq1))=complex(epsinttmp1s,epsinttmp2s)
+            epsmat_inted(ig1,ig2)=complex(epsinttmp1s,epsinttmp2s)
+                
+        endif
+        !!spline interpolate fixme 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  if (interpolate_2d) then
-if(sum(w1(:))<machine_eps) then
-write(*,*) 'eps 2d interpolation error'
-stop -1
-endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 2d simple interpolate  fixme
-                 do iq1 = 1, gw_epsq1_data%nq_data(1)
-                   gind_gw_eps1=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig1),iq1)
-                   gind_gw_eps2=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig2),iq1)
-                   epsinttmp1s=gw_epsq1_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                   epsinttmp2s=gw_epsq1_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                   epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)
-                 enddo
-                 epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)/sum(w1(:))
-! 2d simple interpolate  fixme
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- endif
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! 2d simple interpolate  fixme
+        if (interpolate_2d) then
+            do iq1 = 1, gw_epsq1_data%nq_data(1)
+                gind_gw_eps1=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig1),iq1)
+                gind_gw_eps2=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig2),iq1)
+                epsinttmp1s=gw_epsq1_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                epsinttmp2s=gw_epsq1_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)
+            enddo
+            epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)/sum(w1(:))
+        endif
+        ! 2d simple interpolate  fixme
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
         write(*,*) 'gw_debug epsmat_inted ig1,ig2,q',epsmat_inted(ig1,ig2),'ig1',ig1,'ig2',ig2,deltakG_para
-               
-              enddo
-            enddo
-
+       
+      enddo
+    enddo
 ! get interpolated eps matrix
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! get w(g)
-!write(*,*) 'gw4'
+    !write(*,*) 'gw4'
     allocate(w_gw(ngk(ik0)))
     w_gw(:)=0.0
 
     qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
     qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
-q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+    q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
            icount=icount+1
@@ -308,10 +310,16 @@ q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
            w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
       Enddo
 
-write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
+      write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
     Enddo
  
 ! get w(g)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -425,7 +433,4 @@ q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
     write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
     write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
     
-    END SUBROUTINE calcmdefect_charge_nolfa
-    
-
-
+END SUBROUTINE calcmdefect_charge_nolfa
