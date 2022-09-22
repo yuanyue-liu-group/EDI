@@ -1,74 +1,59 @@
 ! SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik, V_d, V_p)
- SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0)
-    Use kinds,    Only : dp
-    USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
-    USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
-    USE becmod, ONLY: becp1,becp2,becp_perturb
-    Use edic_mod, Only : becp1_perturb,becp2_perturb
-    USE edic_mod, Only :  V_d, V_p,V_file
-    USE uspp_param, ONLY: nh
-    USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
-    USE uspp, ONLY: nkb, vkb, dvan, dvan_so
-    Use edic_mod,only : evc1,evc2,evc3,evc4
-    Use edic_mod, Only: m_nloc
-USE io_global, ONLY: stdout, ionode, ionode_id
-USE control_flags,    ONLY : gamma_only, io_level
+SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0)
+  Use kinds,    Only : dp
+  USE io_global, ONLY: stdout
+  USE wvfct, ONLY: npwx, nbnd
+  USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+
+  USE uspp_param, ONLY: nh
+  USE uspp, ONLY: nkb, vkb, dvan, dvan_so
+
+  Use edic_mod, Only : evc1,evc2,V_file
+  Use edic_mod, Only : becp1_perturb,becp2_perturb
+
+  USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
      
-    INTEGER :: ibnd, ik, ik0,ibnd0
-    integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
-                nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
-    integer :: iunplot_perturb, ios_perturb, ipol_perturb, na_perturb, nt_perturb, &
-                ir_perturb, ndum_perturb
-    integer :: ijkb0, ih, jh, ikb, jkb
-    Complex(dp) :: mnl, mnl_d, mnl_p, mnltot
-    Complex(dp), allocatable :: vkb_perturb(:,:)
+Complex(dp), allocatable :: vkb_perturb(:,:)
+COMPLEX(DP) :: mnl
+type(V_file):: v_mnl
+INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
+integer ::nkb_perturb
+integer :: ijkb0, ih, jh, ikb, jkb
  
-    !type(V_file) :: V_d!, V_p
 
     nkb_perturb=0
-    
-    DO nt_perturb = 1, V_d%ntyp
-        DO na_perturb = 1, V_d%nat
-           IF(V_d%ityp (na_perturb) == nt_perturb)THEN
-               nkb_perturb = nkb_perturb + nh (nt_perturb)
-           ENDIF
-        ENDDO
-     ENDDO
+    DO nt_perturb = 1, v_mnl%ntyp
+       DO na_perturb = 1, v_mnl%nat
+          IF(v_mnl%ityp (na_perturb) == nt_perturb)THEN
+              nkb_perturb = nkb_perturb + nh (nt_perturb)
+          ENDIF
+       ENDDO
+    ENDDO
 
-    CALL allocate_bec_type ( nkb, nbnd, becp )
-    CALL allocate_bec_type ( nkb, nbnd, becp1 )
-    CALL allocate_bec_type ( nkb, nbnd, becp2 )
-    CALL allocate_bec_type ( nkb_perturb, nbnd, becp_perturb )
     CALL allocate_bec_type ( nkb_perturb, nbnd, becp1_perturb )
     CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
     ALLOCATE(vkb_perturb(npwx,nkb_perturb))
-
-    !CALL init_us_2 (ngk(ik), igk_k(1,ik), xk (1, ik), vkb)
-    !CALL calbec ( ngk(ik), vkb, evc, becp )
-    
-    CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
+    CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
     CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
-         
-    CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,V_d%nat,V_d%ityp,V_d%tau,nkb_perturb)
+    CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
     CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
     ijkb0 = 0
-    mnl_d=0
-    mnltot=0
-    DO nt_perturb = 1, V_d%ntyp
-      DO na_perturb = 1, V_d%nat
-         IF(V_d%ityp (na_perturb) == nt_perturb)THEN
+    mnl=0
+    DO nt_perturb = 1, v_mnl%ntyp
+      DO na_perturb = 1, v_mnl%nat
+         IF(v_mnl%ityp (na_perturb) == nt_perturb)THEN
             DO ih = 1, nh (nt_perturb)
                 ikb = ijkb0 + ih
-               mnl_d=mnl_d+&
-               conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,1,nt_perturb)&
-               + conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,2,nt_perturb)&
-               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,3,nt_perturb)&
-               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,4,nt_perturb)
-!                    ENDIF
-               DO jh = ( ih + 1 ), nh(nt_perturb)
+                mnl=mnl+&
+                  conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,1,nt_perturb)&
+                + conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,2,nt_perturb)&
+                + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,3,nt_perturb)&
+                + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,4,nt_perturb)
+!                     ENDIF
+                DO jh = ( ih + 1 ), nh(nt_perturb)
                    jkb = ijkb0 + jh
 
-                  mnl_d=mnl_d + &
+                  mnl=mnl + &
                      conjg(becp1_perturb%nc(ikb, 1, ibnd0))*becp2_perturb%nc(jkb, 1, ibnd) &
                      * dvan_so(ih,jh,1,nt_perturb) &
                      + &
@@ -104,22 +89,15 @@ USE control_flags,    ONLY : gamma_only, io_level
                   enddo
                   ijkb0 = ijkb0 + nh(nt_perturb)
                endif
-            enddo
+             enddo
          enddo
-         mnltot=mnltot+mnl_d*wg(ibnd,ik)
 
 
-      CALL deallocate_bec_type (  becp )
-      CALL deallocate_bec_type (  becp1 )
-      CALL deallocate_bec_type (  becp2 )
-      CALL deallocate_bec_type (  becp_perturb )
       CALL deallocate_bec_type (  becp1_perturb )
       CALL deallocate_bec_type (  becp2_perturb )
       DEALLOCATE(vkb_perturb)
 
 1001 format(A16,I9,I9, " ( ",e17.9," , ",e17.9," ) ",e17.9)
   1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
-      write (stdout,1001) 'Mnl_d ki->kf ', ik0,ik, mnl_d, abs(mnl_d)
-      write (stdout,1001) 'Mnl_p ki->kf ', ik0,ik, mnl_p, abs(mnl_p)
-      write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl_d-mnl_p, abs(mnl_d-mnl_p)
- END SUBROUTINE calcmdefect_mnl_ks_soc
+      write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
+END SUBROUTINE calcmdefect_mnl_ks_soc
