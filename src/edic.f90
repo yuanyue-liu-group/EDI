@@ -364,9 +364,9 @@ Program edic
       write(*,*)'evc2',evc2(1,1),shape(evc2)
 
       if (calcmcharge .and. mcharge_dolfa) &
-          call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin)
+          call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,k0screen_read)
       if (calcmcharge .and. .not. mcharge_dolfa) &
-          call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin)
+          call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,k0screen_read)
 
       if (noncolin .and. .not. lspinorb )then
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)

@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik,noncolin)
+SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik,noncolin,k0screen)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,eps_data
   USE fft_base,  ONLY: dfftp, dffts
@@ -16,7 +16,8 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik,noncolin)
 
   !COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
   !INTEGER :: iscx, iscy,nscx,nscy
-  REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  REAL(dp) ,intent(in)::k0screen
+  REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
   INTEGER:: icount,jcount,kcount
   real(DP):: mscreen,mcharge, rmod
   INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff

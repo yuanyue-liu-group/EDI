@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
+SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,eps_data
   USE fft_base,  ONLY: dfftp, dffts
@@ -32,7 +32,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   ! charge
   !COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
   !INTEGER :: iscx, iscy,nscx,nscy
-  REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  REAL(dp) ,intent(in)::k0screen
+  REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
   INTEGER:: icount,jcount,kcount
   real(DP):: mscreen,mcharge, rmod
   INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
@@ -143,7 +144,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   real(DP) ::epsinttmp2s
   real(DP) ::epsinttmp3s
   real(DP) ::epsinttmp4s
-  complex(DP),allocatable ::epsmat_inted(:,:) ! interpolated eps matrix
+  complex(DP),allocatable ::epsmat_inted(:,:) ! interpolated eps matrix(epsilon^-1)
+  complex(DP),allocatable ::epsmat_inv(:,:) ! inverted interpolated eps matrix(epsilon^+1)
+  complex(DP),allocatable ::epsmat_lindhard(:,:) ! interpolated eps matrix(epsilon^-1)
   COMPLEX(DP) :: epstmp1,epstmp2
   INTEGER :: iq1,iq2,nqgrid_gw=48!fixme
   !INTEGER :: gw_ng
@@ -171,6 +174,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
 
 
     allocate(epsmat_inted(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
+    allocate(epsmat_inv(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
+    allocate(epsmat_lindhard(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
     epsmat_inted(:,:)=0.0
     
 
@@ -289,6 +294,38 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
     enddo
 ! get interpolated eps matrix
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! lindhard model eps
+
+    !epsmat_inv(:,:)=epsmat_inted(:,:)
+    call mat_inv(epsmat_inted,epsmat_inv)
+    !epsmat_lindhard(:,:)=epsmat_inv(:,:)
+
+    deltakG=norm2(g(:,igk_k(ig1,ik0))&
+                 -g(:,igk_k(ig2,ik))&
+               +xk(:,ik0)-xk(:,ik))*tpiba
+    
+    qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
+    qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
+    q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+    DO ig1 = 1, ngk(ik0)
+      Do ig2=1, ngk(ik)
+    !DO ig1 = 1, ngk(ik0)
+    !  Do ig2=1, ngk(ik)
+    !       icount=icount+1
+           if(norm2(g(1:2,igk_k(ig1,ik0)))+norm2(g(1:2,igk_k(ig2,ik)))<machine_eps) then
+               deltakG=norm2(g(1:3,igk_k(ig1,ik0))&
+                            -g(1:3,igk_k(ig2,ik))&
+                          +xk(1:3,ik0)-xk(1:3,ik))*tpiba
+               epsmat_inv(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))=&
+                  epsmat_inv(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))+&
+                  4*pi/(deltakG**2)*q2d_coeff*k0screen/(lzcutoff*2)
+           endif
+      enddo
+    enddo
+    call mat_inv(epsmat_inv,epsmat_lindhard)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -447,4 +484,37 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
     write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
     write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
     
+contains
+subroutine mat_inv(A,Ainv)
+  complex(dp), dimension(:,:), intent(in)    :: A
+  complex(dp), dimension(:,:), intent(inout) :: Ainv
+
+  real(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
+  integer, dimension(size(A,1)) :: ipiv   ! pivot indices
+  integer :: n, info
+
+  ! External procedures defined in LAPACK
+  external DGETRF
+  external DGETRI
+
+  ! Store A in Ainv to prevent it from being overwritten by LAPACK
+  Ainv = A
+  n = size(A,1)
+
+  ! DGETRF computes an LU factorization of a general M-by-N matrix A
+  ! using partial pivoting with row interchanges.
+  call DGETRF(n, n, Ainv, n, ipiv, info)
+
+  if (info /= 0) then
+     stop 'Matrix is numerically singular!'
+  end if
+
+  ! DGETRI computes the inverse of a matrix using the LU factorization
+  ! computed by DGETRF.
+  call DGETRI(n, Ainv, n, ipiv, work, n, info)
+
+  if (info /= 0) then
+     stop 'Matrix inversion failed!'
+  end if
+end subroutine mat_inv
 END SUBROUTINE calcmdefect_charge_nolfa
