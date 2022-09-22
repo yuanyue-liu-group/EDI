@@ -271,46 +271,47 @@ Program edic
   endif
 
 
-
-  V_d%filename = V_d_filename
-  V_p%filename = V_p_filename
-  call read_perturb_file(V_d)
-  call read_perturb_file(V_p)
-  if (lvacalign) then
-      v_d_shift = sum(V_d%pot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
-      v_p_shift = sum(v_p%pot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
-  elseif (lcorealign) then
-      v_d_shift = core_v_d
-      v_p_shift = core_v_p
+  if (calcmlocal .or. calcmnonlocal) then
+      V_d%filename = V_d_filename
+      V_p%filename = V_p_filename
+      call read_perturb_file(V_d)
+      call read_perturb_file(V_p)
+      if (lvacalign) then
+          v_d_shift = sum(V_d%pot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
+          v_p_shift = sum(v_p%pot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
+      elseif (lcorealign) then
+          v_d_shift = core_v_d
+          v_p_shift = core_v_p
+      endif
+     
+      if (noncolin .or. lspinorb)then
+          Bxc_1_p%filename = Bxc_1_p_filename
+          Bxc_2_p%filename = Bxc_2_p_filename
+          Bxc_3_p%filename = Bxc_3_p_filename
+          call read_perturb_file(Bxc_1_p)
+          call read_perturb_file(Bxc_2_p)
+          call read_perturb_file(Bxc_3_p)
+          Bxc_1_d%filename = Bxc_1_d_filename
+          Bxc_2_d%filename = Bxc_2_d_filename
+          Bxc_3_d%filename = Bxc_3_d_filename
+          call read_perturb_file(Bxc_1_d)
+          call read_perturb_file(Bxc_2_d)
+          call read_perturb_file(Bxc_3_d)
+      
+          allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+          V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
+          V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:) 
+          V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:) 
+          V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:) 
+      else
+          allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
+          V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
+      endif
+      write(*,*) 'vcolin' ,shape(v_colin)
+    
+      !       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
+      !       call get_vloc_colin()
   endif
- 
-  if (noncolin .or. lspinorb)then
-      Bxc_1_p%filename = Bxc_1_p_filename
-      Bxc_2_p%filename = Bxc_2_p_filename
-      Bxc_3_p%filename = Bxc_3_p_filename
-      call read_perturb_file(Bxc_1_p)
-      call read_perturb_file(Bxc_2_p)
-      call read_perturb_file(Bxc_3_p)
-      Bxc_1_d%filename = Bxc_1_d_filename
-      Bxc_2_d%filename = Bxc_2_d_filename
-      Bxc_3_d%filename = Bxc_3_d_filename
-      call read_perturb_file(Bxc_1_d)
-      call read_perturb_file(Bxc_2_d)
-      call read_perturb_file(Bxc_3_d)
-  
-      allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
-      V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
-      V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:) 
-      V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:) 
-      V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:) 
-  else
-      allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
-      V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
-  endif
-  write(*,*) 'vcolin' ,shape(v_colin)
-
-  !       allocate(V_loc( V_d%nr1 * V_d%nr2 * V_d%nr3, 2))
-  !       call get_vloc_colin()
        
   call  mpi_barrier(mpi_comm_world)
 
@@ -368,19 +369,25 @@ Program edic
       if (calcmcharge .and. .not. mcharge_dolfa) &
           call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,k0screen_read)
 
-      if (noncolin .and. .not. lspinorb )then
+      if (noncolin .and. .not. lspinorb .and. calcmlocal)then
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+      endif
+      if (noncolin .and. .not. lspinorb .and. calcmnonlocal)then
           call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
           call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
       endif
       
-      if (noncolin .and. lspinorb )then
+      if (noncolin .and. lspinorb .and. calcmlocal)then
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+      endif
+      if (noncolin .and. lspinorb .and. calcmnonlocal)then
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
       endif
-      if ( .not. noncolin )then
+      if ( .not. noncolin .and. calcmlocal)then
           call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
+      endif
+      if ( .not. noncolin .and. calcmnonlocal)then
           call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
           call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
       endif

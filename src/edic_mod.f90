@@ -62,7 +62,7 @@ real(DP),allocatable:: eps_data (:,:)
 !   CHARACTER(LEN=256) :: vperturb_filename_d='vloc-d.dat'
   CHARACTER(LEN=256) :: eps_filename='eps.dat'
   CHARACTER(LEN=256) :: gw_epsmat_filename='epsmat.h5'
-  CHARACTER(LEN=256) :: gw_eps0mat_filename='epsmat.h5'
+  CHARACTER(LEN=256) :: gw_eps0mat_filename='eps0mat.h5'
           character(len=256) :: V_d_filename = 'none', Bxc_1_d_filename='none', Bxc_2_d_filename='none', Bxc_3_d_filename='none'
           character(len=256) :: V_p_filename = 'none', Bxc_1_p_filename='none', Bxc_2_p_filename='none', Bxc_3_p_filename='none'
           character(len=256) :: V_up_filename='none', V_down_filename='none'
