@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
+SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,eps_data
   USE fft_base,  ONLY: dfftp, dffts
@@ -15,111 +15,113 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
   USE HDF5
  
-!USE kinds, ONLY: DP,sgl
-!USE fft_base,  ONLY: dfftp, dffts
-!USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
-!USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
-!      Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
-!      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
-!                               psic1, psic2, psic3, psic4
-!    use splinelib, only: dosplineint,spline,splint
-
-!use edic_mod, only: machine_eps
-!    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
-! USE constants, ONLY: tpi, e2, eps6,pi
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! charge
-!COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
-!INTEGER :: iscx, iscy,nscx,nscy
-REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
-INTEGER:: icount,jcount,kcount
-real(DP):: mscreen,mcharge, rmod
-INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
-!!!!! eps data file 
-integer :: nepslines
-!real(DP),allocatable:: eps_data (:,:)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!
-!!
-!!!!!!!!!!!!hdf5
-!!  CHARACTER(LEN=256) :: h5filename      ! Dataset name
-!!  CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
-!! INTEGER     ::   h5rank,h5error ! Error flag
-!!  !INTEGER     ::  i, j
-!!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
-!!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
-!!  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
-!!  integer, allocatable :: h5dataset_data_integer(:)
-!!  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
-!! integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
-
-
-!
-!!  real(dp), allocatable :: gw_epsmat_diag_data(:,:,2),  gw_eps0mat_diag_data(:,:,2)
-!  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
-!  !complex(dp), allocatable :: gw_epsmat_diag_data(:,:,:),  gw_eps0mat_diag_data(:,:,:)
-!!  real(dp), allocatable :: gw_epsmat_full_data(:,1,1,:,:,2),  gw_eps0mat_full_data(:,1,1,:,:,2)
-!  real(dp), allocatable :: gw_epsq1_data%epsmat_full_data(:,:,:,:,:,:),  gw_epsq0_data%epsmat_full_data(:,:,:,:,:,:)
-!!  real(dp), allocatable :: gw_epsallmat_full_data(:,1,1,:,:,2)
-!  real(dp), allocatable :: gw_epsmat_full_data_qall(:,:,:,:,:,:)
-!
-!  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_epsq0_data%qpts_data(:,:)
-!  real(dp), allocatable :: gw_blat_data_q1(:),gw_epsq1_data%bvec_data(:,:)
-!  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_epsq1_data%gind_rho2eps_data(:,:),gw_epsq1_data%nmtx_data(:)
-!
-!!q0
-!  real(dp), allocatable :: gw_vcoul_data_q0(:,:),gw_qpts_Data_q0(:,:)
-!  real(dp), allocatable :: gw_blat_data_q0(:),gw_bvec_Data_q0(:,:)
-!  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_epsq0_data%gind_rho2eps_data(:,:),gw_epsq0_data%nmtx_data(:)
-!!q0
-!
-!
-!   integer, allocatable :: gw_grho_data_q1(:),  gw_geps_data_q1(:),gw_g_components_data_q1(:,:)
-!  integer, allocatable :: gw_epsq1_data%nq_data(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
-!
-!!q0
-!   integer, allocatable :: gw_grho_data_q0(:),  gw_geps_data_q0(:),gw_g_components_data_q0(:,:)
-!  integer, allocatable :: gw_epsq0_data%nq_data(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
-!!q0
-!
-!
-!!  integer(i8b), allocatable :: gw_nqi8(:)
-!
-!    real(DP),allocatable ::gw_epsq1_data%qabs(:)
-!    INTEGER :: gw_q_g_commonsubset_size_q1
-!    integer(DP),allocatable ::gw_epsq1_data%q_g_commonsubset_indinrho(:)
-!
-!!q0
-!    real(DP),allocatable ::gw_epsq0_data%qabs(:)
-!    INTEGER :: gw_q_g_commonsubset_size_q0
-!    integer(DP),allocatable ::gw_epsq0_data%q_g_commonsubset_indinrho(:)
-!!q0
-!!!!!!!!!!!!!!!!!!!
-!    integer(DP),allocatable ::gind_rho2psi_gw(:)
-!    real(DP) ::gvec_gw(3)
-    integer(DP),allocatable ::gind_psi2rho_gw(:)
-!
-!    integer(DP),allocatable ::gind_rho2psi_gw_q0(:)
-!    real(DP) ::gvec_gw_q0(3)
-!    integer(DP),allocatable ::gind_psi2rho_gw_q0(:)
-!
-!    integer(DP),allocatable ::gind_rho2psi_gw_q1(:)
-!    real(DP) ::gvec_gw_q1(3)
-!    integer(DP),allocatable ::gind_psi2rho_gw_q1(:)
-!!!!!!!!!!!!!!!!!!!
-
-
+  !USE kinds, ONLY: DP,sgl
+  !USE fft_base,  ONLY: dfftp, dffts
+  !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+  !USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  !Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+  !Use edic_mod, Only : evc1,evc2,evc3,evc4,&
+  !                               psic1, psic2, psic3, psic4
+  !use splinelib, only: dosplineint,spline,splint
+  
+  !use edic_mod, only: machine_eps
+  !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+  !USE constants, ONLY: tpi, e2, eps6,pi
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! charge
+  !COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
+  !INTEGER :: iscx, iscy,nscx,nscy
+  REAL(dp)::k0screen, kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  INTEGER:: icount,jcount,kcount
+  real(DP):: mscreen,mcharge, rmod
+  INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
+  !!!!! eps data file 
+  integer :: nepslines
+  !real(DP),allocatable:: eps_data (:,:)
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  !!
+  !!
+  !!!!!!!!!!!!hdf5
+  !!  CHARACTER(LEN=256) :: h5filename      ! Dataset name
+  !!  CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
+  !! INTEGER     ::   h5rank,h5error ! Error flag
+  !!  !INTEGER     ::  i, j
+  !!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+  !!!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+  !!  real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
+  !!  integer, allocatable :: h5dataset_data_integer(:)
+  !!  INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
+  !! integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
+  
+  
+  !
+  !!  real(dp), allocatable :: gw_epsmat_diag_data(:,:,2),  gw_eps0mat_diag_data(:,:,2)
+  !  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
+  !  !complex(dp), allocatable :: gw_epsmat_diag_data(:,:,:),  gw_eps0mat_diag_data(:,:,:)
+  !!  real(dp), allocatable :: gw_epsmat_full_data(:,1,1,:,:,2),  gw_eps0mat_full_data(:,1,1,:,:,2)
+  !  real(dp), allocatable :: gw_epsq1_data%epsmat_full_data(:,:,:,:,:,:),  gw_epsq0_data%epsmat_full_data(:,:,:,:,:,:)
+  !!  real(dp), allocatable :: gw_epsallmat_full_data(:,1,1,:,:,2)
+  !  real(dp), allocatable :: gw_epsmat_full_data_qall(:,:,:,:,:,:)
+  !
+  !  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_epsq0_data%qpts_data(:,:)
+  !  real(dp), allocatable :: gw_blat_data_q1(:),gw_epsq1_data%bvec_data(:,:)
+  !  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_epsq1_data%gind_rho2eps_data(:,:),gw_epsq1_data%nmtx_data(:)
+  !
+  !!q0
+  !  real(dp), allocatable :: gw_vcoul_data_q0(:,:),gw_qpts_Data_q0(:,:)
+  !  real(dp), allocatable :: gw_blat_data_q0(:),gw_bvec_Data_q0(:,:)
+  !  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_epsq0_data%gind_rho2eps_data(:,:),gw_epsq0_data%nmtx_data(:)
+  !!q0
+  !
+  !
+  !   integer, allocatable :: gw_grho_data_q1(:),  gw_geps_data_q1(:),gw_g_components_data_q1(:,:)
+  !  integer, allocatable :: gw_epsq1_data%nq_data(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
+  !
+  !!q0
+  !   integer, allocatable :: gw_grho_data_q0(:),  gw_geps_data_q0(:),gw_g_components_data_q0(:,:)
+  !  integer, allocatable :: gw_epsq0_data%nq_data(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
+  !!q0
+  !
+  !
+  !!  integer(i8b), allocatable :: gw_nqi8(:)
+  !
+  !    real(DP),allocatable ::gw_epsq1_data%qabs(:)
+  !    INTEGER :: gw_q_g_commonsubset_size_q1
+  !    integer(DP),allocatable ::gw_epsq1_data%q_g_commonsubset_indinrho(:)
+  !
+  !!q0
+  !    real(DP),allocatable ::gw_epsq0_data%qabs(:)
+  !    INTEGER :: gw_q_g_commonsubset_size_q0
+  !    integer(DP),allocatable ::gw_epsq0_data%q_g_commonsubset_indinrho(:)
+  !!q0
+  !!!!!!!!!!!!!!!!!!!
+  !    integer(DP),allocatable ::gind_rho2psi_gw(:)
+  !    real(DP) ::gvec_gw(3)
+  integer(DP),allocatable ::gind_psi2rho_gw(:)
+  !
+  !    integer(DP),allocatable ::gind_rho2psi_gw_q0(:)
+  !    real(DP) ::gvec_gw_q0(3)
+  !    integer(DP),allocatable ::gind_psi2rho_gw_q0(:)
+  !
+  !    integer(DP),allocatable ::gind_rho2psi_gw_q1(:)
+  !    real(DP) ::gvec_gw_q1(3)
+  !    integer(DP),allocatable ::gind_psi2rho_gw_q1(:)
+  !!!!!!!!!!!!!!!!!!!
 
 
 
 
 
-    COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
-    INTEGER :: ibnd, ik, ik0,ibnd0
-    real(DP) , allocatable::  eps_data_dy(:)
-    real(DP) :: epsk, deltakG_para,q2d_coeff
+
+
+  COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  INTEGER :: ibnd, ik, ik0,ibnd0
+  real(DP) , allocatable::  eps_data_dy(:)
+  real(DP) :: epsk, deltakG_para,q2d_coeff
+  logical :: noncolin
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !GW
 !|M|=int  u1(r) u2(r) [int eps(r,r')V(r')]
@@ -127,24 +129,24 @@ integer :: nepslines
 !                        V(q+G)=int eps(q,G,G')V(q+G')
 !GW
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    COMPLEX(DP),allocatable ::w_gw(:)
-    real(DP),allocatable ::epsint_q1_tmp1(:)
-    real(DP),allocatable ::epsint_q1_tmp2(:)
-    real(DP),allocatable ::epsint_q1_tmp3(:)
-    real(DP),allocatable ::epsint_q1_tmp4(:)
-    real(DP),allocatable ::epsint_q0_tmp1(:)
-    real(DP),allocatable ::epsint_q0_tmp2(:)
-    real(DP),allocatable ::epsint_q0_tmp3(:)
-    real(DP),allocatable ::epsint_q0_tmp4(:)
-    real(DP),allocatable ::w1(:)
-    real(DP) ::epsinttmp1s
-    real(DP) ::epsinttmp2s
-    real(DP) ::epsinttmp3s
-    real(DP) ::epsinttmp4s
-    complex(DP),allocatable ::epsmat_inted(:,:) ! interpolated eps matrix
-    COMPLEX(DP) :: epstmp1,epstmp2
-    INTEGER :: iq1,iq2,nqgrid_gw=48!fixme
-!    INTEGER :: gw_ng
+  COMPLEX(DP),allocatable ::w_gw(:)
+  real(DP),allocatable ::epsint_q1_tmp1(:)
+  real(DP),allocatable ::epsint_q1_tmp2(:)
+  real(DP),allocatable ::epsint_q1_tmp3(:)
+  real(DP),allocatable ::epsint_q1_tmp4(:)
+  real(DP),allocatable ::epsint_q0_tmp1(:)
+  real(DP),allocatable ::epsint_q0_tmp2(:)
+  real(DP),allocatable ::epsint_q0_tmp3(:)
+  real(DP),allocatable ::epsint_q0_tmp4(:)
+  real(DP),allocatable ::w1(:)
+  real(DP) ::epsinttmp1s
+  real(DP) ::epsinttmp2s
+  real(DP) ::epsinttmp3s
+  real(DP) ::epsinttmp4s
+  complex(DP),allocatable ::epsmat_inted(:,:) ! interpolated eps matrix
+  COMPLEX(DP) :: epstmp1,epstmp2
+  INTEGER :: iq1,iq2,nqgrid_gw=48!fixme
+  !INTEGER :: gw_ng
   INTEGER :: gind_gw_eps1,gind_gw_eps2
   INTEGER :: gind_psi1,gind_psi2
   INTEGER :: gind_gwrho1,gind_gwrho2
@@ -155,8 +157,8 @@ integer :: nepslines
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
 
-    Nlzcutoff=dffts%nr3/2
-    lzcutoff=Nlzcutoff*alat/dffts%nr1
+  Nlzcutoff=dffts%nr3/2
+  lzcutoff=Nlzcutoff*alat/dffts%nr1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! get interpolated eps matrix
@@ -336,7 +338,13 @@ integer :: nepslines
     icount=0
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
-           mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           if (.not. noncolin )then
+              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           else
+              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                               +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+           endif
            icount=icount+1
            deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
                       -g(1:2,igk_k(ig2,ik))&
@@ -374,7 +382,13 @@ integer :: nepslines
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
     
-         mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+         !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+         if (.not. noncolin )then
+            mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+         else
+            mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                             +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+         endif
          deltakG=norm2(g(:,igk_k(ig1,ik0))&
                     -g(:,igk_k(ig2,ik))&
                     +xk(:,ik0)-xk(:,ik))*tpiba

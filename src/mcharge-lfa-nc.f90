@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
+SUBROUTINE calcmdefect_charge_lfa_nc(ibnd0,ibnd,ik0,ik)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,eps_data
   USE wvfct, ONLY: npwx
@@ -79,7 +79,8 @@ write(*,*) 'deltak',deltak
       Do ig2=1, ngk(ik)
         if (sum(abs(g(1:2,igk_k(ig1,ik0))-g(1:2,igk_k(ig2,ik))))<machine_eps) then
            icount=icount+1
-           mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                            +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
         endif
       Enddo
     Enddo
@@ -103,5 +104,5 @@ write(*,*) 'deltak',deltak
     
 
 
-    END SUBROUTINE calcmdefect_charge_lfa
+    END SUBROUTINE calcmdefect_charge_lfa_nc
  
