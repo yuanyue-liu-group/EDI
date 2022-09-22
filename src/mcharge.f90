@@ -176,7 +176,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
 
     interpolate_2d=.false.
     interpolate_smallq1d=.false.
-    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw) then
+    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw*0.5) then
           interpolate_smallq1d=.true.
     else
           interpolate_2d=.true.
@@ -186,13 +186,13 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
     ! 2d simple interpolate prepare fixme
     if(interpolate_2d) then
         deltakG=norm2(xk(1:3,ik0)-xk(1:3,ik))*tpiba
-                 deltakG_para=deltakG
+        deltakG_para=deltakG
         allocate(w1(gw_epsq1_data%nq_data(1)))
         w1(:)=0.0
         do iq1 = 1, gw_epsq1_data%nq_data(1)
-           q1(:)= gw_epsq0_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
-                  gw_epsq0_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
-                  gw_epsq0_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
+           q1(:)= gw_epsq1_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
+                  gw_epsq1_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
+                  gw_epsq1_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
            if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*1.0/nqgrid_gw) then
              w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
            endif
