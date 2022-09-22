@@ -1,5 +1,5 @@
 
-    SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
+SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0)
 USE kinds, ONLY: DP,sgl
 USE fft_base,  ONLY: dfftp, dffts
 USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl

@@ -1,19 +1,18 @@
-  
-    SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
-USE kinds, ONLY: DP,sgl
-USE fft_base,  ONLY: dfftp, dffts
-USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
-USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
- !     Use edic_mod,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
-      Use edic_mod, Only : evc1,evc2,evc3,evc4,&
-                               psic1, psic2, psic3, psic4
-    use splinelib, only: dosplineint,spline,splint
-    use edic_mod,   only: V_file,eps_data   
-    USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
- USE constants, ONLY: tpi, e2, eps6,pi
-use edic_mod, only: machine_eps
-    COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
-    INTEGER :: ibnd, ik, ik0,ibnd0
+SUBROUTINE calcmdefect_charge_lfa(ibnd0,ibnd,ik0,ik)
+  USE kinds, ONLY: DP
+  Use edic_mod, Only : evc1,evc2,eps_data
+  USE fft_base,  ONLY: dfftp, dffts
+  USE gvect, ONLY: g
+  !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
+  USE klist , ONLY:  xk, igk_k, ngk
+  !USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  use splinelib, only: spline,splint
+  USE cell_base, ONLY:  alat, tpiba
+  !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
+  USE constants, ONLY: tpi, pi
+  use edic_mod, only: machine_eps
+  COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  INTEGER :: ibnd, ik, ik0,ibnd0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! charge
