@@ -954,7 +954,7 @@ CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims1, 1,my_MPI_int, p_source, gid, ierr )
 if(.not. allocated(gw_%nmtx_max_data))    allocate(gw_%nmtx_max_data(datadims1(1)))
 CALL MPI_BCAST( gw_%nmtx_max_data, datasize, my_MPI_int,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank', p_rank,gw_%nmtx_max_data 
+!write(*,*)'gw read 5.3 rank', p_rank,gw_%nmtx_max_data 
 
 !'/eps_header/gspace/nmtx'      !i4 (nq,ng)
 if (p_rank==p_source)then
@@ -965,35 +965,35 @@ CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims1, 1,my_MPI_int, p_source, gid, ierr )
 if(.not. allocated(gw_%nmtx_data))    allocate(gw_%nmtx_data(datadims1(1)))
 CALL MPI_BCAST( gw_%nmtx_data, datasize, my_MPI_int,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank', p_rank,gw_%nmtx_data 
+!write(*,*)'gw read 5.3 rank', p_rank,gw_%nmtx_data 
 
 !'/eps_header/gspace/gind_eps2rho'      !i4 (nq,ng)
 if (p_rank==p_source)then
     datadims2=shape(gw_%gind_eps2rho_data)
     datasize=size(gw_%gind_eps2rho_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims2, size(datadims2),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
 if(.not. allocated(gw_%gind_eps2rho_data))    allocate(gw_%gind_eps2rho_data(datadims2(1),datadims2(2)))
-write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%gind_eps2rho_data )
+!write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%gind_eps2rho_data )
 CALL MPI_BCAST( gw_%gind_eps2rho_data, datasize, my_MPI_int,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank', p_rank,gw_%gind_eps2rho_data 
+!write(*,*)'gw read 5.3 rank', p_rank,gw_%gind_eps2rho_data 
 
 !'/eps_header/gspace/gind_rho2eps'      !i4 (nq,ng)
 if (p_rank==p_source)then
     datadims2=shape(gw_%gind_rho2eps_data)
     datasize=size(gw_%gind_rho2eps_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims2, size(datadims2),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
 if(.not. allocated(gw_%gind_rho2eps_data))    allocate(gw_%gind_rho2eps_data(datadims2(1),datadims2(2)))
-write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%gind_rho2eps_data )
+!write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%gind_rho2eps_data )
 CALL MPI_BCAST( gw_%gind_rho2eps_data, datasize, my_MPI_int,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank', p_rank,gw_%gind_rho2eps_data 
+!write(*,*)'gw read 5.3 rank', p_rank,gw_%gind_rho2eps_data 
 
 
 !'/mf_header/gspace/components'               !
@@ -1001,14 +1001,14 @@ if (p_rank==p_source)then
     datadims2=shape(gw_%g_components_data)
     datasize=size(gw_%g_components_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims2, size(datadims2),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
 if(.not. allocated(gw_%g_components_data))    allocate(gw_%g_components_data(datadims2(1),datadims2(2)))
-write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%g_components_data )
+!write(*,*)'gw read 5.3 rank', p_rank,shape(gw_%g_components_data )
 CALL MPI_BCAST( gw_%g_components_data, datasize, my_MPI_int,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank', p_rank,gw_%g_components_data 
+!write(*,*)'gw read 5.3 rank', p_rank,gw_%g_components_data 
 
 
 
@@ -1017,12 +1017,12 @@ if (p_rank==p_source)then
     datadims2=shape(gw_%bvec_data)
     datasize=size(gw_%bvec_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims2, size(datadims2),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
 if(.not. allocated(gw_%bvec_data))    allocate(gw_%bvec_data(datadims2(1),datadims2(2)))
-write(*,*)'gw read 5.3 rank shape bvec', p_rank,shape(gw_%bvec_data )
+!write(*,*)'gw read 5.3 rank shape bvec', p_rank,shape(gw_%bvec_data )
 CALL MPI_BCAST( gw_%bvec_data, datasize, my_MPI_dp,p_source, gid, ierr )
 write(*,*)'gw read 5.3 rank bvec', p_rank,gw_%bvec_data 
 
@@ -1033,12 +1033,12 @@ if (p_rank==p_source)then
     datadims1=shape(gw_%blat_data)
     datasize=size(gw_%blat_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims1,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims1,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims1, size(datadims1),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims1
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims1
 if(.not. allocated(gw_%blat_data))    allocate(gw_%blat_data(datadims1(1)))
-write(*,*)'gw read 5.3 rank shape blat', p_rank,shape(gw_%blat_data )
+!write(*,*)'gw read 5.3 rank shape blat', p_rank,shape(gw_%blat_data )
 CALL MPI_BCAST( gw_%blat_data, datasize, my_MPI_dp,p_source, gid, ierr )
 write(*,*)'gw read 5.3 rank blat', p_rank,gw_%blat_data 
 
@@ -1048,10 +1048,10 @@ if (p_rank==p_source)then
     datadims2=shape(gw_%qpts_data)
     datasize=size(gw_%qpts_data)
 endif
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2,datasize
 CALL MPI_BCAST( datasize, 1, my_MPI_int, p_source, gid, ierr )
 CALL MPI_BCAST( datadims2, size(datadims2),my_MPI_int, p_source, gid, ierr )
-write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
+!write(*,*)'gw read 5.3.0 rank', p_rank,datadims2
 if(.not. allocated(gw_%qpts_data))    allocate(gw_%qpts_data(datadims2(1),datadims2(2)))
 write(*,*)'gw read 5.3 rank shape qpts', p_rank,shape(gw_%qpts_data )
 CALL MPI_BCAST( gw_%qpts_data, datasize, my_MPI_dp,p_source, gid, ierr )
@@ -1083,7 +1083,7 @@ write(*,*)'gw read 5.3.0 rank', p_rank,datadims3
 if(.not. allocated(gw_%epsmat_diag_data))    allocate(gw_%epsmat_diag_data(datadims3(1),datadims3(2),datadims3(3)))
 write(*,*)'gw read 5.3 rank shape epsmat_diag', p_rank,shape(gw_%epsmat_diag_data )
 CALL MPI_BCAST( gw_%epsmat_diag_data, datasize, my_MPI_dp,p_source, gid, ierr )
-write(*,*)'gw read 5.3 rank epsmat_diag', p_rank,gw_%epsmat_diag_data 
+!write(*,*)'gw read 5.3 rank epsmat_diag', p_rank,gw_%epsmat_diag_data 
 
 
 !'/mats/matrix'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)

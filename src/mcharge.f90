@@ -171,20 +171,31 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
     allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
     allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
+    gw_q_g_commonsubset_size=gw_epsq1_data%q_g_commonsubset_size
 
 
     allocate(epsmat_inted(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
     allocate(epsmat_inv(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
     allocate(epsmat_lindhard(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
-    epsmat_inted(:,:)=0.0
+    epsmat_inted(:,:)=(0.0,0.0)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,1)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,2)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,3)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,4)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,1)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(2,2)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(3,3)
+    write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(4,4)
     
 
     interpolate_2d=.false.
     interpolate_smallq1d=.false.
     if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw*0.5) then
           interpolate_smallq1d=.true.
+          write(*,*) 'interp 1d'
     else
           interpolate_2d=.true.
+          write(*,*) 'interp 2d'
     endif
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -236,6 +247,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
         !! change to 2d space matrix interpolate
         !! change boundary condition
         if( interpolate_smallq1d) then
+            !write(*,*) 'interp 1d'
         
             !*gw_blat_data(1)
             !write(*,*) 'gw3.1 gind',ig1,ig2,gw_gind_rho2eps_data(1,1:5)
@@ -276,6 +288,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2d simple interpolate  fixme
         if (interpolate_2d) then
+            !write(*,*) 'interp 2d'
             do iq1 = 1, gw_epsq1_data%nq_data(1)
                 gind_gw_eps1=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig1),iq1)
                 gind_gw_eps2=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig2),iq1)
@@ -288,7 +301,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
         ! 2d simple interpolate  fixme
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
-        write(*,*) 'gw_debug epsmat_inted ig1,ig2,q',epsmat_inted(ig1,ig2),'ig1',ig1,'ig2',ig2,deltakG_para
+        !write(*,*) 'gw_debug epsmat_inted ig1,ig2,q',epsmat_inted(ig1,ig2),'ig1',ig1,'ig2',ig2,deltakG_para
        
       enddo
     enddo
@@ -296,11 +309,24 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! lindhard model eps
-
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(1,2)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(1,3)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(1,4)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(2,2)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(3,3)
+    write(*,*) 'gw-lin1',shape(epsmat_inted),epsmat_inted(4,4)
+    call  mpi_barrier(gid)
+    call flush(6)
     !epsmat_inv(:,:)=epsmat_inted(:,:)
     call mat_inv(epsmat_inted,epsmat_inv)
+    write(*,*) 'gw-lin2'
+    call  mpi_barrier(gid)
+    call flush(6)
     !epsmat_lindhard(:,:)=epsmat_inv(:,:)
 
     deltakG=norm2(g(:,igk_k(ig1,ik0))&
@@ -310,6 +336,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
     qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
     q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+    write(*,*) 'gw-lin3'
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
     !DO ig1 = 1, ngk(ik0)
@@ -325,7 +352,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
            endif
       enddo
     enddo
+    write(*,*) 'gw-lin4'
     call mat_inv(epsmat_inv,epsmat_lindhard)
+    write(*,*) 'gw-lin5'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -346,6 +375,12 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
                       -g(1:3,igk_k(ig2,ik))&
                       +xk(1:3,ik0)-xk(1:3,ik))*tpiba
            !w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*(tpi/(deltakG))
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!
+! start here assign gind_psi2rho
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!
+
            w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
       Enddo
 
@@ -489,7 +524,7 @@ subroutine mat_inv(A,Ainv)
   complex(dp), dimension(:,:), intent(in)    :: A
   complex(dp), dimension(:,:), intent(inout) :: Ainv
 
-  real(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
+  complex(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
   integer, dimension(size(A,1)) :: ipiv   ! pivot indices
   integer :: n, info
 
@@ -498,13 +533,20 @@ subroutine mat_inv(A,Ainv)
   external DGETRI
 
   ! Store A in Ainv to prevent it from being overwritten by LAPACK
+  write(*,*) 'inv 1',info
   Ainv = A
   n = size(A,1)
 
-  ! DGETRF computes an LU factorization of a general M-by-N matrix A
-  ! using partial pivoting with row interchanges.
+  !DGETRF computes an LU factorization of a general M-by-N matrix A
+  !using partial pivoting with row interchanges.
+  write(*,*) 'inv 1',info
+  !call  mpi_barrier(gid)
+  call flush(6)
   call DGETRF(n, n, Ainv, n, ipiv, info)
+  write(*,*) 'inv 1',info
 
+  !call  mpi_barrier(gid)
+  call flush(6)
   if (info /= 0) then
      stop 'Matrix is numerically singular!'
   end if
