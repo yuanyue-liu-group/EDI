@@ -47,6 +47,8 @@ mnl-soc.f90\
 read_perturb_file.f90\
 get_gind_rhoandpsi_gw.f90\
 getwtdata.f90\
+gw_eps_read.f90\
+gw_eps_bcast.f90\
 gw_eps_init.f90\
 
 #mcharge-lfa-nc.f90\
