@@ -437,56 +437,56 @@ subroutine gw_eps_read(eps_filename_,gw_)
     endif
  
 contains
-subroutine h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-USE kinds, ONLY: DP,sgl
-USE HDF5
-  CHARACTER(LEN=256) :: h5groupname = "/mats"     ! Dataset name
-  CHARACTER(LEN=256) :: h5name_buffer 
-  INTEGER(HID_T) :: h5file_id       ! File identifier
-  INTEGER(HID_T) :: h5group_id       ! Dataset identifier
-  INTEGER(HID_T) :: h5dataset_id       ! Dataset identifier
-  INTEGER(HID_T) :: h5datatype_id       ! Dataset identifier
-  INTEGER(HID_T) :: h5dataspace_id
+  subroutine h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+    USE kinds, ONLY: DP,sgl
+    USE HDF5
+    CHARACTER(LEN=256) :: h5groupname = "/mats"     ! Dataset name
+    CHARACTER(LEN=256) :: h5name_buffer 
+    INTEGER(HID_T) :: h5file_id       ! File identifier
+    INTEGER(HID_T) :: h5group_id       ! Dataset identifier
+    INTEGER(HID_T) :: h5dataset_id       ! Dataset identifier
+    INTEGER(HID_T) :: h5datatype_id       ! Dataset identifier
+    INTEGER(HID_T) :: h5dataspace_id
+  
+    INTEGER :: h5dataype       ! Dataset identifier
+   
+    CHARACTER(LEN=256), intent(in) :: h5filename      ! Dataset name
+    CHARACTER(LEN=256) , intent(in) :: h5datasetname      ! Dataset name
+    real(dp), allocatable , intent(inout) :: h5dataset_data_double(:)
+    real(dp), allocatable :: data_out(:)
+    integer, allocatable , intent(inout) :: h5dataset_data_integer(:)
+    LOGICAL :: h5flag,h5flag_integer,h5flag_double           ! TRUE/FALSE flag to indicate 
+    INTEGER     ::  h5nmembers,i,h5datasize
+    INTEGER(HSIZE_T), allocatable :: h5maxdims(:)
+    INTEGER(HSIZE_T), allocatable , intent(inout) :: h5dims(:)
+    INTEGER  , intent(inout)    ::   h5rank
+    INTEGER  , intent(inout)    ::   h5error ! Error flag
+    INTEGER(HID_T) :: file_s1_t,h5_file_datatype 
+    INTEGER(HID_T) :: mem_s1_t  ,h5_mem_datatype  
+    INTEGER(HID_T) :: debugflag=01
+    ! if debugflag<=10, not print epsilon data, else, print
+    INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
+    integer:: p_rank,p_size,ik
+    !  CALL h5open_f(h5error)
+    
+    
+    !call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
+    !call  mpi_comm_size(mpi_comm_world,p_size,ik)
+    ! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
 
-  INTEGER :: h5dataype       ! Dataset identifier
- 
-  CHARACTER(LEN=256), intent(in) :: h5filename      ! Dataset name
-  CHARACTER(LEN=256) , intent(in) :: h5datasetname      ! Dataset name
-  real(dp), allocatable , intent(inout) :: h5dataset_data_double(:)
-  real(dp), allocatable :: data_out(:)
-  integer, allocatable , intent(inout) :: h5dataset_data_integer(:)
-  LOGICAL :: h5flag,h5flag_integer,h5flag_double           ! TRUE/FALSE flag to indicate 
-  INTEGER     ::  h5nmembers,i,h5datasize
-  INTEGER(HSIZE_T), allocatable :: h5maxdims(:)
-  INTEGER(HSIZE_T), allocatable , intent(inout) :: h5dims(:)
-  INTEGER  , intent(inout)    ::   h5rank
-  INTEGER  , intent(inout)    ::   h5error ! Error flag
-  INTEGER(HID_T) :: file_s1_t,h5_file_datatype 
-  INTEGER(HID_T) :: mem_s1_t  ,h5_mem_datatype  
-  INTEGER(HID_T) :: debugflag=01
-! if debugflag<=10, not print epsilon data, else, print
-INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
-integer:: p_rank,p_size,ik
-!  CALL h5open_f(h5error)
 
-
-!call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
-!call  mpi_comm_size(mpi_comm_world,p_size,ik)
-! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
-
-
-  if (h5error<debugflag) then
-    write(*,*)  'h5error',h5error
-  elseif (h5error<0) then 
-    return(h5error)
-  endif
+    if (h5error<debugflag) then
+        write(*,*)  'h5error',h5error
+    elseif (h5error<0) then 
+        return(h5error)
+    endif
   
     !h5 file
     CALL h5fopen_f (h5filename, H5F_ACC_RDWR_F, h5file_id, h5error)
     if (h5error<debugflag) then
-      write(*,*)  'h5error',       h5error,'h5filename',trim(h5filename),'h5file_id', h5file_id
+        write(*,*)  'h5error',       h5error,'h5filename',trim(h5filename),'h5file_id', h5file_id
     elseif (h5error<0)  then
-      return(h5error)
+        return(h5error)
     endif
       !dataset
       CALL h5dopen_f(h5file_id,   trim(h5datasetname), h5dataset_id, h5error)
@@ -506,19 +506,20 @@ integer:: p_rank,p_size,ik
           call h5sget_simple_extent_ndims_f(h5dataspace_id, h5rank, h5error) 
           if (h5error<debugflag) then
             write(*,*)  'h5error',       h5error,'h5rank',h5rank
-!            if (h5rank>0) write(*,*)   h5dims,h5maxdims
+            !if (h5rank>0) write(*,*)   h5dims,h5maxdims
           elseif (h5error<0)  then
             return(h5error)
           endif
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111
 ! rank=0 scalar
           if(h5rank==0) then
             !write(*,*)  'h5error',       h5error,'h5rank',h5rank
             h5rank=1
-!            write(*,*)  'h5error',       h5error,'h5rank',h5rank
+            !write(*,*)  'h5error',       h5error,'h5rank',h5rank
             allocate(h5maxdims(h5rank))
-!            write(*,*)  'h5error',       h5error,'h5dimssize',size(h5maxdims)
-!            write(*,*)  'h5error',       h5error,'h5dimssize',size(h5dims)
+            !write(*,*)  'h5error',       h5error,'h5dimssize',size(h5maxdims)
+            !write(*,*)  'h5error',       h5error,'h5dimssize',size(h5dims)
             allocate(h5dims(h5rank))
             h5maxdims(1)=1
             h5dims(1)=1
@@ -700,166 +701,163 @@ integer:: p_rank,p_size,ik
 
 
 
-! leads to bug in later read_wfc in qe
-!  CALL h5close_f(h5error)
-! if uncomment leads to bug in later read_wfc in qe
-end subroutine h5gw_read
+  ! leads to bug in later read_wfc in qe
+  !  CALL h5close_f(h5error)
+  ! if uncomment leads to bug in later read_wfc in qe
+  end subroutine h5gw_read
+end subroutine gw_eps_read
 
-
+subroutine gw_eps_init(gw_)
+  USE kinds, ONLY: DP,sgl
+  USE HDF5
+  use edic_mod, only: gw_eps_data
+  !Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
   
- end subroutine gw_eps_read
-
- subroutine gw_eps_init(gw_)
-USE kinds, ONLY: DP,sgl
-USE HDF5
-use edic_mod, only: gw_eps_data
-   !   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
-
-CHARACTER(LEN=256) :: eps_filename_
-type(gw_eps_data),intent (inout) ,target:: gw_
-
-!!!!!!!!!!hdf5
+  CHARACTER(LEN=256) :: eps_filename_
+  type(gw_eps_data),intent (inout) ,target:: gw_
+  
+  !!!!!!!!!!hdf5
   CHARACTER(LEN=256) :: h5filename      ! Dataset name
   CHARACTER(LEN=256) :: h5datasetname = "matrix-diagonal"     ! Dataset name
- INTEGER     ::   h5rank,h5error ! Error flag
+  INTEGER     ::   h5rank,h5error ! Error flag
   !INTEGER     ::  i, j
-!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
-!  real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+  !real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
+  !real(dp), DIMENSION(3,1465,2) :: h5dataset_data, data_out ! Data buffers
   real(dp), allocatable :: h5dataset_data_double(:), data_out(:)
   integer, allocatable :: h5dataset_data_integer(:)
   INTEGER(HSIZE_T), allocatable :: h5dims(:),h5maxdims(:)
-
+  
   integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
-integer:: p_rank,p_size,ik
+  integer:: p_rank,p_size,ik
 
 
 
-!!!!!!!!!!!!!!!!!!!
-! prep read gw h5 data
+  !!!!!!!!!!!!!!!!!!!
+  ! prep read gw h5 data
+  
+  ! qabs
+  write(*,*) gw_%bvec_data(:,1)
+  write(*,*) gw_%bvec_data(:,2)
+  write(*,*) gw_%bvec_data(:,3)
+  write(*,*) gw_%qpts_data(:,1)
+  write(*,*) gw_%qpts_data(:,2)
+  write(*,*) gw_%qpts_data(:,3)
 
-! qabs
-write(*,*) gw_%bvec_data(:,1)
-write(*,*) gw_%bvec_data(:,2)
-write(*,*) gw_%bvec_data(:,3)
-write(*,*) gw_%qpts_data(:,1)
-write(*,*) gw_%qpts_data(:,2)
-write(*,*) gw_%qpts_data(:,3)
-
- if (  allocated(gw_%qabs)) then
- deallocate(gw_%qabs)
-endif
-    allocate(gw_%qabs(gw_%nq_data(1)))
-    do ig1 = 1, gw_%nq_data(1)
+  if (  allocated(gw_%qabs)) then
+     deallocate(gw_%qabs)
+  endif
+  allocate(gw_%qabs(gw_%nq_data(1)))
+  do ig1 = 1, gw_%nq_data(1)
       gw_%qabs(ig1)=norm2(&
               gw_%qpts_data(1,ig1)*gw_%bvec_data(:,1)+ &
               gw_%qpts_data(2,ig1)*gw_%bvec_data(:,2)+ &
               gw_%qpts_data(3,ig1)*gw_%bvec_data(:,3))
-!*gw_%blat_data(1)
+             !*gw_%blat_data(1)
 
-!write(*,*)              gw_%qpts_data(1,ig1)*gw_%bvec_data(1,:)
-!write(*,*)              gw_%qpts_data(2,ig1)*gw_%bvec_data(2,:)
-!write(*,*)              gw_%qpts_data(3,ig1)*gw_%bvec_data(3,:)
+      !write(*,*)              gw_%qpts_data(1,ig1)*gw_%bvec_data(1,:)
+      !write(*,*)              gw_%qpts_data(2,ig1)*gw_%bvec_data(2,:)
+      !write(*,*)              gw_%qpts_data(3,ig1)*gw_%bvec_data(3,:)
 
 
-!debug
-write(*,*)'gw_qabs debug ', gw_%qabs(ig1),gw_%epsmat_diag_data(:,1,ig1)
-!debug
-    enddo
-
-!!!!!!!!!!!!!!
-!  convert eps(q) g index to common gw-rho based g index
-!     gw_%q_g_commonsubset_size
-!    gw_%q_g_commonsubset2rho(:,:)
-!    do ig = 1, gw_%ng_data(1)
-!      do iq=1,gw_%nq_data(1)
-!        gind_gw_%eps=gw_%gind_rho2eps_data(iq,ig)
-!           if      (gindgw_%_eps<gw_%nmtx(iq))  then
-!      enddo
-!    enddo
-!eps(gw_%gind_rho2eps_data(iq,1:gw_%nmtx_data(iq)))
-
- if (  allocated(gw_%q_g_commonsubset_indinrho)) then
- deallocate(gw_%q_g_commonsubset_indinrho)
-endif
-allocate(gw_%q_g_commonsubset_indinrho(gw_%nmtx_max_data(1)))
-gw_%q_g_commonsubset_indinrho(:)=0
-gw_%q_g_commonsubset_indinrho(:)=gw_%gind_eps2rho_data(1:gw_%nmtx_data(1),1)
-
-!write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(1:10),shape(gw_%q_g_commonsubset_indinrho)
-
-do iq=1,gw_%nq_data(1)
-  do ig=1,gw_%nmtx_max_data(1)
-    if(gw_%q_g_commonsubset_indinrho(ig)>0) then
-      if (gw_%gind_rho2eps_data(gw_%q_g_commonsubset_indinrho(ig),iq)>gw_%nmtx_data(iq) ) then
-         gw_%q_g_commonsubset_indinrho(ig)=0
-       endif
-    endif
+      !debug
+      write(*,*)'gw_qabs debug ', gw_%qabs(ig1),gw_%epsmat_diag_data(:,1,ig1)
+      !debug
   enddo
-enddo
-!write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:)
-ig=0
+
+  !!!!!!!!!!!!!!
+  !  convert eps(q) g index to common gw-rho based g index
+  !     gw_%q_g_commonsubset_size
+  !    gw_%q_g_commonsubset2rho(:,:)
+  !    do ig = 1, gw_%ng_data(1)
+  !      do iq=1,gw_%nq_data(1)
+  !        gind_gw_%eps=gw_%gind_rho2eps_data(iq,ig)
+  !           if      (gindgw_%_eps<gw_%nmtx(iq))  then
+  !      enddo
+  !    enddo
+  !eps(gw_%gind_rho2eps_data(iq,1:gw_%nmtx_data(iq)))
+
+  if (  allocated(gw_%q_g_commonsubset_indinrho)) then
+      deallocate(gw_%q_g_commonsubset_indinrho)
+  endif
+  allocate(gw_%q_g_commonsubset_indinrho(gw_%nmtx_max_data(1)))
+  gw_%q_g_commonsubset_indinrho(:)=0
+  gw_%q_g_commonsubset_indinrho(:)=gw_%gind_eps2rho_data(1:gw_%nmtx_data(1),1)
+
+  !write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(1:10),shape(gw_%q_g_commonsubset_indinrho)
+
+  do iq=1,gw_%nq_data(1)
+    do ig=1,gw_%nmtx_max_data(1)
+      if(gw_%q_g_commonsubset_indinrho(ig)>0) then
+        if (gw_%gind_rho2eps_data(gw_%q_g_commonsubset_indinrho(ig),iq)>gw_%nmtx_data(iq) ) then
+           gw_%q_g_commonsubset_indinrho(ig)=0
+         endif
+      endif
+    enddo
+  enddo
+  !write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:)
+  ig=0
   do ig1=1,gw_%nmtx_max_data(1)
     if(gw_%q_g_commonsubset_indinrho(ig1)>0) ig=ig+1
   enddo
 
-write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:)
- if (  allocated(gw_%q_g_commonsubset_indinrhotmp1)) then
- deallocate(gw_%q_g_commonsubset_indinrhotmp1)
-endif
-allocate(gw_%q_g_commonsubset_indinrhotmp1(ig))
-ig1=1
-do ig=1,gw_%nmtx_max_data(1)
-  if(gw_%q_g_commonsubset_indinrho(ig)>0) then 
-!     write(*,*) gw_q_g_commonsubset_indinrhotmp1(ig1),gw_%q_g_commonsubset_indinrho(ig)
-     gw_%q_g_commonsubset_indinrhotmp1(ig1)=gw_%q_g_commonsubset_indinrho(ig) 
-     ig1=ig1+1
+  write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:)
+  if (  allocated(gw_%q_g_commonsubset_indinrhotmp1)) then
+     deallocate(gw_%q_g_commonsubset_indinrhotmp1)
   endif
-enddo
-deallocate(gw_%q_g_commonsubset_indinrho)
+  allocate(gw_%q_g_commonsubset_indinrhotmp1(ig))
+  ig1=1
+  do ig=1,gw_%nmtx_max_data(1)
+    if(gw_%q_g_commonsubset_indinrho(ig)>0) then 
+  !     write(*,*) gw_q_g_commonsubset_indinrhotmp1(ig1),gw_%q_g_commonsubset_indinrho(ig)
+       gw_%q_g_commonsubset_indinrhotmp1(ig1)=gw_%q_g_commonsubset_indinrho(ig) 
+       ig1=ig1+1
+    endif
+  enddo
+  deallocate(gw_%q_g_commonsubset_indinrho)
   allocate(gw_%q_g_commonsubset_indinrho(size(gw_%q_g_commonsubset_indinrhotmp1)))
-gw_%q_g_commonsubset_indinrho(:)=gw_%q_g_commonsubset_indinrhotmp1(:) 
+  gw_%q_g_commonsubset_indinrho(:)=gw_%q_g_commonsubset_indinrhotmp1(:) 
+  
+  write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:),shape(gw_%q_g_commonsubset_indinrho)
+  gw_%q_g_commonsubset_size=size(gw_%q_g_commonsubset_indinrho)
+  !  convert eps(q) g index to common gw-rho based g index
+  !!!!!!!!!!!!!
+  
+  
+  ! prep read gw h5 data
+  !!!!!!!!!!!!!!!!!!!!
+  
+  
+  
+  
+  !select case( h5rank)
+  !  case (1)
+  !h5dims3=h5dims
+  !allocate(gw_%eps0mat_diag_data(h5dims3(1),h5dims3(2),h5dims3(3)))
+  !gw_%eps0mat_diag_data=reshape(h5dataset_data,h5dims3)
+  !  case default
+  !  write(*,*) 'h5 read error'
+  !end select 
+  
+  
+  !!!!!!!!!!!!!!!!!!!!!!!
+  !!md5sum not working for non-text files
+  !    CALL md5_from_file('t.tgz',epsmatf_md5_cksum)
+  !    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
+  !    CALL md5_from_file('t1.tgz',epsmatf_md5_cksum)
+  !    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
+  !
+  !    CALL md5_from_file('eps0mat.10-epsilon_subsampling-cutoff10.h5',epsmatf_md5_cksum)
+  !    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
+  !    CALL md5_from_file(eps0mat_filename, epsmatf_md5_cksum)
+  !    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
+  !    CALL md5_from_file(epsmat_filename, epsmatf_md5_cksum)
+  !    write (*,*) 'GW epsmat files:',trim(epsmat_filename),'  MD5 sum:',epsmatf_md5_cksum
+  !!!!!!!!!!!!!!!!!!!!!!!
 
-write(*,*)  'gw_%q_g_commonsubset_indinrho',gw_%q_g_commonsubset_indinrho(:),shape(gw_%q_g_commonsubset_indinrho)
-gw_%q_g_commonsubset_size=size(gw_%q_g_commonsubset_indinrho)
-!  convert eps(q) g index to common gw-rho based g index
-!!!!!!!!!!!!!
-
-
-! prep read gw h5 data
-!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-!select case( h5rank)
-!  case (1)
-!h5dims3=h5dims
-!allocate(gw_%eps0mat_diag_data(h5dims3(1),h5dims3(2),h5dims3(3)))
-!gw_%eps0mat_diag_data=reshape(h5dataset_data,h5dims3)
-!  case default
-!  write(*,*) 'h5 read error'
-!end select 
-
-
-!!!!!!!!!!!!!!!!!!!!!!!
-!!md5sum not working for non-text files
-!    CALL md5_from_file('t.tgz',epsmatf_md5_cksum)
-!    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
-!    CALL md5_from_file('t1.tgz',epsmatf_md5_cksum)
-!    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
-!
-!    CALL md5_from_file('eps0mat.10-epsilon_subsampling-cutoff10.h5',epsmatf_md5_cksum)
-!    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
-!    CALL md5_from_file(eps0mat_filename, epsmatf_md5_cksum)
-!    write (*,*) 'GW epsmat files:',trim(eps0mat_filename),'  MD5 sum:',epsmatf_md5_cksum
-!    CALL md5_from_file(epsmat_filename, epsmatf_md5_cksum)
-!    write (*,*) 'GW epsmat files:',trim(epsmat_filename),'  MD5 sum:',epsmatf_md5_cksum
-!!!!!!!!!!!!!!!!!!!!!!!
-
-    !
-    !!!!!! gweps read 
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !
+  !!!!!! gweps read 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     
 
@@ -875,15 +873,15 @@ subroutine gw_eps_bcast(p_rank,p_source,gw_,gid,my_mpi_int,my_mpi_dp)
   
   ! allocate(gw_%ng_data(h5dims1(1)))
   
-          INTEGER :: n, root, ierr
-          INTEGER :: datadims0
-          INTEGER :: datadims1(1)
-          INTEGER :: datadims2(2)
-          INTEGER :: datadims3(3)
-          INTEGER :: datadims4(4)
-          INTEGER :: datadims5(5)
-          INTEGER :: datadims6(6)
-          INTEGER :: datasize
+  INTEGER :: n, root, ierr
+  INTEGER :: datadims0
+  INTEGER :: datadims1(1)
+  INTEGER :: datadims2(2)
+  INTEGER :: datadims3(3)
+  INTEGER :: datadims4(4)
+  INTEGER :: datadims5(5)
+  INTEGER :: datadims6(6)
+  INTEGER :: datasize
   integer,intent(in):: p_rank,p_source,gid,my_mpi_int,my_mpi_dp
   ! debug
   !!!!!!!!!!!!! ng
@@ -1093,7 +1091,7 @@ subroutine gw_eps_bcast(p_rank,p_source,gw_,gid,my_mpi_int,my_mpi_dp)
   CALL MPI_BCAST( datadims6, size(datadims6),my_MPI_int, p_source, gid, ierr )
   write(*,*)'gw read 5.3.0 rank', p_rank,datadims6
   if(.not. allocated(gw_%epsmat_full_data))then    
-  allocate(gw_%epsmat_full_data(datadims6(1),datadims6(2),datadims6(3),datadims6(4),datadims6(5),datadims6(6)))
+      allocate(gw_%epsmat_full_data(datadims6(1),datadims6(2),datadims6(3),datadims6(4),datadims6(5),datadims6(6)))
   endif
   write(*,*)'gw read 5.3 rank shape epsmat_full', p_rank,shape(gw_%epsmat_full_data )
   CALL MPI_BCAST( gw_%epsmat_full_data, datasize, my_MPI_dp,p_source, gid, ierr )
@@ -1107,7 +1105,7 @@ subroutine gw_eps_bcast(p_rank,p_source,gw_,gid,my_mpi_int,my_mpi_dp)
 
 
 
-  contains 
+contains 
   subroutine bcast_Data(p_rank,p_source,data_)
     integer,intent(in):: p_rank,p_source
     integer,intent(inout)::data_ 
