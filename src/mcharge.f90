@@ -171,6 +171,14 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
     allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
     allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
+    if (abs(norm2(real(gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho)))>machine_eps) then
+         write(*,*) gw_epsq1_data%gind_psi2rho
+         write(*,*) gw_epsq0_data%gind_psi2rho
+         write(*,*) gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho
+         stop ('epsq0 and eps q1 file gind_psi2rho not matching')
+    endif
+    allocate(gind_psi2rho_gw(size(gw_epsq1_data%gind_psi2rho)))
+    gind_psi2rho_gw(:)=gw_epsq1_data%gind_psi2rho(:)
     gw_q_g_commonsubset_size=gw_epsq1_data%q_g_commonsubset_size
 
 
@@ -324,7 +332,15 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     call flush(6)
     !epsmat_inv(:,:)=epsmat_inted(:,:)
     call mat_inv(epsmat_inted,epsmat_inv)
-    write(*,*) 'gw-lin2'
+    write(*,*) 'gw-lin2 inv'
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,2)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,3)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,4)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(2,2)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(3,3)
+    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(4,4)
     call  mpi_barrier(gid)
     call flush(6)
     !epsmat_lindhard(:,:)=epsmat_inv(:,:)
@@ -347,13 +363,21 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
                             -g(1:3,igk_k(ig2,ik))&
                           +xk(1:3,ik0)-xk(1:3,ik))*tpiba
                epsmat_inv(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))=&
-                  epsmat_inv(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))+&
+               epsmat_inv(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))+&
                   4*pi/(deltakG**2)*q2d_coeff*k0screen/(lzcutoff*2)
            endif
       enddo
     enddo
     write(*,*) 'gw-lin4'
     call mat_inv(epsmat_inv,epsmat_lindhard)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(1,2)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(1,3)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(1,4)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(1,1)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(2,2)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(3,3)
+    write(*,*) 'gw-lin1',shape(epsmat_lindhard),epsmat_lindhard(4,4)
     write(*,*) 'gw-lin5'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

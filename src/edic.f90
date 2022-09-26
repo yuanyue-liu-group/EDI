@@ -259,8 +259,8 @@ Program edic
       ! call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
       ! call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
       
-      !call get_gind_rhoandpsi_gw(gw_epsq1_data)
-      !call get_gind_rhoandpsi_gw(gw_epsq0_data)
+      call get_gind_rhoandpsi_gw(gw_epsq1_data)
+      call get_gind_rhoandpsi_gw(gw_epsq0_data)
       !  write(*,*) 'rank, eps', p_rank,gw_epsq1_data%gind_rho2psi(:)
       ! ENDIF
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
