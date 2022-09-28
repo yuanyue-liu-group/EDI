@@ -321,15 +321,19 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 ! get w(g)
     !write(*,*) 'gw4'
     write(*,*) 'gw-lin5 w'
+
     allocate(w_gw(ngk(ik0)))
+    write(*,*)shape(w_gw)
     w_gw(:)=0.0
 
     qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
     qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
     q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
-    !write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',maxval(gind_psi2rho_gw(:))
+    write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',maxval(gind_psi2rho_gw(:))
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
+        if(gind_psi2rho_gw(ig1)>0 .and. gind_psi2rho_gw(ig2)>0)then
+           
            !icount=icount+1
            !write(*,*) 'deltakG',g(1:3,igk_k(ig1,ik0)),g(1:3,igk_k(ig2,ik)),xk(1:3,ik0)-xk(1:3,ik)
            deltakG=norm2(g(1:3,igk_k(ig1,ik0))&
@@ -343,13 +347,16 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !!!!!!!!!!!!!!!!!!
 
            if(deltakG>machine_eps)then
+           !write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',  ig1,ig2
+           !write(*,*) '2',w_gw(ig1),gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2)
+           !write(*,*) '2',epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))
+           !write(*,*) '2',4*pi/(deltakG**2)*q2d_coeff
                w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
-           !write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',  ig1,ig2,         &
-           !w_gw(ig1),epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2)),4*pi/(deltakG**2)*q2d_coeff
            else
  
                w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
            endif
+        endif
       Enddo
 
       !write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
@@ -375,6 +382,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 
 
 
+    write(*,*)  'mcharge start ',ik0,ik, mcharge1, abs(mcharge1),icount
     mcharge1=0
     mcharge2=0.00
     mcharge3=0.00
