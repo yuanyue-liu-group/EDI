@@ -368,6 +368,8 @@ Program edic
       if (calcmcharge .and. mcharge_dolfa) &
           call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,k0screen_read)
       if (calcmcharge .and. .not. mcharge_dolfa) &
+          !write(*,*) k0screen_read
+          write(*,*) 'k0sc1',k0screen_read
           call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,k0screen_read)
 
       if (noncolin .and. .not. lspinorb .and. calcmlocal)then
