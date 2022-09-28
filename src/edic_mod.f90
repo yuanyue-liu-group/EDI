@@ -84,6 +84,9 @@ real(DP),allocatable:: qeh_eps_data (:,:)
   LOGICAL :: lspinorb=.false., noncolin =.false.
   LOGICAL :: lvacalign=.true.
   LOGICAL :: lcorealign=.false.
+  LOGICAL :: doqeh=.false.
+  LOGICAL :: dogwfull=.false.
+  LOGICAL :: dogwdiag=.false.
   INTEGER :: spin_component, firstk, lastk
   INTEGER :: nspin
                 integer :: vac_idx=0
@@ -102,7 +105,7 @@ wt_filename,klist_filename,ev_filename,&
    outdir, prefix, &!filband, filp, spin_component, lsigma,&
                     !   lsym, lp, filp, firstk, lastk, no_overlap, plot_2d,&
 noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p,&
-            eps_type
+            eps_type,doqeh,dogwfull,dogwdiag
 
             Complex(dp) :: m_loc, m_nloc
 
