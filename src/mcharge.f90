@@ -159,8 +159,6 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   INTEGER :: gw_q_g_commonsubset_size
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
-  call get_gind_rhoandpsi_gw(gw_epsq1_data,ik)
-  call get_gind_rhoandpsi_gw(gw_epsq0_data,ik)
 
   Nlzcutoff=dffts%nr3/2
   lzcutoff=Nlzcutoff*alat/dffts%nr1
