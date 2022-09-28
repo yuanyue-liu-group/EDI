@@ -51,8 +51,6 @@ gw_eps_read.f90\
 gw_eps_bcast.f90\
 gw_eps_init.f90\
 
-#!interp_eps_1d.f90\
-interp_eps_2d.f90\
 
 #mcharge-lfa-nc.f90\
 #mcharge-nc.f90\
