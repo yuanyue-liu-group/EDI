@@ -1,6 +1,8 @@
 SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE kinds, ONLY: DP
-  Use edic_mod, Only : evc1,evc2,qeh_eps_data,eps_type
+  Use edic_mod, Only : qeh_eps_data,eps_type
+  Use edic_mod, Only : dogwfull,dogwdiag,doqeh
+  Use edic_mod, Only : evc1,evc2
   USE fft_base,  ONLY: dfftp, dffts
   USE gvect, ONLY: g
   USE gvect, ONLY: ngm
@@ -139,6 +141,10 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !GW
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   COMPLEX(DP),allocatable ::w_gw(:)
+  COMPLEX(DP),allocatable ::w_gw_non0(:)
+  integer,allocatable ::g_of_w_gw_non0(:,:)
+  COMPLEX(DP),allocatable ::w_gw_tmp1(:)
+  COMPLEX(DP),allocatable ::w_gw_tmp2(:)
 !  real(DP),allocatable ::epsint_q1_tmp1(:)
 !  real(DP),allocatable ::epsint_q1_tmp2(:)
 !  real(DP),allocatable ::epsint_q1_tmp3(:)
@@ -324,7 +330,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     !write(*,*) 'gw4'
     write(*,*) 'gw-lin5 w'
 
-    allocate(w_gw(ngk(ik0)))
+!    allocate(w_gw(ngk(ik0)))
+    allocate(w_gw(ngm))
     write(*,*)shape(w_gw)
     w_gw(:)=0.0
 
@@ -332,15 +339,46 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
     q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
     write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',maxval(gind_psi2rho_gw(:))
-    DO ig1 = 1, ngk(ik0)
-      Do ig2=1, ngk(ik)
+!    DO ig1 = 1, ngk(ik0)
+!      Do ig2=1, ngk(ik)
+!        if(gind_psi2rho_gw(ig1)>0 .and. gind_psi2rho_gw(ig2)>0)then
+!           
+!           !icount=icount+1
+!           !write(*,*) 'deltakG',g(1:3,igk_k(ig1,ik0)),g(1:3,igk_k(ig2,ik)),xk(1:3,ik0)-xk(1:3,ik)
+!           deltakG=norm2(g(1:3,igk_k(ig1,ik0))&
+!                      -g(1:3,igk_k(ig2,ik))&
+!                      +xk(1:3,ik0)-xk(1:3,ik))*tpiba
+!           !w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*(tpi/(deltakG))
+!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!
+!! start here assign gind_psi2rho
+!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!
+!
+!           !if(deltakG>machine_eps)then
+!           !write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',  ig1,ig2
+!           !write(*,*) '2',w_gw(ig1),gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2)
+!           !write(*,*) '2',epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))
+!           !write(*,*) '2',4*pi/(deltakG**2)*q2d_coeff
+!           !    w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+!           !else
+! 
+!           !    w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
+!           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+!           !endif
+!        endif
+!      Enddo
+!
+!      write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
+!    Enddo
+
+    icount=0
+    DO ig1 = 1, ngm
+      Do ig2=1, ngm
         if(gind_psi2rho_gw(ig1)>0 .and. gind_psi2rho_gw(ig2)>0)then
            
-           !icount=icount+1
            !write(*,*) 'deltakG',g(1:3,igk_k(ig1,ik0)),g(1:3,igk_k(ig2,ik)),xk(1:3,ik0)-xk(1:3,ik)
-           deltakG=norm2(g(1:3,igk_k(ig1,ik0))&
-                      -g(1:3,igk_k(ig2,ik))&
-                      +xk(1:3,ik0)-xk(1:3,ik))*tpiba
+           deltakG=norm2(g(1:3,ig1)-g(1:3,ig2) +xk(1:3,ik0)-xk(1:3,ik))*tpiba
            !w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*(tpi/(deltakG))
 !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
@@ -348,21 +386,44 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
 
-           if(deltakG>machine_eps)then
+           !if(deltakG>machine_eps)then
            !write(*,*) 'epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))',  ig1,ig2
            !write(*,*) '2',w_gw(ig1),gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2)
            !write(*,*) '2',epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))
            !write(*,*) '2',4*pi/(deltakG**2)*q2d_coeff
-               w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
-           else
+           !    w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+           !else
  
-               w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
-           endif
+           !    w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
+           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+           !endif
         endif
       Enddo
-
-      !write(*,*) 'gw_debug W_gw vs q, ig1, g, w',ig1,norm2(g(1:3,igk_k(ig1,ik0))),w_gw(ig1) ,abs(w_gw(ig1) )
+      if(    abs(w_gw(ig1))>machine_eps) then
+         icount=icount+1
+         write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(3,ik0)-xk(3,ik),ig1,g(:,ig1),w_gw(ig1) ,abs(w_gw(ig1) )
+      endif
     Enddo
+    write(*,*) 'w nonzero part number', icount
+
+    if (allocated(w_gw_non0)) deallocate(w_gw_non0)
+    allocate(w_gw_non0(icount))
+    w_gw_non0(:)=(0.0,0.0)
+
+    if (allocated(g_of_w_gw_non0)) deallocate(g_of_w_gw_non0)
+    allocate(g_of_w_gw_non0(3,icount))
+    g_of_w_gw_non0(:,:)=0.0
+
+    icount=0
+    DO ig1 = 1, ngm
+      if(    abs(w_gw(ig1))>machine_eps) then
+         icount=icount+1
+         w_gw_non0(icount)=w_gw(ig1)
+         g_of_w_gw_non0(:,icount)=g(:,ig1)
+      endif
+    Enddo
+    write(*,*)'nonzero w',w_gw_non0
+ 
  
 ! get w(g)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -379,8 +440,18 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
   endif
+
+
+
+
+
+
+
   if(dogwdiag ) then
   endif
+
+
+
   !elseif(eps_type=='qeh')then
   if(doqeh ) then
  
@@ -423,7 +494,11 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
       
          mcharge1=mcharge1+mcharge0*tpi/deltakG
          mcharge2=mcharge2+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
-         if (doqeh)         mcharge3=mcharge3+mcharge0*tpi/(deltakG)*epsk
+         if (doqeh)  then
+           epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
+           if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+           mcharge3=mcharge3+mcharge0*tpi/(deltakG)*epsk
+         endif
     Enddo
     !write(*,*)  'mcharge ig1',ig1
   Enddo
@@ -492,24 +567,25 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 
 
 
-       if(dogwfull)then
-       !elseif(eps_type=='gw')then
-           do iq = 1,ngk(ik0) 
-             if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
-               mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
-               mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
-               !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
-               !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
-             endif
-          
-           Enddo
-       endif
+!       if(dogwfull)then
+!       !elseif(eps_type=='gw')then
+!           do iq = 1,ngk(ik0) 
+!             if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
+!               mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
+!               mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
+!               !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
+!               !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
+!             endif
+!          
+!           Enddo
+!       endif
 
-       if(dogwdiag)then
-           do iq = 1,ngk(ik0) 
+       if(dogwfull .or. dogwdiag)then
+           !do iq = 1,ngk(ik0) 
+           do iq = 1,size(w_gw_non0)
              if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
-               mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
-               mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
+               mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)
+               mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)            *q2d_coeff
                !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
                !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
              endif
