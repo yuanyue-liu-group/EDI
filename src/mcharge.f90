@@ -159,24 +159,45 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   INTEGER :: gw_q_g_commonsubset_size
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
+  call get_gind_rhoandpsi_gw(gw_epsq1_data,ik)
+  call get_gind_rhoandpsi_gw(gw_epsq0_data,ik)
 
   Nlzcutoff=dffts%nr3/2
   lzcutoff=Nlzcutoff*alat/dffts%nr1
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! get interpolated eps matrix
-! eps(0,0) fine after check
-    icount=0
-    allocate(epsint_q0_tmp1(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
-    if (abs(norm2(real(gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho)))>machine_eps) then
-         write(*,*) gw_epsq1_data%gind_psi2rho
-         write(*,*) gw_epsq0_data%gind_psi2rho
-         write(*,*) gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho
-         stop ('epsq0 and eps q1 file gind_psi2rho not matching')
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! get interpolated eps matrix
+  ! eps(0,0) fine after check
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+  !! no need to use this judge, since q0 q1 have different common g subset 
+   ! if (abs(norm2(real(gw_epsq1_data%q_g_commonsubset_indinrho-gw_epsq0_data%q_g_commonsubset_indinrho)))>machine_eps) then
+   !      write(*,*) gw_epsq1_data%q_g_commonsubset_indinrho
+   !      write(*,*) gw_epsq0_data%q_g_commonsubset_indinrho
+   !      write(*,*) gw_epsq1_data%q_g_commonsubset_indinrho-gw_epsq0_data%q_g_commonsubset_indinrho
+   !      stop ('epsq0 and epsq1 file q_g_commonsubset_indinrho not matching')
+   ! endif
+   !
+   ! if (abs(norm2(real(gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho)))>machine_eps) then
+   !      write(*,*) gw_epsq1_data%gind_psi2rho
+   !      write(*,*) gw_epsq0_data%gind_psi2rho
+   !      write(*,*) gw_epsq1_data%gind_psi2rho-gw_epsq0_data%gind_psi2rho
+   !      stop ('epsq0 and epsq1 file gind_psi2rho not matching')
+   ! endif
+
+    interpolate_2d=.false.
+    interpolate_smallq1d=.false.
+    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw*0.5) then
+          interpolate_smallq1d=.true.
+          write(*,*) 'interp 1d'
+    else
+          interpolate_2d=.true.
+          write(*,*) 'interp 2d'
     endif
+
+
     allocate(gind_psi2rho_gw(size(gw_epsq1_data%gind_psi2rho)))
     gind_psi2rho_gw(:)=gw_epsq1_data%gind_psi2rho(:)
     gw_q_g_commonsubset_size=gw_epsq1_data%q_g_commonsubset_size
@@ -195,17 +216,6 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(3,3)
     write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(4,4)
     
-
-    interpolate_2d=.false.
-    interpolate_smallq1d=.false.
-    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw*0.5) then
-          interpolate_smallq1d=.true.
-          write(*,*) 'interp 1d'
-    else
-          interpolate_2d=.true.
-          write(*,*) 'interp 2d'
-    endif
-
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! 2d simple interpolate prepare fixme
     if(interpolate_2d) then
@@ -255,6 +265,15 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
         !! change to 2d space matrix interpolate
         !! change boundary condition
         if( interpolate_smallq1d) then
+
+            !icount=0
+            allocate(epsint_q0_tmp1(gw_epsq0_data%nq_data(1)))
+            allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
+            allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
+            allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
+
+
+
             !write(*,*) 'interp 1d'
         
             !*gw_blat_data(1)
@@ -333,14 +352,14 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     !epsmat_inv(:,:)=epsmat_inted(:,:)
     call mat_inv(epsmat_inted,epsmat_inv)
     write(*,*) 'gw-lin2 inv'
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,1)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,2)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,3)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,4)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(1,1)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(2,2)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(3,3)
-    write(*,*) 'gw-lin1',shape(epsmat_inv),epsmat_inv(4,4)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(1,1)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(1,2)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(1,3)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(1,4)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(1,1)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(2,2)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(3,3)
+    write(*,*) 'gw-lin2',shape(epsmat_inv),epsmat_inv(4,4)
     call  mpi_barrier(gid)
     call flush(6)
     !epsmat_lindhard(:,:)=epsmat_inv(:,:)
@@ -394,7 +413,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
-           icount=icount+1
+           !icount=icount+1
            deltakG=norm2(g(1:3,igk_k(ig1,ik0))&
                       -g(1:3,igk_k(ig2,ik))&
                       +xk(1:3,ik0)-xk(1:3,ik))*tpiba
@@ -428,6 +447,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
  
     allocate(eps_data_dy(size(eps_data(1,:))))
     call spline(eps_data(1,:),eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
+
+
+
     mcharge1=0
     mcharge2=0.00
     mcharge3=0.00

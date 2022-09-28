@@ -195,16 +195,26 @@ type :: gw_eps_data
   real(dp), allocatable :: epsmat_full_data(:,:,:,:,:,:)
   real(dp), allocatable :: vcoul_data(:,:),qpts_data(:,:)
   real(dp), allocatable :: blat_data(:),bvec_data(:,:)
-  integer, allocatable :: gind_eps2rho_data(:,:), gind_rho2eps_data(:,:),nmtx_data(:)
-   integer, allocatable :: grho_data(:),  geps_data(:),g_components_data(:,:)
+
+!!!!!!!!!!!!gw scf set up
   integer, allocatable :: nq_data(:),nmtx_max_data(:),fftgrid_data(:),qgrid_data(:),ng_data(:)
+  integer, allocatable :: gind_rho2eps_data(:,:)
+  integer, allocatable :: gind_eps2rho_data(:,:)
+  integer, allocatable :: nmtx_data(:)
+   integer, allocatable :: grho_data(:),  geps_data(:),g_components_data(:,:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  integer(i8b), allocatable :: gw_nqi8(:)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer(DP),allocatable ::q_g_commonsubset_indinrhotmp1(:)
+!  simple info
     real(DP),allocatable ::qabs(:)
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!! gw set up to qe set up
+    integer(DP),allocatable ::q_g_commonsubset_indinrhotmp1(:)
     INTEGER :: q_g_commonsubset_size
     integer(DP),allocatable ::q_g_commonsubset_indinrho(:)
 
