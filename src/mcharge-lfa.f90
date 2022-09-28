@@ -1,6 +1,6 @@
 SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE kinds, ONLY: DP
-  Use edic_mod, Only : evc1,evc2,eps_data
+  Use edic_mod, Only : evc1,evc2,qeh_eps_data
   USE fft_base,  ONLY: dfftp, dffts
   USE gvect, ONLY: g
   !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
@@ -30,8 +30,8 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   lzcutoff=Nlzcutoff*alat/dffts%nr1
 
   !k0screen=tpiba*0.01
-  allocate(eps_data_dy(size(eps_data(1,:))))
-  call spline(eps_data(1,:),eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
+  allocate(eps_data_dy(size(qeh_eps_data(1,:))))
+  call spline(qeh_eps_data(1,:),qeh_eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
 
   !k0screen=tpiba*0.01
   mcharge0=0
@@ -50,8 +50,8 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   Enddo
   deltak=norm2(xk(:,ik0)-xk(:,ik))*tpiba
   deltak_para=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
-  epsk= splint(eps_data(1,:),eps_data(2,:),eps_data_dy(:),deltak_para)
-  if (deltak>maxval(eps_data(1,:)))      epsk=minval(eps_data(2,:))
+  epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltak_para)
+  if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
 
   qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
   qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba

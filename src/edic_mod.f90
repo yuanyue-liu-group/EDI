@@ -56,11 +56,11 @@ type(S_wt_rj),allocatable::wfc_pair(:)
         psic3(:), &
         psic4(:) 
 
-real(DP),allocatable:: eps_data (:,:)
+real(DP),allocatable:: qeh_eps_data (:,:)
 ! input parameter
 !   CHARACTER(LEN=256) :: vperturb_filename_p='vloc-p.dat'
 !   CHARACTER(LEN=256) :: vperturb_filename_d='vloc-d.dat'
-  CHARACTER(LEN=256) :: eps_filename='eps.dat'
+  CHARACTER(LEN=256) :: qeh_eps_filename='eps.dat'
   CHARACTER(LEN=256) :: gw_epsmat_filename='epsmat.h5'
   CHARACTER(LEN=256) :: gw_eps0mat_filename='eps0mat.h5'
           character(len=256) :: V_d_filename = 'none', Bxc_1_d_filename='none', Bxc_2_d_filename='none', Bxc_3_d_filename='none'
@@ -74,9 +74,10 @@ real(DP),allocatable:: eps_data (:,:)
           LOGICAL :: calcmnonlocal =.false.
           LOGICAL :: calcmcharge =.false.
           LOGICAL :: mcharge_dolfa =.false.
-          REAL :: k0screen_read=0.0
+          REAL :: k0screen_read=-10.0
   !CHARACTER (len=256) :: filband, filp, outdir
   CHARACTER (len=256) ::  outdir
+  CHARACTER (len=256) ::  eps_type
   CHARACTER (len=256) ::  wt_filename,klist_filename,ev_filename
   !LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
   LOGICAL ::  wfc_is_collected, exst
@@ -91,8 +92,8 @@ real(DP),allocatable:: eps_data (:,:)
 REAL(dp), PARAMETER :: machine_eps = 1.d-4
 
 
-!  NAMELIST / calcmcontrol / vperturb_filename_p,vperturb_filename_d,eps_filename, kpoint_initial, kpoint_final, &
-  NAMELIST / calcmcontrol / eps_filename,gw_epsmat_filename,gw_eps0mat_filename, kpoint_initial, kpoint_final, &
+!  NAMELIST / calcmcontrol / vperturb_filename_p,vperturb_filename_d,qeh_eps_filename, kpoint_initial, kpoint_final, &
+  NAMELIST / calcmcontrol / qeh_eps_filename,gw_epsmat_filename,gw_eps0mat_filename, kpoint_initial, kpoint_final, &
             bnd_initial, bnd_final, calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
             V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
             V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
@@ -100,7 +101,8 @@ REAL(dp), PARAMETER :: machine_eps = 1.d-4
 wt_filename,klist_filename,ev_filename,&
    outdir, prefix, &!filband, filp, spin_component, lsigma,&
                     !   lsym, lp, filp, firstk, lastk, no_overlap, plot_2d,&
-noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
+noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p,&
+            eps_type
 
             Complex(dp) :: m_loc, m_nloc
 

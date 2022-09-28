@@ -2,11 +2,11 @@ subroutine getwtdata_new()
     use kinds,    only: dp
     use edic_mod, only: wfc_pair
     use edic_mod, only: bndkp_pair
-    use edic_mod,   only: V_file,eps_data,wt_filename,klist_filename,ev_filename
+    use edic_mod,   only: V_file,qeh_eps_data,wt_filename,klist_filename,ev_filename
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
 USE clib_wrappers,     ONLY: md5_from_file
  CHARACTER(len=32)::wt_md5_cksum="NA"
-!real(DP),allocatable:: eps_data (:,:)
+!real(DP),allocatable:: qeh_eps_data (:,:)
 !          CHARACTER(LEN=256) :: wt_filename='wt.dat'
 character (len=75) :: filpot_perturb,buf
 integer::nlines
@@ -48,12 +48,12 @@ subroutine getwtdata()
     use kinds,    only: dp
     use edic_mod, only: wfc_pair
     use edic_mod, only: bndkp_pair
-    use edic_mod,   only: V_file,eps_data   
+    use edic_mod,   only: V_file,qeh_eps_data   
     use edic_mod,   only: wt_filename,klist_filename,ev_filename
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
 USE clib_wrappers,     ONLY: md5_from_file
  CHARACTER(len=32)::wt_md5_cksum="NA"
-!real(DP),allocatable:: eps_data (:,:)
+!real(DP),allocatable:: qeh_eps_data (:,:)
 !          CHARACTER(LEN=256) :: wt_filename='wt.dat'
 character (len=75) :: filpot_perturb,buf
 integer::nlines

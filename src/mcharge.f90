@@ -1,6 +1,6 @@
 SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE kinds, ONLY: DP
-  Use edic_mod, Only : evc1,evc2,eps_data
+  Use edic_mod, Only : evc1,evc2,qeh_eps_data,eps_type
   USE fft_base,  ONLY: dfftp, dffts
   USE gvect, ONLY: g
   USE gvect, ONLY: ngm
@@ -46,7 +46,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
   !!!!! eps data file 
   integer :: nepslines
-  !real(DP),allocatable:: eps_data (:,:)
+  !real(DP),allocatable:: qeh_eps_data (:,:)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   !!
@@ -166,6 +166,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
 
+  if(eps_type=='gw')then
     Nlzcutoff=dffts%nr3/2
     lzcutoff=Nlzcutoff*alat/dffts%nr1
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -376,11 +377,15 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 !GW
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
+  elseif(eps_type=='qeh')then
  
-    allocate(eps_data_dy(size(eps_data(1,:))))
-    call spline(eps_data(1,:),eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
+    allocate(eps_data_dy(size(qeh_eps_data(1,:))))
+    call spline(qeh_eps_data(1,:),qeh_eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
 
 
+  else
+    stop ('eps_type incorrect')
+  endif
 
     write(*,*)  'mcharge start ',ik0,ik, mcharge1, abs(mcharge1),icount
     mcharge1=0
@@ -401,12 +406,17 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
                       -g(1:2,igk_k(ig2,ik))&
                       +xk(1:2,ik0)-xk(1:2,ik))*tpiba
 
-             deltakG_para=deltakG
-             epsk= splint(eps_data(1,:),eps_data(2,:),eps_data_dy(:),deltakG_para)
-             if (deltak>maxval(eps_data(1,:)))      epsk=minval(eps_data(2,:))
-           mcharge1=mcharge1+mcharge0*tpi/deltakG
-           mcharge2=mcharge2+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
-           mcharge3=mcharge3+mcharge0*tpi/(deltakG)*epsk
+           deltakG_para=deltakG
+           if(eps_type=='qeh')then
+             epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
+             if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+             mcharge1=mcharge1+mcharge0*tpi/(deltakG)*epsk
+           elseif(eps_type=='tf')then
+             mcharge1=mcharge1+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
+           endif
+        
+           !mcharge1=mcharge1+mcharge0*tpi/deltakG
+           !mcharge2=mcharge2+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
       Enddo
       !write(*,*)  'mcharge ig1',ig1
     Enddo
@@ -416,6 +426,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
     write(*,*)  'Mcharge2DnoLFAns noki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount
     write(*,*)  'Mcharge2DnoLFAs  noki->kf ',ik0,ik, mcharge2, abs(mcharge2),icount , 'k0screen', k0screen
     write(*,*)  'Mcharge2DnoLFAes noki->kf ',ik0,ik, mcharge3, abs(mcharge3),icount , 'epsk', epsk
+    write(*,*)  '1Mcharge2DnoLFAes ki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount , 'epsk', epsk
     
     
     
@@ -453,12 +464,13 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
          qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
               xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
 
-             epsk= splint(eps_data(1,:),eps_data(2,:),eps_data_dy(:),qxy)
+         if(eps_type=='qeh')then
+             epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),qxy)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  ! bug, should be epsk(q)=epsk(q_//)
-             !epsk= splint(eps_data(1,:),eps_data(2,:),eps_data_dy(:),deltakG)
+             !epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG)
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-             if (deltak>maxval(eps_data(1,:)))      epsk=minval(eps_data(2,:))
+             if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
              q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
 
              mcharge1=mcharge1+mcharge0*4*pi/(deltakG**2)
@@ -471,6 +483,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
 
 
 
+         elseif(eps_type=='gw')then
              do iq = 1,ngk(ik0) 
                if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
                  mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
@@ -480,6 +493,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
                endif
             
              Enddo
+         endif
       Enddo
       !write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1
     Enddo

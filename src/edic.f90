@@ -152,10 +152,13 @@ Program edic
   !call  mpi_barrier(mpi_comm_world)
   if (calcmcharge) then
 
+    if(eps_type=='qeh') then
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Read QEH dielectric data '
-      call getepsdata()
+      call get_qeh_eps_data()
    
+
+    elseif(eps_type=='gw') then
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Read BGW dielectric data '
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -268,6 +271,12 @@ Program edic
 
       call get_gind_rhoandpsi_gw(gw_epsq1_data)
       call get_gind_rhoandpsi_gw(gw_epsq0_data)
+    elseif(eps_type=='tf')then
+      if (k0screen_read<0) stop ('screening wavelength not correct')
+      write(*,*) 'TF screening wavelength',k0screen_read
+    else
+      stop ('eps_type incorrect')
+    endif
   
   endif
 
