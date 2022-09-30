@@ -11,10 +11,13 @@ Module edic_mod
 !scattering weight sum delta(Ei-Ef)
 type ::s_wt
 
-integer,allocatable::kp_idx(:,:)!i_pair, kif
-integer,allocatable::bnd_idx(:,:)!i_pair, kif
+integer,allocatable::kp_idx(:,:)!i_pair, ki and kf
+integer,allocatable::bnd_idx(:,:)!i_pair, ibnd and fbnd
 real,allocatable::k_coord(:,:,:)! i_pair, kxyz,kif
+real,allocatable::e_pair(:,:)! i_pair, ei and ef
+real,allocatable::v_pair(:,:,:)! i_pair, vxyz,kif
 real,allocatable::wt(:)!i_pair
+complex,allocatable::m(:)!i_pair
 integer:: npairs
 end type 
 

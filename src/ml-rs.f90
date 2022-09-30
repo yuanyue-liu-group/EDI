@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   USE kinds, ONLY: DP,sgl
   USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
   USE scf, ONLY: rho, rho_core, rhog_core, v, vltot, vrs
@@ -8,6 +8,7 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
   USE fft_interfaces, ONLY : fwfft, invfft
   Use edic_mod, Only : evc1,evc2, psic1, psic2
   USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
+  use edic_mod, only: bndkp_pair
   INTEGER,intent(in) :: bnd_idx_i, kp_idx_i, kp_idx_f,bnd_idx_f
   !real(dp), allocatable , intent(in) :: V_colin(:)
   !real(DP),allocatable,:: V_r_sc (:)
@@ -30,6 +31,8 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
   INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
   COMPLEX(DP)::vlfft
   COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
+  
+  COMPLEX(DP) ,intent(inout)::  mlocal
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -235,4 +238,5 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
   !write(*,*) 'xk(kp_idx_i)', xk(:,kp_idx_i),kp_idx_i
   !write(*,*) 'xk(kp_idx_f)', xk(:,kp_idx_f),kp_idx_f
 1001 format(A,I9,I9,3F14.9,3F14.9," ( ",e17.9," , ",e17.9," ) ",e17.9)
+  mlocal=ml
 END SUBROUTINE calcmdefect_ml_rs

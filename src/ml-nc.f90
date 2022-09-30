@@ -1,5 +1,5 @@
 !subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_d, v_nc)
-subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
+subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   Use kinds,          Only : dp
   USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
   USE constants, ONLY: tpi, e2, eps6,pi
@@ -13,12 +13,14 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
   Use edic_mod, Only: m_loc
   USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
   USE pw_restart_new,   ONLY : read_collected_wfc
+  use edic_mod, only: bndkp_pair
   Implicit None 
 
+  COMPLEX(DP) ,intent(inout)::  mlocal
   complex(dp) :: ml_up, ml_down,ml
   real(dp) :: d1, d2, d3
 
-  INTEGER :: ibnd, ik, ik0,ibnd0, ig
+  INTEGER :: ibnd, ik, ik0,ibnd0, ig,ipair
 
   REAL(dp)::arg,argt,argt2
   COMPLEX(DP)::phase
@@ -166,6 +168,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0)
   !write (*,1002) 'Ml ki->kf ',ik0,ik,  ml_up+ml_down, abs(ml_up+ml_down)
 1001 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
+  mlocal=ml
    
     
     

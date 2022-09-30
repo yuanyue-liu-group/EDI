@@ -1,5 +1,6 @@
 ! SUBROUTINE calcmdefect_mnl_ks_soc(ibnd0,ibnd,ik0,ik, V_d, V_p)
-SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0)
+SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
+
   Use kinds,    Only : dp
   USE io_global, ONLY: stdout
   USE wvfct, ONLY: npwx, nbnd
@@ -15,7 +16,8 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0)
      
   Complex(dp), allocatable :: vkb_perturb(:,:)
   COMPLEX(DP) :: mnl
-  type(V_file):: v_mnl
+  COMPLEX(DP) ,intent(inout):: mnonlocal
+  type(V_file),intent(in):: v_mnl
   INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
   integer ::nkb_perturb
   integer :: ijkb0, ih, jh, ikb, jkb

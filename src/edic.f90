@@ -59,6 +59,7 @@ Program edic
   !!!!!!!!!!!!! hdf5 debug
   !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
   integer :: ierr
+  complex :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
   !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
   !write(*,*) 'ierr        ', ierr
   !!!!!!!!!!!!! hdf5 debug
@@ -378,41 +379,48 @@ Program edic
       CALL read_collected_wfc ( restart_dir(), kp_idx_f, evc2 )
       write(*,*)'evc2',evc2(1,1),shape(evc2)
 
-      if (calcmcharge .and. mcharge_dolfa) &
-          call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin)
-      if (calcmcharge .and. .not. mcharge_dolfa) &
+      if (calcmcharge .and. mcharge_dolfa) then
+          call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
+          bndkp_pair%m(ig)=mcharge
+      endif
+      if (calcmcharge .and. .not. mcharge_dolfa) then
           !write(*,*) k0screen_read
           write(*,*) 'k0sc1',k0screen_read
-          call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin)
+          call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
+          bndkp_pair%m(ig)=mcharge
+      endif
 
       if (noncolin .and. .not. lspinorb .and. calcmlocal)then
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
       endif
       if (noncolin .and. .not. lspinorb .and. calcmnonlocal)then
-          call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-          call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
+          call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
+          call calcmdefect_mnl_ks_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
       endif
       
       if (noncolin .and. lspinorb .and. calcmlocal)then
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i)
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
       endif
       if (noncolin .and. lspinorb .and. calcmnonlocal)then
-          call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-          call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
+          call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
+          call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
       endif
       if ( .not. noncolin .and. calcmlocal)then
-          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin)
+          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
       endif
       if ( .not. noncolin .and. calcmnonlocal)then
-          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d)
-          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p)
+          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
+          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
+          mnonlocal=mnonlocal0-mnonlocal1
       endif
+      bndkp_pair%m(ig)=mlocal+mnonlocal0-mnonlocal1
       !      write(*,*)'evc2',evc2(1,1)
       !      write(*,*)'evc2',evc2(1,1)
    
   
       write (*,1003) 'M_tot ni ki --> nf kf ', bnd_idx_f,kp_idx_f, '-->', bnd_idx_i,kp_idx_i, &
       m_loc+m_nloc, abs(m_loc+m_nloc)
+      
     endif
   !            end do
   !      end do

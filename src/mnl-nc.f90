@@ -1,5 +1,5 @@
  !   SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd0,ibnd,ik0,ik, V_d, V_p)
-SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl)
+SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   USE kinds, ONLY: DP
   USE io_global, ONLY: stdout
 
@@ -16,7 +16,8 @@ SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl)
      
   COMPLEX(DP), ALLOCATABLE ::vkb_perturb(:,:)
   COMPLEX(DP) :: mnl
-  type(V_file):: v_mnl
+  COMPLEX(DP) ,intent(inout):: mnonlocal
+  type(V_file),intent(in):: v_mnl
   INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
   integer ::nkb_perturb
   integer :: ijkb0, ih, jh, ikb, jkb
@@ -77,6 +78,7 @@ SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl)
   write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
 1001 format(A16,I9,I9, " ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
+  mnonlocal=mnl
 END SUBROUTINE calcmdefect_mnl_ks_noncolin
 
 

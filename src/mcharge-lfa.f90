@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
+SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   USE kinds, ONLY: DP
   Use edic_mod, Only : evc1,evc2,qeh_eps_data
   USE fft_base,  ONLY: dfftp, dffts
@@ -12,14 +12,15 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   USE constants, ONLY: tpi, pi
   use edic_mod, only: machine_eps
   COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  COMPLEX(DP) ,intent(inout)::  mcharge
   INTEGER :: ibnd, ik, ik0,ibnd0
 
   !COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
   !INTEGER :: iscx, iscy,nscx,nscy
-  REAL(dp) ,intent(in)::k0screen
+  REAL(dp) ::k0screen
   REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
   INTEGER:: icount,jcount,kcount
-  real(DP):: mscreen,mcharge, rmod
+  real(DP):: mscreen, rmod
   INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
   integer :: nepslines
   real(DP) , allocatable::  eps_data_dy(:)
@@ -30,6 +31,7 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   lzcutoff=Nlzcutoff*alat/dffts%nr1
 
   !k0screen=tpiba*0.01
+  k0screen=k0screen_read
   allocate(eps_data_dy(size(qeh_eps_data(1,:))))
   call spline(qeh_eps_data(1,:),qeh_eps_data(2,:),0.0_DP,0.0_DP,eps_data_dy(:))
 
@@ -107,6 +109,7 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,k0screen)
   write(*,*)   'Mcharge2DLFAns 0ki->kf ',ik0,ik, mcharge1, abs(mcharge1)
   write(*,*)   'Mcharge2DLFAs  0ki->kf ',ik0,ik, mcharge2, abs(mcharge2) , 'k0screen', k0screen
   write(*,*)   'Mcharge2DLFAes 0ki->kf ',ik0,ik, mcharge3, abs(mcharge3) , 'epsk', epsk
+  mcharge=mcharge3
  
      
  
