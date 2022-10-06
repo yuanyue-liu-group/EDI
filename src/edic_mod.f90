@@ -17,6 +17,43 @@ Module edic_mod
     real,allocatable::v_pair(:,:,:)! i_pair, vxyz,kif
     real,allocatable::wt(:)!i_pair
     complex,allocatable::m(:)!i_pair
+    complex,allocatable::mc(:)!i_pair
+
+    complex,allocatable::ml(:)!i_pair
+    complex,allocatable::mnl_p(:)!i_pair
+    complex,allocatable::mnl_d(:)!i_pair
+    complex,allocatable::mc_lfa(:)!i_pair
+    complex,allocatable::mc_nolfa(:)!i_pair
+
+    complex,allocatable::mc_lfa_2dns(:)!i_pair
+    complex,allocatable::mc_lfa_2dtf(:)!i_pair
+    complex,allocatable::mc_lfa_2dqeh(:)!i_pair
+    complex,allocatable::mc_lfa_2dgw(:)!i_pair
+
+    complex,allocatable::mc_lfa_3dns(:)!i_pair
+    complex,allocatable::mc_lfa_3dtf(:)!i_pair
+    complex,allocatable::mc_lfa_3dqeh(:)!i_pair
+    complex,allocatable::mc_lfa_3dgw(:)!i_pair
+
+    complex,allocatable::mc_lfa_3dcutns(:)!i_pair
+    complex,allocatable::mc_lfa_3dcuttf(:)!i_pair
+    complex,allocatable::mc_lfa_3dcutqeh(:)!i_pair
+    complex,allocatable::mc_lfa_3dcutgw(:)!i_pair
+
+    complex,allocatable::mc_nolfa_2dns(:)!i_pair
+    complex,allocatable::mc_nolfa_2dtf(:)!i_pair
+    complex,allocatable::mc_nolfa_2dqeh(:)!i_pair
+    complex,allocatable::mc_nolfa_2dgw(:)!i_pair
+
+    complex,allocatable::mc_nolfa_3dns(:)!i_pair
+    complex,allocatable::mc_nolfa_3dtf(:)!i_pair
+    complex,allocatable::mc_nolfa_3dqeh(:)!i_pair
+    complex,allocatable::mc_nolfa_3dgw(:)!i_pair
+
+    complex,allocatable::mc_nolfa_3dcutns(:)!i_pair
+    complex,allocatable::mc_nolfa_3dcuttf(:)!i_pair
+    complex,allocatable::mc_nolfa_3dcutqeh(:)!i_pair
+    complex,allocatable::mc_nolfa_3dcutgw(:)!i_pair
     integer:: npairs
   end type 
   

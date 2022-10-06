@@ -84,6 +84,7 @@ bndkp_pair%npairs=nlines-1
     allocate(bndkp_pair%v_pair(bndkp_pair%npairs,3,2))
     allocate(bndkp_pair%wt(bndkp_pair%npairs))
     allocate(bndkp_pair%m(bndkp_pair%npairs))
+    allocate(bndkp_pair%mc(bndkp_pair%npairs))
     do ig= 1, bndkp_pair%npairs
       read (iunpot_perturb, * ) bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1),buf,&
                                 bndkp_pair%k_coord(ig,1,1),bndkp_pair%k_coord(ig,2,1),bndkp_pair%k_coord(ig,3,1),buf,&

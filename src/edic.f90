@@ -47,15 +47,7 @@ Program edic
   integer :: kp_idx_i,kp_idx_f, bnd_idx_i,bnd_idx_f
   integer:: p_rank,p_size
   CHARACTER(LEN=6), EXTERNAL :: int_to_char  
-  !  CHARACTER (len=256) :: filband, filp, outdir
-  !  LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
-  !  INTEGER :: spin_component, firstk, lastk
-  !integer :: nr1x_perturb, nr2x_perturb, nr3x_perturb, nr1_perturb, nr2_perturb, nr3_perturb, &
-  !nat_perturb, ntyp_perturb, ibrav_perturb, plot_num_perturb,  i_perturb,nkb_perturb
-  !  NAMELIST / bands / outdir, prefix, filband, filp, spin_component, lsigma,&
-  !                       lsym, lp, filp, firstk, lastk, no_overlap, plot_2d
-  
-  
+    
   !!!!!!!!!!!!! hdf5 debug
   !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
   integer :: ierr
@@ -63,6 +55,9 @@ Program edic
   !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
   !write(*,*) 'ierr        ', ierr
   !!!!!!!!!!!!! hdf5 debug
+
+  integer::p_source
+  real(dp):: m_tmp1,m_tmp2,m_tmp3,m_tmp4
 
   CALL mp_startup( start_images=.TRUE. )
   !CALL mp_startup ( )
@@ -381,13 +376,13 @@ Program edic
 
       if (calcmcharge .and. mcharge_dolfa) then
           call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
-          bndkp_pair%m(ig)=mcharge
+          bndkp_pair%mc(ig)=mcharge
       endif
       if (calcmcharge .and. .not. mcharge_dolfa) then
           !write(*,*) k0screen_read
           write(*,*) 'k0sc1',k0screen_read
           call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
-          bndkp_pair%m(ig)=mcharge
+          bndkp_pair%mc(ig)=mcharge
       endif
 
       if (noncolin .and. .not. lspinorb .and. calcmlocal)then
@@ -425,6 +420,41 @@ Program edic
   !            end do
   !      end do
   enddo
+
+
+  call  mpi_barrier(mpi_comm_world)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! bcast bndkp_pair%m and mc
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  do ig = 1,bndkp_pair%npairs
+    write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
+    if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
+                          .or.(p_rank==p_size-1 .and. ig>bndkp_pair%npairs/p_size*(p_rank)) ) then
+      write(*,*)'in loop, image_id',ig,my_image_id
+      p_source=p_rank
+      m_tmp1= real(bndkp_pair%m(ig))
+      m_tmp2= aimag(bndkp_pair%m(ig))
+      m_tmp3= real(bndkp_pair%mc(ig))
+      m_tmp4= aimag(bndkp_pair%mc(ig))
+    endif
+    CALL MPI_BCAST(   m_tmp1, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
+    CALL MPI_BCAST(   m_tmp2, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
+    CALL MPI_BCAST(   m_tmp3, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
+    CALL MPI_BCAST(   m_tmp4, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
+    bndkp_pair%m(ig)=complex(m_tmp1,m_tmp2)
+    bndkp_pair%mc(ig)=complex(m_tmp3,m_tmp4)
+  enddo
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! gamma mu calculation
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if ( p_rank==0)&
+    call postprocess()
+
+
+
+
   call environment_end('EDIC')
   CALL mp_global_end()
 1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)

@@ -50,6 +50,7 @@ getwtdata.f90\
 gw_eps_read.f90\
 gw_eps_bcast.f90\
 gw_eps_init.f90\
+postprocess.f90\
 
 
 #mcharge-lfa-nc.f90\

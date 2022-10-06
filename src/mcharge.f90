@@ -770,13 +770,13 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
             epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltak_para)
             !write(*,*) 'gw3.2',epsinttmp1s
             if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
-            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp1s=1.0
+            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp1s=epsint_q0_tmp2(size(epsint_q0_tmp2))
                 
             call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
             epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltak_para)
             !write(*,*) 'gw3.2',epsinttmp2s
             if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
-            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp2s=0.0
+            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp2s=epsint_q0_tmp2(size(epsint_q0_tmp2))
             !epsmat_inted(gw_gind_rho2eps_data(ig1,iq1),gw_gind_rho2eps_data(ig2,iq1))=complex(epsinttmp1s,epsinttmp2s)
             epsmat_inted(ig1,ig2)=complex(epsinttmp1s,epsinttmp2s)
             !write(*,*) 'gw3.2',ig1,ig2,epsinttmp1s,epsinttmp2s,epsmat_inted(ig1,ig2)
