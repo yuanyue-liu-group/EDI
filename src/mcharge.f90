@@ -335,9 +335,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
       Do ig2=1, ngk(ik)
            !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
            if (.not. noncolin )then
-              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+              mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
            else
-              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+              mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                                +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
            endif
            icount=icount+1
@@ -414,6 +414,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
          qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
               xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
 
+         q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
          !if(eps_type=='qeh')then
          if(doqeh)then
              epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),qxy)
@@ -422,7 +423,6 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
                !epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG)
  !  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
-             q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
 
              mcharge3=mcharge3+mcharge0*4*pi/(deltakG**2)*epsk
              !write(*,*) 'mcharge3',mcharge3,mcharge0,4*pi,(deltakG**2),epsk
