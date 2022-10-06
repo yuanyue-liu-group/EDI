@@ -402,19 +402,22 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
          endif
-         deltakG=norm2(g(:,igk_k(ig1,ik0))&
-                    -g(:,igk_k(ig2,ik))&
-                    +xk(:,ik0)-xk(:,ik))*tpiba
+         deltakG=norm2(
+             (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:1)+&
+             (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:2)+&
+             (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:3)&
+                    )*tpiba
     
 
-         qxy=norm2(g(1:2,igk_k(ig1,ik0))&
-                    -g(1:2,igk_k(ig2,ik))&
-                    +xk(1:2,ik0)-xk(1:2,ik))*tpiba
-    
-         qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
-              xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
-
+         qxy=norm2(
+             (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:1)+&
+             (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:2)&
+                    )*tpiba
+         qz=norm2(
+             (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:3)&
+                    )*tpiba
          q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+
          !if(eps_type=='qeh')then
          if(doqeh)then
              epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),qxy)
