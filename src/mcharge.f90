@@ -1,7 +1,7 @@
 SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   USE kinds, ONLY: DP
   Use edic_mod, Only : qeh_eps_data,eps_type
-  Use edic_mod, Only : dogwfull,dogwdiag,doqeh
+  Use edic_mod, Only : dogwfull,dogwdiag,doqeh,do2d,do3d
   Use edic_mod, Only : evc1,evc2
   USE fft_base,  ONLY: dfftp, dffts
   USE gvect, ONLY: g
@@ -62,6 +62,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
 
+  write(*,*) 'Start Mcharge Calculation'
   !if(eps_type=='gw')then
   if(dogwfull .or. dogwdiag) then
     Nlzcutoff=dffts%nr3/2
@@ -282,6 +283,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
       endif
     Enddo
     write(*,*)'nonzero w',w_gw_non0
+    write(*,*)'g_of_w_gw_non0',g_of_w_gw_non0
  
  
 ! get w(g)
@@ -323,153 +325,162 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   !  stop ('eps_type incorrect')
   !endif
 
-  write(*,*)  'mcharge start ',ik0,ik, mcharge1, abs(mcharge1),icount
-  mcharge1=0
-  mcharge2=0.00
-  mcharge3=0.00
-  icount=0
-  DO ig1 = 1, ngk(ik0)
-    Do ig2=1, ngk(ik)
+  if(do2d ) then
+    mcharge1=0
+    mcharge2=0.00
+    mcharge3=0.00
+    icount=0
+    mcharge0=0
+    DO ig1 = 1, ngk(ik0)
+      Do ig2=1, ngk(ik)
+           !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           if (.not. noncolin )then
+              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+           else
+              mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                               +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+           endif
+           icount=icount+1
+           deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
+                      -g(1:2,igk_k(ig2,ik))&
+                      +xk(1:2,ik0)-xk(1:2,ik))*tpiba
+
+           deltakG_para=deltakG
+           !if(eps_type=='qeh')then
+           !  epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
+           !  if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+           !  mcharge1=mcharge1+mcharge0*tpi/(deltakG)*epsk
+           !elseif(eps_type=='tf')then
+           !  mcharge1=mcharge1+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
+           !endif
+        
+           mcharge1=mcharge1+mcharge0*tpi/deltakG
+           mcharge2=mcharge2+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
+           if (doqeh)  then
+             epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
+             if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+             mcharge3=mcharge3+mcharge0*tpi/(deltakG)*epsk
+           endif
+      Enddo
+      !write(*,*)  'mcharge ig1',ig1
+    Enddo
+    mcharge1=mcharge1/dffts%nnr
+    mcharge2=mcharge2/dffts%nnr
+    mcharge3=mcharge3/dffts%nnr
+    write(*,*)  'mcharge start ',ik0,ik, mcharge0, abs(mcharge0),icount
+    write(*,*)  'Mcharge2DnoLFAns noki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount
+    write(*,*)  'Mcharge2DnoLFAs  noki->kf ',ik0,ik, mcharge2, abs(mcharge2),icount , 'k0screen', k0screen
+    write(*,*)  'Mcharge2DnoLFAes noki->kf ',ik0,ik, mcharge3, abs(mcharge3),icount , 'epsk', epsk
+    !write(*,*)  '1Mcharge2DnoLFAes ki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount , 'epsk', epsk
+  
+  endif
+
+  if(do3d ) then
+    
+    
+    mcharge1=0
+    mcharge2=0
+    mcharge3=0
+    mcharge4=0
+    mcharge5=0
+    mcharge6=0
+    mcharge1gw=0
+    mcharge2gw=0
+    mcharge3gw=0
+    mcharge4gw=0
+    mcharge5gw=0
+    mcharge6gw=0
+
+    mcharge0=0
+    DO ig1 = 1, ngk(ik0)
+      Do ig2=1, ngk(ik)
+    
          !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
          if (.not. noncolin )then
-            mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+            mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
          else
-            mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+            mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
          endif
-         icount=icount+1
-         deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
+         deltakG=norm2(g(:,igk_k(ig1,ik0))&
+                    -g(:,igk_k(ig2,ik))&
+                    +xk(:,ik0)-xk(:,ik))*tpiba
+    
+
+         qxy=norm2(g(1:2,igk_k(ig1,ik0))&
                     -g(1:2,igk_k(ig2,ik))&
                     +xk(1:2,ik0)-xk(1:2,ik))*tpiba
+    
+         qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
+              xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
 
-         deltakG_para=deltakG
-!         if(eps_type=='qeh')then
-!           epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
-!           if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
-!           mcharge1=mcharge1+mcharge0*tpi/(deltakG)*epsk
-!         elseif(eps_type=='tf')then
-!           mcharge1=mcharge1+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
-!         endif
-      
-         mcharge1=mcharge1+mcharge0*tpi/deltakG
-         mcharge2=mcharge2+mcharge0*tpi/(deltakG**2+k0screen**2)**0.5
-         if (doqeh)  then
-           epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG_para)
-           if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
-           mcharge3=mcharge3+mcharge0*tpi/(deltakG)*epsk
+         !if(eps_type=='qeh')then
+         if(doqeh)then
+             epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),qxy)
+ !  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ !   bug, should be epsk(q)=epsk(q_//)
+               !epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG)
+ !  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+             q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+
+             mcharge3=mcharge3+mcharge0*4*pi/(deltakG**2)*epsk
+             !write(*,*) 'mcharge3',mcharge3,mcharge0,4*pi,(deltakG**2),epsk
+             mcharge1=mcharge1+mcharge0*4*pi/(deltakG**2)
+             mcharge2=mcharge2+mcharge0*4*pi/(deltakG**2+k0screen**2)
+             mcharge4=mcharge4+mcharge0*4*pi/(deltakG**2)            *q2d_coeff
+             mcharge5=mcharge5+mcharge0*4*pi/(deltakG**2+k0screen**2)*q2d_coeff
+             mcharge6=mcharge6+mcharge0*4*pi/(deltakG**2)*epsk       *q2d_coeff
          endif
-    Enddo
-    !write(*,*)  'mcharge ig1',ig1
-  Enddo
-  mcharge1=mcharge1/dffts%nnr
-  mcharge2=mcharge2/dffts%nnr
-  mcharge3=mcharge3/dffts%nnr
-  write(*,*)  'Mcharge2DnoLFAns noki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount
-  write(*,*)  'Mcharge2DnoLFAs  noki->kf ',ik0,ik, mcharge2, abs(mcharge2),icount , 'k0screen', k0screen
-  write(*,*)  'Mcharge2DnoLFAes noki->kf ',ik0,ik, mcharge3, abs(mcharge3),icount , 'epsk', epsk
-  !write(*,*)  '1Mcharge2DnoLFAes ki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount , 'epsk', epsk
-  
-  
-  
-  mcharge1=0
-  mcharge2=0
-  mcharge3=0
-  mcharge4=0
-  mcharge5=0
-  mcharge6=0
-  mcharge1gw=0
-  mcharge2gw=0
-  mcharge3gw=0
-  mcharge4gw=0
-  mcharge5gw=0
-  mcharge6gw=0
-  DO ig1 = 1, ngk(ik0)
-    Do ig2=1, ngk(ik)
-  
-       !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
-       if (.not. noncolin )then
-          mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
-       else
-          mcharge0=mcharge0+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
-                           +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
-       endif
-       deltakG=norm2(g(:,igk_k(ig1,ik0))&
-                  -g(:,igk_k(ig2,ik))&
-                  +xk(:,ik0)-xk(:,ik))*tpiba
-  
-
-       qxy=norm2(g(1:2,igk_k(ig1,ik0))&
-                  -g(1:2,igk_k(ig2,ik))&
-                  +xk(1:2,ik0)-xk(1:2,ik))*tpiba
-  
-       qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
-            xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
-
-       !if(eps_type=='qeh')then
-       if(doqeh)then
-           epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),qxy)
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! bug, should be epsk(q)=epsk(q_//)
-             !epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltakG)
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
-           q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
-
-           mcharge3=mcharge3+mcharge0*4*pi/(deltakG**2)*epsk
-           !write(*,*) 'mcharge3',mcharge3,mcharge0,4*pi,(deltakG**2),epsk
-           mcharge1=mcharge1+mcharge0*4*pi/(deltakG**2)
-           mcharge2=mcharge2+mcharge0*4*pi/(deltakG**2+k0screen**2)
-           mcharge4=mcharge4+mcharge0*4*pi/(deltakG**2)            *q2d_coeff
-           mcharge5=mcharge5+mcharge0*4*pi/(deltakG**2+k0screen**2)*q2d_coeff
-           mcharge6=mcharge6+mcharge0*4*pi/(deltakG**2)*epsk       *q2d_coeff
-       endif
 
 
 
-!       if(dogwfull)then
-!       !elseif(eps_type=='gw')then
-!           do iq = 1,ngk(ik0) 
-!             if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
-!               mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
-!               mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
-!               !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
-!               !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
-!             endif
-!          
-!           Enddo
-!       endif
+!         if(dogwfull)then
+!         !elseif(eps_type=='gw')then
+!             do iq = 1,ngk(ik0) 
+!               if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
+!                 mcharge1gw=mcharge1gw+mcharge0*w_gw(iq)
+!                 mcharge2gw=mcharge2gw+mcharge0*w_gw(iq)            *q2d_coeff
+!                 !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
+!                 !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
+!               endif
+!            
+!             Enddo
+!         endif
 
-       if(dogwfull .or. dogwdiag)then
-           !do iq = 1,ngk(ik0) 
-           do iq = 1,size(w_gw_non0)
-             if (norm2(g(1:3,igk_k(iq,ik0))-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
-               mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)
-               mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)            *q2d_coeff
-               !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
-               !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
-             endif
-           Enddo
-       endif
+         if(dogwfull .or. dogwdiag)then
+             !do iq = 1,ngk(ik0) 
+             do iq = 1,size(w_gw_non0)
+               if (norm2(g_of_w_gw_non0(:,iq)-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
+                 mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)
+                 mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)            *q2d_coeff
+                 !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
+                 !          ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw(iq) 
+               endif
+             Enddo
+         endif
  
+      Enddo
+      !write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1
     Enddo
-    !write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1
-  Enddo
-  mcharge1gw=mcharge1gw/dffts%nnr
-  mcharge2gw=mcharge2gw/dffts%nnr
-  mcharge1=mcharge1/dffts%nnr
-  mcharge2=mcharge2/dffts%nnr
-  mcharge3=mcharge3/dffts%nnr
-  mcharge4=mcharge4/dffts%nnr
-  mcharge5=mcharge5/dffts%nnr
-  mcharge6=mcharge6/dffts%nnr
-  write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
-  write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
-  write(*,*)  'Mcharge3DnoLFAs     0ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
-  write(*,*)  'Mcharge3DnoLFAes    0ki->kf ',ik0,ik,    mcharge3, abs(mcharge3) , 'epsk', epsk
-  write(*,*)  'Mcharge3DcutnoLFAgw 0ki->kf ',ik0,ik,    mcharge2gw, abs(mcharge2gw)
-  write(*,*)  'Mcharge3DcutnoLFAns 0ki->kf ',ik0,ik,    mcharge4, abs(mcharge4)
-  write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
-  write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
+    mcharge1gw=mcharge1gw/dffts%nnr
+    mcharge2gw=mcharge2gw/dffts%nnr
+    mcharge1=mcharge1/dffts%nnr
+    mcharge2=mcharge2/dffts%nnr
+    mcharge3=mcharge3/dffts%nnr
+    mcharge4=mcharge4/dffts%nnr
+    mcharge5=mcharge5/dffts%nnr
+    mcharge6=mcharge6/dffts%nnr
+    write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
+    write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
+    write(*,*)  'Mcharge3DnoLFAs     0ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
+    write(*,*)  'Mcharge3DnoLFAes    0ki->kf ',ik0,ik,    mcharge3, abs(mcharge3) , 'epsk', epsk
+    write(*,*)  'Mcharge3DcutnoLFAgw 0ki->kf ',ik0,ik,    mcharge2gw, abs(mcharge2gw)
+    write(*,*)  'Mcharge3DcutnoLFAns 0ki->kf ',ik0,ik,    mcharge4, abs(mcharge4)
+    write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
+    write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
+
+  endif
   
 contains
   subroutine mat_inv(A,Ainv)

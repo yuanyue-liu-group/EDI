@@ -132,6 +132,8 @@ Module edic_mod
   LOGICAL :: lvacalign=.true.
   LOGICAL :: lcorealign=.false.
   LOGICAL :: doqeh=.false.
+  LOGICAL :: do3d=.false.
+  LOGICAL :: do2d=.false.
   LOGICAL :: dogwfull=.false.
   LOGICAL :: dogwdiag=.false.
   INTEGER :: spin_component, firstk, lastk
@@ -143,16 +145,16 @@ Module edic_mod
 
 
   NAMELIST / calcmcontrol / &
-            !bnd_initial, bnd_final,& 
             wt_filename,klist_filename,ev_filename,   outdir, prefix, &
             calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
-            qeh_eps_filename,gw_epsmat_filename,gw_eps0mat_filename, &!kpoint_initial, kpoint_final, &
-            eps_type,doqeh,dogwfull,dogwdiag,&
+            qeh_eps_filename,gw_epsmat_filename,gw_eps0mat_filename, &
+            eps_type,doqeh,dogwfull,dogwdiag,do2d,do3d,&
             V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
             V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
-            !V_up_filename, V_down_filename,&
             noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
-
+            !V_up_filename, V_down_filename,&
+            !bnd_initial, bnd_final,& 
+            !kpoint_initial, kpoint_final, &
 
   Complex(dp) :: m_loc, m_nloc
 

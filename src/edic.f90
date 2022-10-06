@@ -73,6 +73,9 @@ Program edic
   write(*,1003) 'Number of Bands', nbnd
   write(*,1003) 'Number of Plane Waves', npwx
   write(*,1003) 'Number of K-points', nks
+  write(*,*) 'dogw', dogwfull
+  write(*,*) 'dogw', dogwdiag
+  write(*,*) 'dogw', do2d,do3d
   1000 format(A24," = ",I6)
   nwordwfc = nbnd*npwx*npol
 
@@ -86,6 +89,7 @@ Program edic
       call get_qeh_eps_data()
     endif
    
+
     if(dogwfull .or. dogwdiag) then
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Read BGW dielectric data '
