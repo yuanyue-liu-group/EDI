@@ -2,7 +2,6 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   USE kinds, ONLY: DP,sgl
   USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
   USE scf, ONLY: rho, rho_core, rhog_core, v, vltot, vrs
-  !Use edic_mod,   only: V_file, V_nc, V_colin, V_d, Bxc_1, Bxc_2, Bxc_3, V_p
   Use edic_mod,   only: V_colin,v_d
   USE fft_base,  ONLY: dfftp, dffts
   USE fft_interfaces, ONLY : fwfft, invfft
@@ -10,66 +9,35 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
   use edic_mod, only: bndkp_pair
   INTEGER,intent(in) :: bnd_idx_i, kp_idx_i, kp_idx_f,bnd_idx_f
-  !real(dp), allocatable , intent(in) :: V_colin(:)
-  !real(DP),allocatable,:: V_r_sc (:)
-  !type(V_file), intent(inout) :: V_r_sc
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! intermediate data
   COMPLEX(DP), ALLOCATABLE ::   psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
-  !COMPLEX(DP), ALLOCATABLE :: aux(:), auxr(:), auxg(:), psiprod(:),vgk(:),vgk_perturb(:),vkb_perturb(:,:)
   COMPLEX(DP) :: mnl, ml,mltot,mltot1,mltot2,mnltot,psicnorm,psicprod,enl1,phaseft,psicprod1
-  COMPLEX(DP) ::  ml_up, ml_down, mnl_d, mnl_p ! rg_spin
   LOGICAL :: offrange
   REAL(dp)::arg,argt,argt2
   COMPLEX(DP)::phase
   INTEGER:: irx,iry,irz
-  INTEGER:: irx2,iry2,irz2
-  INTEGER:: irx1,iry1,irz1
+  !INTEGER:: irx2,iry2,irz2
+  !INTEGER:: irx1,iry1,irz1
   
-  INTEGER :: ix0,ix1,ix2
-  INTEGER :: iy0,iy1,iy2
-  INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
-  COMPLEX(DP)::vlfft
+  !INTEGER :: ix0,ix1,ix2
+  !INTEGER :: iy0,iy1,iy2
+  !INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
+  !COMPLEX(DP)::vlfft
   COMPLEX(DP) ::  ml0,ml1,ml2, ml3,ml4,ml5,ml6,ml7
   
   COMPLEX(DP) ,intent(inout)::  mlocal
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !ml=0
-  
-  !            IF( nks > 1 ) CALL get_buffer (evc, nwordwfc, iunwfc, kp_idx_i )
-  
-  !     npw = ngk(kp_idx_i)
-  !            CALL init_us_2 (npw, igk_k(1,kp_idx_i), xk (1, kp_idx_i), vkb)
-  !            CALL calbec ( npw, vkb, evc, becp )
-  
-  !        CALL get_buffer ( evc1, nwordwfc, iunwfc, kp_idx_f )
-  !        CALL get_buffer ( evc2, nwordwfc, iunwfc, kp_idx_i )
-  !!!!!!!!!!!!write (*,*) "size evc evc1:" , size(evc),size(evc1)
-  !!!!!!!!!!!!!!! evc
-  
-  !    ALLOCATE (aux(dfftp%nnr))
-  !    ALLOCATE(auxr(dfftp%nnr))
   ALLOCATE(psiprod(dfftp%nnr))
   ALLOCATE(vgk(dfftp%nnr))
   ALLOCATE(vgk_perturb(dfftp%nnr))
-  !    ALLOCATE( auxg( dfftp%ngm ) )
-  !mltot=0
 
   write(*,*)'ML0'
   write(*,*)'evc2 sizej',size(evc2)
   write(*,*)'evc2 (1,1)',evc2(1,1)
   write(*,*)'evc2 (1,2)',evc2(1,2)
-  !allocate(evc1(2*npwx,nbnd))
-  !allocate(evc2(2*npwx,nbnd))
-  !allocate(evc3(2*npwx,nbnd))
-  !allocate(evc4(2*npwx,nbnd))
-  !allocate(psic1(dfftp%nnr))
-  !allocate(psic2(dfftp%nnr))
-  !allocate(psic3(dfftp%nnr))
-  !allocate(psic4(dfftp%nnr))
-
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -228,7 +196,7 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   !write (*,*) 'mlpsi*psi0*phase to primitive ki->kf',kp_idx_f,kp_idx_i, mltot, abs(mltot), log(mltot)
   !write (*,*) 'modml super  ki->kf',kp_idx_f,kp_idx_i, abs(ml)
   !write (*,*) 'Ml ki->kf ',kp_idx_f,kp_idx_i, ml, abs(ml)
-  write (*,1001) 'Ml ibnd,ki->fbnd,kf ',bnd_idx_i,kp_idx_i,bnd_idx_f,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), ml, abs(ml)
+  write (*,*) 'Ml ibnd,ki->fbnd,kf ',bnd_idx_i,kp_idx_i,bnd_idx_f,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), ml, abs(ml)
   !write(*,*) 'nrx_perturb',V_d%nr1,V_d%nr2,V_d%nr3
   !write(*,*) 'nrx_perturb',at,at_perturb, alat
   !write (*,*) 'dvgk', vgk(:)-vgk_perturb(:)

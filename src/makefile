@@ -36,21 +36,21 @@ edic_mod.f90
 EDICSRC = \
   edic.f90\
   init_us_2_sc.f90\
-get_qeh_eps_data.f90\
-ml-rs.f90\
-mnl-ks.f90\
-mcharge-lfa.f90\
-mcharge.f90\
-ml-nc.f90\
-mnl-nc.f90\
-mnl-soc.f90\
-read_perturb_file.f90\
-get_gind_rhoandpsi_gw.f90\
-getwtdata.f90\
-gw_eps_read.f90\
-gw_eps_bcast.f90\
-gw_eps_init.f90\
-postprocess.f90\
+  get_qeh_eps_data.f90\
+  ml-rs.f90\
+  mnl-ks.f90\
+  mcharge-lfa.f90\
+  mcharge.f90\
+  ml-nc.f90\
+  mnl-nc.f90\
+  mnl-soc.f90\
+  read_perturb_file.f90\
+  get_gind_rhoandpsi_gw.f90\
+  getwtdata.f90\
+  gw_eps_read.f90\
+  gw_eps_bcast.f90\
+  gw_eps_init.f90\
+  postprocess.f90\
 
 
 #mcharge-lfa-nc.f90\

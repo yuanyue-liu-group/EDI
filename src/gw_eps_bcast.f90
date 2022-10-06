@@ -241,10 +241,10 @@ subroutine gw_eps_bcast(p_rank,p_source,gw_,gid,my_mpi_int,my_mpi_dp)
 
 
 
-contains 
-  subroutine bcast_Data(p_rank,p_source,data_)
-    integer,intent(in):: p_rank,p_source
-    integer,intent(inout)::data_ 
-  end subroutine bcast_Data
+!contains 
+!  subroutine bcast_Data(p_rank,p_source,data_)
+!    integer,intent(in):: p_rank,p_source
+!    integer,intent(inout)::data_ 
+!  end subroutine bcast_Data
 
 end subroutine gw_eps_bcast

@@ -1,4 +1,3 @@
-!subroutine calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ik0,ik, V_d, v_nc)
 subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   Use kinds,          Only : dp
   USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
@@ -20,31 +19,23 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   complex(dp) :: ml_up, ml_down,ml
   real(dp) :: d1, d2, d3
 
-  INTEGER :: ibnd, ik, ik0,ibnd0, ig,ipair
+  INTEGER :: ibnd, ik, ik0,ibnd0, ig!,ipair
 
   REAL(dp)::arg,argt,argt2
   COMPLEX(DP)::phase
-  INTEGER :: npw,  ispin, nbndup, nbnddown, &
-              nk , ikk,ikk0,  inr, ig1, ig2
+  !INTEGER :: npw,  ispin, nbndup, nbnddown, &
+  !            nk , ikk,ikk0,  
+  integer::inr, ig1, ig2
   INTEGER:: irx,iry,irz
-  INTEGER:: irx2,iry2,irz2
-  INTEGER:: irx1,iry1,irz1
+  !INTEGER:: irx2,iry2,irz2
+  !INTEGER:: irx1,iry1,irz1
   
-  INTEGER :: ix0,ix1,ix2
-  INTEGER :: iy0,iy1,iy2
-  INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
+  !INTEGER :: ix0,ix1,ix2
+  !INTEGER :: iy0,iy1,iy2
+  !INTEGER :: iz0,iz1,iz2, ikpsi0, ikpsi1, ikpsi2
   integer :: ir1mod,ir2mod,ir3mod,irnmod
 
 
-  !ikk=ik
-  !                  CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
-  !    type(V_file) :: V_d
-  !    real(DP) :: v_nc(:,:)
-
-
-  !write(*,*) v_nc(20:40,1)
-  !write(*,*) v_nc(20:40,2)
-  !write(*,*) V_d%plot(20:40)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!! vl in real super2prim, module

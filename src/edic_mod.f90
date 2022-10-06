@@ -124,11 +124,9 @@ Module edic_mod
   LOGICAL :: calcmcharge =.false.
   LOGICAL :: mcharge_dolfa =.false.
 
-  !CHARACTER (len=256) :: filband, filp, outdir
   CHARACTER (len=256) ::  outdir
   CHARACTER (len=256) ::  eps_type
   CHARACTER (len=256) ::  wt_filename,klist_filename,ev_filename
-  !LOGICAL :: lsigma(4), lsym, lp, no_overlap, plot_2d, wfc_is_collected, exst
   LOGICAL ::  wfc_is_collected, exst
   LOGICAL :: lspinorb=.false., noncolin =.false.
   LOGICAL :: lvacalign=.true.
@@ -144,16 +142,17 @@ Module edic_mod
   REAL(dp), PARAMETER :: machine_eps = 1.d-4
 
 
-  NAMELIST / calcmcontrol / qeh_eps_filename,gw_epsmat_filename,gw_eps0mat_filename, kpoint_initial, kpoint_final, &
-            bnd_initial, bnd_final, calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
+  NAMELIST / calcmcontrol / &
+            !bnd_initial, bnd_final,& 
+            wt_filename,klist_filename,ev_filename,   outdir, prefix, &
+            calcmlocal,calcmnonlocal,calcmcharge, mcharge_dolfa,k0screen_read,&
+            qeh_eps_filename,gw_epsmat_filename,gw_eps0mat_filename, &!kpoint_initial, kpoint_final, &
+            eps_type,doqeh,dogwfull,dogwdiag,&
             V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
             V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
-            V_up_filename, V_down_filename,&
-wt_filename,klist_filename,ev_filename,&
-   outdir, prefix, &!filband, filp, spin_component, lsigma,&
-                    !   lsym, lp, filp, firstk, lastk, no_overlap, plot_2d,&
-noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p,&
-            eps_type,doqeh,dogwfull,dogwdiag
+            !V_up_filename, V_down_filename,&
+            noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
+
 
   Complex(dp) :: m_loc, m_nloc
 
@@ -182,66 +181,6 @@ noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p,&
 
 
 
-  !!!!!!!!!!!!!!!!!
-  !type :: gw_eps_data
-  !
-  !!  real(dp), allocatable :: gw_epsmat_diag_data(:,:,2),  gw_eps0mat_diag_data(:,:,2)
-  !  real(dp), allocatable :: gw_epsmat_diag_data_q1(:,:,:),  gw_epsmat_diag_data_q0(:,:,:)
-  !  !complex(dp), allocatable :: gw_epsmat_diag_data(:,:,:),  gw_eps0mat_diag_data(:,:,:)
-  !!  real(dp), allocatable :: gw_epsmat_full_data(:,1,1,:,:,2),  gw_eps0mat_full_data(:,1,1,:,:,2)
-  !  real(dp), allocatable :: gw_epsmat_full_data_q1(:,:,:,:,:,:),  gw_epsmat_full_data_q0(:,:,:,:,:,:)
-  !!  real(dp), allocatable :: gw_epsallmat_full_data(:,1,1,:,:,2)
-  !  real(dp), allocatable :: gw_epsmat_full_data_qall(:,:,:,:,:,:)
-  !
-  !  real(dp), allocatable :: gw_vcoul_data_q1(:,:),gw_qpts_Data_q1(:,:)
-  !  real(dp), allocatable :: gw_blat_data_q1(:),gw_bvec_Data_q1(:,:)
-  !  integer, allocatable :: gw_gind_eps2rho_data_q1(:,:), gw_gind_rho2eps_data_q1(:,:),gw_nmtx_data_q1(:)
-  !
-  !!q0
-  !  real(dp), allocatable :: gw_vcoul_data_q0(:,:),gw_qpts_Data_q0(:,:)
-  !  real(dp), allocatable :: gw_blat_data_q0(:),gw_bvec_Data_q0(:,:)
-  !  integer, allocatable :: gw_gind_eps2rho_data_q0(:,:), gw_gind_rho2eps_data_q0(:,:),gw_nmtx_data_q0(:)
-  !!q0
-  !
-  !
-  !   integer, allocatable :: gw_grho_data_q1(:),  gw_geps_data_q1(:),gw_g_components_data_q1(:,:)
-  !  integer, allocatable :: gw_nq_data_q1(:),gw_nmtx_max_data_q1(:),gw_fftgrid_data_q1(:),gw_qgrid_data_q1(:),gw_ng_data_q1(:)
-  !
-  !!q0
-  !   integer, allocatable :: gw_grho_data_q0(:),  gw_geps_data_q0(:),gw_g_components_data_q0(:,:)
-  !  integer, allocatable :: gw_nq_data_q0(:),gw_nmtx_max_data_q0(:),gw_fftgrid_data_q0(:),gw_qgrid_data_q0(:),gw_ng_data_q0(:)
-  !!q0
-  !
-  !
-  !!  integer(i8b), allocatable :: gw_nqi8(:)
-  !
-  !    real(DP),allocatable ::gw_qabs_q1(:)
-  !    INTEGER :: gw_q_g_commonsubset_size_q1
-  !    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q1(:)
-  !
-  !!q0
-  !    real(DP),allocatable ::gw_qabs_q0(:)
-  !    INTEGER :: gw_q_g_commonsubset_size_q0
-  !    integer(DP),allocatable ::gw_q_g_commonsubset_indinrho_q0(:)
-  !!q0
-  !!!!!!!!!!!!!!!!!!!
-  !    integer(DP),allocatable ::gind_rho2psi_gw(:)
-  !    real(DP) ::gvec_gw(3)
-  !    integer(DP),allocatable ::gind_psi2rho_gw(:)
-  !
-  !    integer(DP),allocatable ::gind_rho2psi_gw_q0(:)
-  !    real(DP) ::gvec_gw_q0(3)
-  !    integer(DP),allocatable ::gind_psi2rho_gw_q0(:)
-  !
-  !    integer(DP),allocatable ::gind_rho2psi_gw_q1(:)
-  !    real(DP) ::gvec_gw_q1(3)
-  !    integer(DP),allocatable ::gind_psi2rho_gw_q1(:)
-  !!!!!!!!!!!!!!!!!!!
-  
-  
-  !end type  gw_eps_data
-  !!!!!!!!!!!!!!!!
-  
   
   type :: gw_eps_data
     real(dp), allocatable :: epsmat_diag_data(:,:,:)

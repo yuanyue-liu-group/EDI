@@ -3,20 +3,15 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   Use edic_mod, Only : evc1,evc2,qeh_eps_data
   USE fft_base,  ONLY: dfftp, dffts
   USE gvect, ONLY: g
-  !USE gvect, ONLY: ngm, gstart, g, gg, gcutm, igtongl
   USE klist , ONLY:  xk, igk_k, ngk
-  !USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk
   use splinelib, only: spline,splint
   USE cell_base, ONLY:  alat, tpiba
-  !USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
   USE constants, ONLY: tpi, pi
   use edic_mod, only: machine_eps
   COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
   COMPLEX(DP) ,intent(inout)::  mcharge
   INTEGER :: ibnd, ik, ik0,ibnd0
 
-  !COMPLEX(DP), ALLOCATABLE ::  mlat1(:),mlat2(:)
-  !INTEGER :: iscx, iscy,nscx,nscy
   REAL(dp) ::k0screen
   REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
   INTEGER:: icount,jcount,kcount

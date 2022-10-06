@@ -2,13 +2,13 @@ Subroutine read_perturb_file(v_file_)
     use kinds,    only: dp
     use edic_mod,   only: V_file   
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
-USE clib_wrappers,     ONLY: md5_from_file
+    USE clib_wrappers,     ONLY: md5_from_file
     Implicit none
 
     type(V_file) :: v_file_
     integer :: v_file_i_, v_file_ipol_, v_file_nt_, v_file_ir_, v_file_na_
     integer, external :: find_free_unit
- CHARACTER(len=32)::vf_md5_cksum="NA"
+    CHARACTER(len=32)::vf_md5_cksum="NA"
 
 
     v_file_%unit = find_free_unit()

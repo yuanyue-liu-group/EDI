@@ -64,18 +64,18 @@ SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_per
     !
     ! setting cache blocking size
     numblock = (npw_+blocksize-1)/blocksize
-write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
+    write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
     ALLOCATE( eigts1_perturb(-dfftp%nr1:dfftp%nr1,nat_perturb) )
     ALLOCATE( eigts2_perturb(-dfftp%nr2:dfftp%nr2,nat_perturb) )
     ALLOCATE( eigts3_perturb(-dfftp%nr3:dfftp%nr3,nat_perturb) )
   
-  !write(*,*) '1',eigts1_perturb
-  !write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
-  !write(*,*) 'shape(eigts1)',shape(eigts1)
+    !write(*,*) '1',eigts1_perturb
+    !write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
+    !write(*,*) 'shape(eigts1)',shape(eigts1)
     CALL struc_fact( nat_perturb, tau_perturb, ntyp, ityp_perturb, ngm, g, bg, &
                      dfftp%nr1, dfftp%nr2, dfftp%nr3, &
                      strf, eigts1_perturb, eigts2_perturb, eigts3_perturb )
-  !write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
+    !write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
     !
     IF (spline_ps) THEN
       ALLOCATE( xdata(nqx) )

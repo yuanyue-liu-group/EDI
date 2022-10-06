@@ -17,307 +17,307 @@ subroutine gw_eps_read(eps_filename_,gw_)
   integer :: h5dims1(1),h5dims2(2),h5dims3(3),h5dims4(4),h5dims5(5),h5dims6(6)
   integer:: p_rank,p_size,ik
  
-    h5filename=trim(eps_filename_)      ! Dataset name
+  h5filename=trim(eps_filename_)      ! Dataset name
 
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!! gweps read 
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!! gweps read 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    !!!!
-    ! inverse alll dimensions for description
-    h5datasetname='/mf_header/crystal/blat'              !f8 
-    h5datasetname='/mf_header/crystal/bvec'              !f8 (3,3)
+  !!!!
+  ! inverse alll dimensions for description
+  h5datasetname='/mf_header/crystal/blat'              !f8 
+  h5datasetname='/mf_header/crystal/bvec'              !f8 (3,3)
   
-    h5datasetname='/mf_header/gspace/components'         !I4 (ng,3) G pts within cutoff
-    h5datasetname='/mf_header/gspace/ng'                 !
-    h5datasetname='/mf_header/gspace/FFTgrid'            !i4 (3)
-    h5datasetname='/mf_header/gspace/ecutrho'            !
-    h5datasetname='/eps_header/gspace/gind_eps2rho'      !i4 (nq,ng)
-    h5datasetname='/eps_header/gspace/gind_rho2eps'      !i4 (nq,ng)
-    h5datasetname='/eps_header/gspace/nmtx_max'          !i4 
-    h5datasetname='/eps_header/gspace/nmtx'              !i4 (nq)  G pts for eps
-                                                          
-    h5datasetname='/eps_header/gspace/vcoul'             !f8 (nq,nmtx_max)
-    h5datasetname='/eps_header/qpoints/nq'               !
-    h5datasetname='/eps_header/qpoints/qpts'             !f8 (nq,3)
-    h5datasetname='/eps_header/qpoints/qgrid'            !i4 (3)
-                                                          
-                                                          
-    h5datasetname='/mats/matrix'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
-    h5datasetname='/mats/matrix-diagonal'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
-    !hdf5
+  h5datasetname='/mf_header/gspace/components'         !I4 (ng,3) G pts within cutoff
+  h5datasetname='/mf_header/gspace/ng'                 !
+  h5datasetname='/mf_header/gspace/FFTgrid'            !i4 (3)
+  h5datasetname='/mf_header/gspace/ecutrho'            !
+  h5datasetname='/eps_header/gspace/gind_eps2rho'      !i4 (nq,ng)
+  h5datasetname='/eps_header/gspace/gind_rho2eps'      !i4 (nq,ng)
+  h5datasetname='/eps_header/gspace/nmtx_max'          !i4 
+  h5datasetname='/eps_header/gspace/nmtx'              !i4 (nq)  G pts for eps
+                                                        
+  h5datasetname='/eps_header/gspace/vcoul'             !f8 (nq,nmtx_max)
+  h5datasetname='/eps_header/qpoints/nq'               !
+  h5datasetname='/eps_header/qpoints/qpts'             !f8 (nq,3)
+  h5datasetname='/eps_header/qpoints/qgrid'            !i4 (3)
+                                                        
+                                                        
+  h5datasetname='/mats/matrix'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
+  h5datasetname='/mats/matrix-diagonal'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
+  !hdf5
 
 
 
-    h5datasetname='/mf_header/gspace/ng'      !i4 (nq,ng)
-    ! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=1) then
-        write(*,*)  'h5rank error(should be 1)',h5rank 
-    else
-        h5dims1=h5dims
-    
-        if ( .not. allocated(gw_%ng_data)) then
-            allocate(gw_%ng_data(h5dims1(1)))
-        else
-            deallocate(gw_%ng_data)
-        allocate(gw_%ng_data(h5dims1(1)))
-    endif
-    
-       
-        gw_%ng_data=reshape(h5dataset_data_integer,h5dims1)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'ng()',gw_%ng_data(:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    h5datasetname='/eps_header/gspace/nmtx_max'      !i4 (nq,ng)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=1) then
-        write(*,*)  'h5rank error(should be 1)',h5rank 
-    else
-        h5dims1=h5dims
-        
-        if (  allocated(gw_%nmtx_max_data)) then
-            deallocate(gw_%nmtx_max_data)
-        endif
-        allocate(gw_%nmtx_max_data(h5dims1(1)))
-    
-       
-        gw_%nmtx_max_data=reshape(h5dataset_data_integer,h5dims1)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'nmtx_max()',gw_%nmtx_max_data(:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    
-    h5datasetname='/eps_header/gspace/nmtx'      !i4 (nq,ng)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=1) then
-        write(*,*)  'h5rank error(should be 1)',h5rank 
-    else
-        h5dims1=h5dims
-        if (  allocated(gw_%nmtx_data)) then
-            deallocate(gw_%nmtx_data)
-        endif
-        allocate(gw_%nmtx_data(h5dims1(1)))
-        gw_%nmtx_data=reshape(h5dataset_data_integer,h5dims1)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'nmtx()',gw_%nmtx_data(:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    h5datasetname='/eps_header/gspace/gind_eps2rho'      !i4 (nq,ng)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=2) then
-     write(*,*)  'h5rank error(should be 2)',h5rank 
-    else
-        h5dims2=h5dims
-        if (  allocated(gw_%gind_eps2rho_data)) then
-            deallocate(gw_%gind_eps2rho_data)
-        endif
-        allocate(gw_%gind_eps2rho_data(h5dims2(1),h5dims2(2)))
-        gw_%gind_eps2rho_data=reshape(h5dataset_data_integer,h5dims2)
-        write(*,*)  'shape h5dataset',shape(gw_%gind_eps2rho_data)
-        write(*,*)  'gw_gind_eps2rho_data()',gw_%gind_eps2rho_data(1:40,1)
-        write(*,*)  'gw_gind_eps2rho_data()',gw_%gind_eps2rho_data(1:40,2)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    h5datasetname='/eps_header/gspace/gind_rho2eps'      !i4 (nq,ng)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=2) then
-     write(*,*)  'h5rank error(should be 2)',h5rank 
-    else
-        h5dims2=h5dims
-        if (  allocated(gw_%gind_rho2eps_data)) then
-            deallocate(gw_%gind_rho2eps_data)
-        endif
-        allocate(gw_%gind_rho2eps_data(h5dims2(1),h5dims2(2)))
-        gw_%gind_rho2eps_data=reshape(h5dataset_data_integer,h5dims2)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'gw_gind_rho2eps_data()',gw_%gind_rho2eps_data(1:40,1)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    
-    h5datasetname='/mf_header/gspace/components'               !
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=2) then
-     write(*,*)  'h5rank error(should be 2)',h5rank 
-    else
-        h5dims2=h5dims
-        if (  allocated(gw_%g_components_data)) then
-            deallocate(gw_%g_components_data)
-        endif
-        allocate(gw_%g_components_data(h5dims2(1),h5dims2(2)))
-        gw_%g_components_data=reshape(h5dataset_data_integer,h5dims2)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'gw_g_components_data()',gw_%g_components_data(:,1:7)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    h5datasetname='/mf_header/crystal/bvec'               !
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=2) then
-        write(*,*)  'h5rank error(should be 2)',h5rank 
-    else
-        h5dims2=h5dims
-        if (  allocated(gw_%bvec_data)) then
-            deallocate(gw_%bvec_data)
-        endif
-        allocate(gw_%bvec_data(h5dims2(1),h5dims2(2)))
-        gw_%bvec_data=reshape(h5dataset_data_double,h5dims2)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
-        write(*,*)  'gw_bvec_data()',gw_%bvec_data(:,:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    h5datasetname='/mf_header/crystal/blat'               !
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=1) then
-     write(*,*)  'h5rank error(should be 1)',h5rank 
-    else
-        h5dims1=h5dims
-        if (  allocated(gw_%blat_data)) then
-            deallocate(gw_%blat_data)
-        endif
-        allocate(gw_%blat_data(h5dims1(1)))
-        gw_%blat_data=reshape(h5dataset_data_double,h5dims1)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
-        write(*,*)  'gw_blat_data()',gw_%blat_data(:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    
-    h5datasetname='/eps_header/qpoints/qpts'               !
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=2) then
-     write(*,*)  'h5rank error(should be 2)',h5rank 
-    else
-        h5dims2=h5dims
-        if (  allocated(gw_%qpts_data)) then
-            deallocate(gw_%qpts_data)
-        endif
-        allocate(gw_%qpts_data(h5dims2(1),h5dims2(2)))
-        gw_%qpts_data=reshape(h5dataset_data_double,h5dims2)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
-        write(*,*)  'gw_qpts_data()',gw_%qpts_data(:,:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    
-    h5datasetname='/eps_header/qpoints/nq'               !
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=1) then
-        write(*,*)  'h5rank error(should be 3)',h5rank 
-    else
-        !write(*,*) 'sizeof(int(i4b)):',sizeof(gw_%nq)
-        !write(*,*) 'sizeof(int(i8b)):',sizeof(gw_nqi8)
-        write(*,*) 'sizeof(int):',sizeof(h5rank)
-        h5dims1=h5dims
-        if (  allocated(gw_%nq_data)) then
-            deallocate(gw_%nq_data)
-        endif
-        allocate(gw_%nq_data(h5dims1(1)))
-        gw_%nq_data=reshape(h5dataset_data_integer,h5dims1)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
-        write(*,*)  'gw_nq_data()',gw_%nq_data(:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    
-    h5datasetname='/mats/matrix-diagonal'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=3) then
-        write(*,*)  'h5rank error(should be 3)',h5rank 
-    else
-        h5dims3=h5dims
-        if (  allocated(gw_%epsmat_diag_data)) then
-           deallocate(gw_%epsmat_diag_data)
-        endif
-        allocate(gw_%epsmat_diag_data(h5dims3(1),h5dims3(2),h5dims3(3)))
-        gw_%epsmat_diag_data=reshape(h5dataset_data_double,h5dims3)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
-        write(*,*)  'gw_epsmat_diag_data(:,1,1)',gw_%epsmat_diag_data(:,1,:)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
-    
-    h5datasetname='/mats/matrix'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
-    call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
-    if (h5error<0)  write(*,*)  'h5error',h5error
-    if (h5rank/=6) then
-        write(*,*)  'h5rank error(should be 6)',h5rank 
-    else
-        h5dims6=h5dims
-        write(*,*)  'hdims',h5dims 
-        if (  allocated(gw_%epsmat_full_data)) then
-            deallocate(gw_%epsmat_full_data)
-        endif
-        allocate(gw_%epsmat_full_data(h5dims6(1),h5dims6(2),h5dims6(3),h5dims6(4),h5dims6(5),h5dims6(6)))
-        gw_%epsmat_full_data=reshape(h5dataset_data_double,h5dims6)
-        write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,2)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,3)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,1,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,2,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,3,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,4,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,5,1,1,1)
-        write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,6,1,1,1)
-        deallocate(h5dims)
-        deallocate(h5dataset_Data_integer)
-        deallocate(h5dataset_Data_double)
-    endif
+  h5datasetname='/mf_header/gspace/ng'      !i4 (nq,ng)
+  ! write(*,*) 'rank,h5dims',p_rank,h5dims(:), allocated(h5dims)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=1) then
+      write(*,*)  'h5rank error(should be 1)',h5rank 
+  else
+      h5dims1=h5dims
+  
+      if ( .not. allocated(gw_%ng_data)) then
+          allocate(gw_%ng_data(h5dims1(1)))
+      else
+          deallocate(gw_%ng_data)
+      allocate(gw_%ng_data(h5dims1(1)))
+  endif
+  
+     
+      gw_%ng_data=reshape(h5dataset_data_integer,h5dims1)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'ng()',gw_%ng_data(:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  h5datasetname='/eps_header/gspace/nmtx_max'      !i4 (nq,ng)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=1) then
+      write(*,*)  'h5rank error(should be 1)',h5rank 
+  else
+      h5dims1=h5dims
+      
+      if (  allocated(gw_%nmtx_max_data)) then
+          deallocate(gw_%nmtx_max_data)
+      endif
+      allocate(gw_%nmtx_max_data(h5dims1(1)))
+  
+     
+      gw_%nmtx_max_data=reshape(h5dataset_data_integer,h5dims1)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'nmtx_max()',gw_%nmtx_max_data(:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  
+  h5datasetname='/eps_header/gspace/nmtx'      !i4 (nq,ng)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=1) then
+      write(*,*)  'h5rank error(should be 1)',h5rank 
+  else
+      h5dims1=h5dims
+      if (  allocated(gw_%nmtx_data)) then
+          deallocate(gw_%nmtx_data)
+      endif
+      allocate(gw_%nmtx_data(h5dims1(1)))
+      gw_%nmtx_data=reshape(h5dataset_data_integer,h5dims1)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'nmtx()',gw_%nmtx_data(:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  h5datasetname='/eps_header/gspace/gind_eps2rho'      !i4 (nq,ng)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=2) then
+   write(*,*)  'h5rank error(should be 2)',h5rank 
+  else
+      h5dims2=h5dims
+      if (  allocated(gw_%gind_eps2rho_data)) then
+          deallocate(gw_%gind_eps2rho_data)
+      endif
+      allocate(gw_%gind_eps2rho_data(h5dims2(1),h5dims2(2)))
+      gw_%gind_eps2rho_data=reshape(h5dataset_data_integer,h5dims2)
+      write(*,*)  'shape h5dataset',shape(gw_%gind_eps2rho_data)
+      write(*,*)  'gw_gind_eps2rho_data()',gw_%gind_eps2rho_data(1:40,1)
+      write(*,*)  'gw_gind_eps2rho_data()',gw_%gind_eps2rho_data(1:40,2)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  h5datasetname='/eps_header/gspace/gind_rho2eps'      !i4 (nq,ng)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=2) then
+   write(*,*)  'h5rank error(should be 2)',h5rank 
+  else
+      h5dims2=h5dims
+      if (  allocated(gw_%gind_rho2eps_data)) then
+          deallocate(gw_%gind_rho2eps_data)
+      endif
+      allocate(gw_%gind_rho2eps_data(h5dims2(1),h5dims2(2)))
+      gw_%gind_rho2eps_data=reshape(h5dataset_data_integer,h5dims2)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'gw_gind_rho2eps_data()',gw_%gind_rho2eps_data(1:40,1)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  
+  h5datasetname='/mf_header/gspace/components'               !
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=2) then
+   write(*,*)  'h5rank error(should be 2)',h5rank 
+  else
+      h5dims2=h5dims
+      if (  allocated(gw_%g_components_data)) then
+          deallocate(gw_%g_components_data)
+      endif
+      allocate(gw_%g_components_data(h5dims2(1),h5dims2(2)))
+      gw_%g_components_data=reshape(h5dataset_data_integer,h5dims2)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'gw_g_components_data()',gw_%g_components_data(:,1:7)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  h5datasetname='/mf_header/crystal/bvec'               !
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=2) then
+      write(*,*)  'h5rank error(should be 2)',h5rank 
+  else
+      h5dims2=h5dims
+      if (  allocated(gw_%bvec_data)) then
+          deallocate(gw_%bvec_data)
+      endif
+      allocate(gw_%bvec_data(h5dims2(1),h5dims2(2)))
+      gw_%bvec_data=reshape(h5dataset_data_double,h5dims2)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
+      write(*,*)  'gw_bvec_data()',gw_%bvec_data(:,:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  h5datasetname='/mf_header/crystal/blat'               !
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=1) then
+   write(*,*)  'h5rank error(should be 1)',h5rank 
+  else
+      h5dims1=h5dims
+      if (  allocated(gw_%blat_data)) then
+          deallocate(gw_%blat_data)
+      endif
+      allocate(gw_%blat_data(h5dims1(1)))
+      gw_%blat_data=reshape(h5dataset_data_double,h5dims1)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
+      write(*,*)  'gw_blat_data()',gw_%blat_data(:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  
+  h5datasetname='/eps_header/qpoints/qpts'               !
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=2) then
+   write(*,*)  'h5rank error(should be 2)',h5rank 
+  else
+      h5dims2=h5dims
+      if (  allocated(gw_%qpts_data)) then
+          deallocate(gw_%qpts_data)
+      endif
+      allocate(gw_%qpts_data(h5dims2(1),h5dims2(2)))
+      gw_%qpts_data=reshape(h5dataset_data_double,h5dims2)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
+      write(*,*)  'gw_qpts_data()',gw_%qpts_data(:,:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  
+  h5datasetname='/eps_header/qpoints/nq'               !
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=1) then
+      write(*,*)  'h5rank error(should be 3)',h5rank 
+  else
+      !write(*,*) 'sizeof(int(i4b)):',sizeof(gw_%nq)
+      !write(*,*) 'sizeof(int(i8b)):',sizeof(gw_nqi8)
+      write(*,*) 'sizeof(int):',sizeof(h5rank)
+      h5dims1=h5dims
+      if (  allocated(gw_%nq_data)) then
+          deallocate(gw_%nq_data)
+      endif
+      allocate(gw_%nq_data(h5dims1(1)))
+      gw_%nq_data=reshape(h5dataset_data_integer,h5dims1)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_integer)
+      write(*,*)  'gw_nq_data()',gw_%nq_data(:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  
+  h5datasetname='/mats/matrix-diagonal'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=3) then
+      write(*,*)  'h5rank error(should be 3)',h5rank 
+  else
+      h5dims3=h5dims
+      if (  allocated(gw_%epsmat_diag_data)) then
+         deallocate(gw_%epsmat_diag_data)
+      endif
+      allocate(gw_%epsmat_diag_data(h5dims3(1),h5dims3(2),h5dims3(3)))
+      gw_%epsmat_diag_data=reshape(h5dataset_data_double,h5dims3)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
+      write(*,*)  'gw_epsmat_diag_data(:,1,1)',gw_%epsmat_diag_data(:,1,:)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
+  
+  h5datasetname='/mats/matrix'                         !f8 (nq, 1,1, nmtx_max,nmtx_max,2)
+  call h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
+  if (h5error<0)  write(*,*)  'h5error',h5error
+  if (h5rank/=6) then
+      write(*,*)  'h5rank error(should be 6)',h5rank 
+  else
+      h5dims6=h5dims
+      write(*,*)  'hdims',h5dims 
+      if (  allocated(gw_%epsmat_full_data)) then
+          deallocate(gw_%epsmat_full_data)
+      endif
+      allocate(gw_%epsmat_full_data(h5dims6(1),h5dims6(2),h5dims6(3),h5dims6(4),h5dims6(5),h5dims6(6)))
+      gw_%epsmat_full_data=reshape(h5dataset_data_double,h5dims6)
+      write(*,*)  'shape h5dataset',shape(h5dataset_data_double)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,2)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)diag',gw_%epsmat_full_data(:,1,1,1,1,3)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,1,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,2,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,3,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,4,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,5,1,1,1)
+      write(*,*)  'gw_epsmat_full_data(:,1,1)wing',gw_%epsmat_full_data(:,1,6,1,1,1)
+      deallocate(h5dims)
+      deallocate(h5dataset_Data_integer)
+      deallocate(h5dataset_Data_double)
+  endif
  
 contains
   subroutine h5gw_read(h5filename,h5datasetname,h5dataset_data_double,h5dataset_Data_integer,h5dims,h5rank,h5error)
