@@ -1,4 +1,4 @@
-SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
+SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   USE kinds, ONLY: DP
   Use edic_mod, Only : qeh_eps_data,eps_type
   Use edic_mod, Only : dogwfull,dogwdiag,doqeh,do2d,do3d
@@ -27,7 +27,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
   INTEGER:: icount,jcount,kcount
-  real(DP):: mscreen,mcharge, rmod
+  real(DP):: mscreen, rmod
+  complex(DP),intent(inout):: mcharge
   INTEGER:: Nlzcutoff,iNlzcutoff,flag1,flag2, nNlzcutoff,Ngzcutoff
   !!!!! eps data file 
   integer :: nepslines
@@ -502,6 +503,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
     write(*,*)  'Mcharge3DcutnoLFAns 0ki->kf ',ik0,ik,    mcharge4, abs(mcharge4)
     write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
     write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
+    mcharge=mcharge2gw
 
   endif
   
