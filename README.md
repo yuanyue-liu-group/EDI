@@ -3,7 +3,9 @@
 ## Installation
 
  EDIC compiles on top of Quantum Espresso. To install, copy folder to the main folder of QE 6.8, then run make.
- ./configure --with-hdf5  --with-hdf5-include=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/include
+l5p: ./configure --with-hdf5  --with-hdf5-include=/usr/lib/x86_64-linux-gnu/hdf5/openmpi/include
+
+ls6: module load hdf5 fftw3 gcc mkl && ./configure --with-hdf5=$TACC_HDF5_DIR
 
 # from old files
 calc_m-ml-nc.f90                      : rj code from EDSC

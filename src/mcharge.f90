@@ -49,13 +49,14 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   COMPLEX(DP),allocatable ::w_gw(:)
   COMPLEX(DP),allocatable ::w_gw_non0(:)
-  integer,allocatable ::g_of_w_gw_non0(:,:)
+  real(dp),allocatable ::g_of_w_gw_non0(:,:)
   COMPLEX(DP),allocatable ::w_gw_tmp1(:)
   COMPLEX(DP),allocatable ::w_gw_tmp2(:)
   complex(DP),allocatable ::epsmat_inted(:,:) ! interpolated eps matrix(epsilon^-1)
   complex(DP),allocatable ::epsmat_inv(:,:) ! inverted interpolated eps matrix(epsilon^+1)
   complex(DP),allocatable ::epsmat_lindhard(:,:) ! interpolated eps matrix(epsilon^-1)
   INTEGER :: iq1,iq2,nqgrid_gw=48!fixme
+  INTEGER :: dg(3)
   real(dp)::q1(3)
   logical:: interpolate_2d,interpolate_smallq1d=.false.
 
@@ -402,21 +403,39 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
          endif
-         deltakG=norm2(
-             (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:1)+&
-             (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:2)+&
-             (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:3)&
-                    )*tpiba
+
+         deltakG=norm2(g(:,igk_k(ig1,ik0))&
+          -g(:,igk_k(ig2,ik))&
+          +xk(:,ik0)-xk(:,ik))*tpiba
     
 
-         qxy=norm2(
-             (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:1)+&
-             (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:2)&
-                    )*tpiba
-         qz=norm2(
-             (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:3)&
-                    )*tpiba
-         q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+         qxy=norm2(g(1:2,igk_k(ig1,ik0))&
+                    -g(1:2,igk_k(ig2,ik))&
+                    +xk(1:2,ik0)-xk(1:2,ik))*tpiba
+    
+         qz= ((g(3,igk_k(ig1,ik0))-g(3,igk_k(ig2,ik))+ &
+              xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
+
+
+         !deltakG=norm2(&
+         !    (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:,1)+&
+         !    (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:,2)+&
+         !    (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:,3)&
+         !           )*tpiba
+    
+
+         !qxy=norm2(&
+         !    (g(1,igk_k(ig1,ik0))-g(1,igk_k(ig2,ik))+xk(1,ik0)-xk(1,ik))*gw_epsq0_data%bvec_data(:,1)+&
+         !    (g(2,igk_k(ig1,ik0))-g(2,igk_k(ig2,ik))+xk(2,ik0)-xk(2,ik))*gw_epsq0_data%bvec_data(:,2)&
+         !           )*tpiba
+         !qz=norm2(&
+         !    (g(3,igk_k(ig1,ik0))-g(3,igk_k(ig3,ik))+xk(3,ik0)-xk(3,ik))*gw_epsq0_data%bvec_data(:,3)&
+         !           )*tpiba
+
+
+
+         !q2d_coeff=(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
+         q2d_coeff=(1-(cos(qz*lzcutoff))*exp(-(qxy*lzcutoff)))
 
          !if(eps_type=='qeh')then
          if(doqeh)then
@@ -451,10 +470,11 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin)
 !             Enddo
 !         endif
 
+         dg=(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik)))
          if(dogwfull .or. dogwdiag)then
              !do iq = 1,ngk(ik0) 
              do iq = 1,size(w_gw_non0)
-               if (norm2(g_of_w_gw_non0(:,iq)-(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik))))<machine_eps) then
+               if (norm2(g_of_w_gw_non0(:,iq)-dg)<machine_eps) then
                  mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)
                  mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)            *q2d_coeff
                  !write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
