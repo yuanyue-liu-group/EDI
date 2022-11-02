@@ -28,7 +28,7 @@ Program edic
   integer:: p_rank,p_size
   CHARACTER(LEN=6), EXTERNAL :: int_to_char  
   integer :: ierr
-  complex :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
+    COMPLEX(DP)  :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
     
   !!!!!!!!!!!!! hdf5 debug
   !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
@@ -154,7 +154,7 @@ Program edic
     
   endif
        
-  call  mpi_barrier(mpi_comm_world)
+  call  mpi_barrier(mpi_comm_world,ierr)
 
   if (noncolin .or. lspinorb)then
       allocate(evc1(2*npwx,nbnd))
@@ -174,7 +174,6 @@ Program edic
 
   ! k pair parralellization
   
-  call  mpi_barrier(mpi_comm_world)
   do ig = 1,bndkp_pair%npairs
     write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
     if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
@@ -213,21 +212,34 @@ Program edic
       
       if (noncolin .and. lspinorb .and. calcmlocal)then
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+      write (*,*)  'Mifl',mlocal,mnonlocal0,mnonlocal1
       endif
       if (noncolin .and. lspinorb .and. calcmnonlocal)then
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
       endif
-      if ( .not. noncolin .and. calcmlocal)then
-          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
-      endif
-      if ( .not. noncolin .and. calcmnonlocal)then
-          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
-          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
-          mnonlocal=mnonlocal0-mnonlocal1
-      endif
+!      if ( .not. noncolin .and. calcmlocal)then
+!          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
+!      endif
+!      if ( .not. noncolin .and. calcmnonlocal)then
+!          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
+!          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
+!          mnonlocal=mnonlocal0-mnonlocal1
+!      endif
       bndkp_pair%m(ig)=mlocal+mnonlocal0-mnonlocal1
    
+
+      write (*,*)    'ibnd, ik,ki(xyz),ei,vi(xyz);fbnd, fk,kf(xyz),ef,vf(xyz);  wt, m,mc,ml,mnl0,mnl1'
+      write (*,*)  'Mif',  bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1),&
+                   bndkp_pair%k_coord(ig,1,1),bndkp_pair%k_coord(ig,2,1),bndkp_pair%k_coord(ig,3,1),&
+                   bndkp_pair%e_pair(ig,1),&
+                   bndkp_pair%v_pair(ig,1,1),bndkp_pair%v_pair(ig,2,1),bndkp_pair%v_pair(ig,3,1),&
+                   bndkp_pair%bnd_idx(ig,2),bndkp_pair%kp_idx(ig,2),&
+                   bndkp_pair%k_coord(ig,1,2),bndkp_pair%k_coord(ig,2,2),bndkp_pair%k_coord(ig,3,2),&
+                   bndkp_pair%e_pair(ig,2),&
+                   bndkp_pair%v_pair(ig,1,2),bndkp_pair%v_pair(ig,2,2),bndkp_pair%v_pair(ig,3,2), &
+                   bndkp_pair%wt(ig),bndkp_pair%m(ig),bndkp_pair%mc(ig),mlocal,mnonlocal0,mnonlocal1
+ 
   
       write (*,1003) 'M_tot ni ki --> nf kf ', bnd_idx_f,kp_idx_f, '-->', bnd_idx_i,kp_idx_i, &
       m_loc+m_nloc, abs(m_loc+m_nloc)
@@ -236,7 +248,7 @@ Program edic
   enddo
 
 
-  call  mpi_barrier(mpi_comm_world)
+  call  mpi_barrier(mpi_comm_world,ierr)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! bcast bndkp_pair%m and mc

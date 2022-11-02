@@ -68,8 +68,13 @@ OBJ = $(EDICMODS:.f90=.o) $(EDICSRC:.f90=.o)
 
 EXE = edic.x
 
+test=bar.x
+
 default: $(OBJ)
 	$(LD) $(LDFLAGS) -o $(EXE) $(OBJ) $(MODULES) $(LIBOBJS) $(QELIBS)
+
+test: $(OBJ)
+	$(LD) $(LDFLAGS) -o $(test) $(OBJ) $(MODULES) $(LIBOBJS) $(QELIBS)
 
 clean:
 	rm -f *.o *~ *.d *.mod *.i *.x

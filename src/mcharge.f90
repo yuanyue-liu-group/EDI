@@ -263,7 +263,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       if(    abs(w_gw(ig1))>machine_eps) then
          icount=icount+1
-         write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(:,ik0)-xk(:,ik),ig1,g(:,ig1),w_gw(ig1) ,abs(w_gw(ig1) )
+         !write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(:,ik0)-xk(:,ik),ig1,g(:,ig1),w_gw(ig1) ,abs(w_gw(ig1) )
       endif
     Enddo
     write(*,*) 'w nonzero part number', icount
@@ -284,8 +284,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
          g_of_w_gw_non0(:,icount)=g(:,ig1)
       endif
     Enddo
-    write(*,*)'nonzero w',w_gw_non0
-    write(*,*)'g_of_w_gw_non0',g_of_w_gw_non0
+    !write(*,*)'nonzero w',w_gw_non0
+    !write(*,*)'g_of_w_gw_non0',g_of_w_gw_non0
  
  
 ! get w(g)

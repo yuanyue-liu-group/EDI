@@ -15,7 +15,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   use edic_mod, only: bndkp_pair
   Implicit None 
 
-  COMPLEX(DP) ,intent(inout)::  mlocal
+  COMPLEX(DP) ::  mlocal
   complex(dp) :: ml_up, ml_down,ml
   real(dp) :: d1, d2, d3
 
@@ -159,7 +159,9 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   !write (*,1002) 'Ml ki->kf ',ik0,ik,  ml_up+ml_down, abs(ml_up+ml_down)
 1001 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
+  write (*,1001) 'Mlocal ki->kf ',ik0,ik, mlocal
   mlocal=ml
+  write (*,1001) 'Mlocal ki->kf ',ik0,ik, mlocal
    
     
     
