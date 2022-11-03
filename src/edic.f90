@@ -23,12 +23,13 @@ Program edic
   integer :: tmp_unit
   integer, external :: find_free_unit
   integer :: ios
+  integer :: nchunk
   integer :: ig,ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
   integer :: kp_idx_i,kp_idx_f, bnd_idx_i,bnd_idx_f
   integer:: p_rank,p_size
   CHARACTER(LEN=6), EXTERNAL :: int_to_char  
   integer :: ierr
-    COMPLEX(DP)  :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
+  COMPLEX(DP)  :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
     
   !!!!!!!!!!!!! hdf5 debug
   !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
@@ -49,7 +50,6 @@ Program edic
   
 
   CALL environment_start ( 'EDIC' )
-
 
   call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
   call  mpi_comm_size(mpi_comm_world,p_size,ik)
@@ -80,6 +80,7 @@ Program edic
   nwordwfc = nbnd*npwx*npol
 
   call getwtdata()
+  call  mpi_barrier(mpi_comm_world,ierr)
 
   if (calcmcharge) then
 
@@ -172,12 +173,13 @@ Program edic
   write (*,"(/A55/)") 'Start M calculation k loop'
   write(*,"(A56//)")'----------------------------'
 
+  call  mpi_barrier(mpi_comm_world,ierr)
   ! k pair parralellization
   
+  nchunk=bndkp_pair%npairs/(p_size)+1
   do ig = 1,bndkp_pair%npairs
     write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
-    if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
-                          .or.(p_rank==p_size-1 .and. ig>bndkp_pair%npairs/p_size*(p_rank)) ) then
+    if ( (ig<=nchunk*(p_rank+1) .and. ig>nchunk*(p_rank)) )then
       write(*,*)'in loop, image_id',ig,my_image_id
       kp_idx_i = bndkp_pair%kp_idx(ig,1) 
       kp_idx_f = bndkp_pair%kp_idx(ig,2) 
@@ -218,14 +220,14 @@ Program edic
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
       endif
-!      if ( .not. noncolin .and. calcmlocal)then
-!          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
-!      endif
-!      if ( .not. noncolin .and. calcmnonlocal)then
-!          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
-!          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
-!          mnonlocal=mnonlocal0-mnonlocal1
-!      endif
+      if ( .not. noncolin .and. calcmlocal)then
+          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
+      endif
+      if ( .not. noncolin .and. calcmnonlocal)then
+          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
+          call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
+          mnonlocal=mnonlocal0-mnonlocal1
+      endif
       bndkp_pair%m(ig)=mlocal+mnonlocal0-mnonlocal1
    
 
@@ -253,10 +255,10 @@ Program edic
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! bcast bndkp_pair%m and mc
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  nchunk=bndkp_pair%npairs/(p_size)+1
   do ig = 1,bndkp_pair%npairs
     write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
-    if ( (ig<=bndkp_pair%npairs/p_size*(p_rank+1) .and. ig>bndkp_pair%npairs/p_size*(p_rank)) &
-                          .or.(p_rank==p_size-1 .and. ig>bndkp_pair%npairs/p_size*(p_rank)) ) then
+    if ( (ig<=nchunk*(p_rank+1) .and. ig>nchunk*(p_rank)) )then
       write(*,*)'in loop, image_id',ig,my_image_id
       p_source=p_rank
       m_tmp1= real(bndkp_pair%m(ig))
@@ -264,6 +266,9 @@ Program edic
       m_tmp3= real(bndkp_pair%mc(ig))
       m_tmp4= aimag(bndkp_pair%mc(ig))
     endif
+    p_source=(ig-1)/nchunk
+    write(*,*)'ps',p_rank,p_source
+    write(*,*)'ig, image_id',ig,p_rank,p_source,my_image_id
     CALL MPI_BCAST(   m_tmp1, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
     CALL MPI_BCAST(   m_tmp2, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
     CALL MPI_BCAST(   m_tmp3, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
@@ -275,8 +280,7 @@ Program edic
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! gamma mu calculation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if ( p_rank==0)&
-    call postprocess()
+  if ( p_rank==0) call postprocess()
 
   call environment_end('EDIC')
   CALL mp_global_end()
