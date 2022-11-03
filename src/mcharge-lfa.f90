@@ -47,8 +47,9 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   Enddo
   deltak=norm2(xk(:,ik0)-xk(:,ik))*tpiba
   deltak_para=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
-  epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltak_para)
-  if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+  !epsk= splint(qeh_eps_data(1,:),qeh_eps_data(2,:),eps_data_dy(:),deltak_para)
+  !if (deltak>maxval(qeh_eps_data(1,:)))      epsk=minval(qeh_eps_data(2,:))
+  epsk=1.0
 
   qxy=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
   qz= (( xk(3,ik0)-xk(3,ik))**2)**0.5*tpiba
@@ -60,12 +61,12 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   mcharge5=mcharge0*4*pi/(deltak**2+k0screen**2)*q2d_coeff!(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
   mcharge6=mcharge0*4*pi/(deltak**2)*epsk*       q2d_coeff!(1-(cos(qz*lzcutoff)-sin(qz*lzcutoff)*qz/qxy)*exp(-(qxy*lzcutoff)))
    
-  mcharge1=mcharge1/dffts%nnr
-  mcharge2=mcharge2/dffts%nnr
-  mcharge3=mcharge3/dffts%nnr
-  mcharge4=mcharge4/dffts%nnr
-  mcharge5=mcharge5/dffts%nnr
-  mcharge6=mcharge6/dffts%nnr
+  mcharge1=mcharge1
+  mcharge2=mcharge2
+  mcharge3=mcharge3
+  mcharge4=mcharge4
+  mcharge5=mcharge5
+  mcharge6=mcharge6
   write(*,*) 'deltak',deltak
   write(*,*)  'mcharge0           ki->kf ',ik0,ik,    mcharge0, abs(mcharge0)
   write(*,*)  'Mcharge3DLFAns     ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
@@ -97,9 +98,9 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   mcharge1=mcharge0*tpi/deltak
   mcharge2=mcharge0*tpi/(deltak**2+k0screen**2)**0.5
   mcharge3=mcharge0*tpi/(deltak**2)**0.5*epsk
-  mcharge1=mcharge1/dffts%nnr
-  mcharge2=mcharge2/dffts%nnr
-  mcharge3=mcharge3/dffts%nnr
+  mcharge1=mcharge1/dffts
+  mcharge2=mcharge2/dffts
+  mcharge3=mcharge3/dffts
   write(*,*)   'mcharge0       0ki->kf ',ik0,ik, mcharge0, abs(mcharge0)
   write(*,*)   'Mcharge2DLFAns 0ki->kf ',ik0,ik, mcharge1, abs(mcharge1)
   write(*,*)   'Mcharge2DLFAs  0ki->kf ',ik0,ik, mcharge2, abs(mcharge2) , 'k0screen', k0screen
