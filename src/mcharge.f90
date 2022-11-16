@@ -729,7 +729,8 @@ subroutine interp_eps_2d(epsmat_inted,gw_q_g_commonsubset_size,gind_psi2rho_gw,i
   integer(DP),intent(inout),allocatable ::gind_psi2rho_gw(:)
   integer ,intent(in):: ik0,ik
   real(dp)::q1(3)
-  integer::symop(24,3,3)
+  integer::symop(24,3,3),nsym
+  nsym=24
 symop(1,1,:)=(/  1 , 0 , 0 /)
 symop(1,2,:)=(/  0 , 1 , 0 /)
 symop(1,3,:)=(/  0 , 0 , 1 /)
@@ -825,7 +826,6 @@ symop(23,3,:)=(/  0 , 0 ,-1 /)
 symop(24,1,:)=(/  0 ,-1 , 0 /)             
 symop(24,2,:)=(/ -1 , 0 , 0 /)             
 symop(24,3,:)=(/  0 , 0 , 1 /)             
-  read('sym',
 
 
     if (allocated(gind_psi2rho_gw)) deallocate(gind_psi2rho_gw)
@@ -861,17 +861,28 @@ symop(24,3,:)=(/  0 , 0 , 1 /)
                   gw_epsq1_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
                   gw_epsq1_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
 
-           do ig1=1,24
-           q1(:)= gw_epsq1_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
-                  gw_epsq1_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
-                  gw_epsq1_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
+           do ig1=1,nsym
+               q1(:)= (gw_epsq1_data%qpts_data(:,iq1)*symop(ig1,1,:))*gw_epsq1_data%bvec_data(:,1)+ &
+                      (gw_epsq1_data%qpts_data(:,iq1)*symop(ig1,2,:))*gw_epsq1_data%bvec_data(:,2)+ &
+                      (gw_epsq1_data%qpts_data(:,iq1)*symop(ig1,3,:))*gw_epsq1_data%bvec_data(:,3)
 
-           write(*,*)'q1 dk',(xk(1:3,ik0)-xk(1:3,ik)),q1
-           if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw) then
-             w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
-           else
-             w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
-           endif
+               write(*,*)'q1 dk ig1',(xk(1:3,ik0)-xk(1:3,ik)),q1,symop(ig1,:,:)
+               if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)+gw_epsq1_data%bvec_data(:,1)))<&  
+                       tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw .or. &
+                  abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)+gw_epsq1_data%bvec_data(:,2)))<&  
+                       tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw .or. &
+                  abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)-gw_epsq1_data%bvec_data(:,1)))<&  
+                       tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw .or. &
+                  abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)-gw_epsq1_data%bvec_data(:,2)))<&  
+                       tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw) then
+                 w1(iq1)=w1(iq1)+1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
+               endif
+           enddo
+           !if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw) then
+           !  w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
+           !else
+           !  w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
+           !endif
         enddo
 
         write(*,*) 'gw_debug w1',w1(:)
