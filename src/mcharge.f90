@@ -729,6 +729,103 @@ subroutine interp_eps_2d(epsmat_inted,gw_q_g_commonsubset_size,gind_psi2rho_gw,i
   integer(DP),intent(inout),allocatable ::gind_psi2rho_gw(:)
   integer ,intent(in):: ik0,ik
   real(dp)::q1(3)
+  integer::symop(24,3,3)
+symop(1,1,:)=(/  1 , 0 , 0 /)
+symop(1,2,:)=(/  0 , 1 , 0 /)
+symop(1,3,:)=(/  0 , 0 , 1 /)
+       
+symop(2,1,:)=(/  0 , 1 , 0 /)
+symop(2,2,:)=(/ -1 ,-1 , 0 /)
+symop(2,3,:)=(/  0 , 0 , 1 /)
+       
+symop(3,1,:)=(/ -1 , 0 , 0 /)
+symop(3,2,:)=(/  0 ,-1 , 0 /)
+symop(3,3,:)=(/  0 , 0 ,-1 /)
+       
+symop(4,1,:)=(/  0 ,-1 , 0 /)
+symop(4,2,:)=(/  1 , 1 , 0 /)
+symop(4,3,:)=(/  0 , 0 ,-1 /)
+       
+symop(5,1,:)=(/  1 , 0 , 0 /)
+symop(5,2,:)=(/ -1 ,-1 , 0 /)
+symop(5,3,:)=(/  0 , 0 ,-1 /)
+       
+symop(6,1,:)=(/  1 , 1 , 0 /)
+symop(6,2,:)=(/  0 ,-1 , 0 /)
+symop(6,3,:)=(/  0 , 0 ,-1 /)
+       
+symop(7,1,:)=(/ -1 , 0 , 0 /)
+symop(7,2,:)=(/  1 , 1 , 0 /)
+symop(7,3,:)=(/  0 , 0 , 1 /)
+       
+symop(8,1,:)=(/ -1 ,-1 , 0 /)
+symop(8,2,:)=(/  0 , 1 , 0 /)
+symop(8,3,:)=(/  0 , 0 , 1 /)
+       
+symop(9,1,:)=(/  -1,  0,  0/)  
+symop(9,2,:)=(/   0, -1,  0/)  
+symop(9,3,:)=(/   0,  0,  1/)  
+
+symop(10,1,:)=(/  -1, -1,  0/)  
+symop(10,2,:)=(/   1,  0,  0/)  
+symop(10,3,:)=(/   0,  0,  1/)  
+
+symop(11,1,:)=(/   1,  0,  0/)  
+symop(11,2,:)=(/   0,  1,  0/)  
+symop(11,3,:)=(/   0,  0, -1/)  
+
+symop(12,1,:)=(/   1,  1,  0/)  
+symop(12,2,:)=(/  -1,  0,  0/)  
+symop(12,3,:)=(/   0,  0, -1/)  
+
+symop(13,1,:)=(/   1,  1,  0/)  
+symop(13,2,:)=(/  -1,  0,  0/)  
+symop(13,3,:)=(/   0,  0,  1/)  
+
+symop(14,1,:)=(/  -1, -1,  0/)  
+symop(14,2,:)=(/   0,  1,  0/)  
+symop(14,3,:)=(/   0,  0, -1/)  
+
+symop(15,1,:)=(/  -1, -1,  0/)  
+symop(15,2,:)=(/   1,  0,  0/)  
+symop(15,3,:)=(/   0,  0, -1/)  
+
+symop(16,1,:)=(/   1,  1,  0/)  
+symop(16,2,:)=(/   0, -1,  0/)  
+symop(16,3,:)=(/   0,  0,  1/)  
+
+symop(17,1,:)=(/ -1 , 0 , 0 /) 
+symop(17,2,:)=(/  1 , 1 , 0 /) 
+symop(17,3,:)=(/  0 , 0 ,-1 /) 
+
+symop(18,1,:)=(/  0 ,-1 , 0 /) 
+symop(18,2,:)=(/ -1 , 0 , 0 /) 
+symop(18,3,:)=(/  0 , 0 ,-1 /) 
+
+symop(19,1,:)=(/  1 , 0 , 0 /) 
+symop(19,2,:)=(/ -1 ,-1 , 0 /) 
+symop(19,3,:)=(/  0 , 0 , 1 /) 
+
+symop(20,1,:)=(/  0 , 1 , 0 /) 
+symop(20,2,:)=(/  1 , 0 , 0 /) 
+symop(20,3,:)=(/  0 , 0 , 1 /) 
+
+symop(21,1,:)=(/  0 ,-1 , 0 /)             
+symop(21,2,:)=(/  1 , 1 , 0 /)             
+symop(21,3,:)=(/  0 , 0 , 1 /)             
+
+symop(22,1,:)=(/  0 , 1 , 0 /)             
+symop(22,2,:)=(/  1 , 0 , 0 /)             
+symop(22,3,:)=(/  0 , 0 ,-1 /)             
+
+symop(23,1,:)=(/  0 , 1 , 0 /)             
+symop(23,2,:)=(/ -1 ,-1 , 0 /)             
+symop(23,3,:)=(/  0 , 0 ,-1 /)             
+
+symop(24,1,:)=(/  0 ,-1 , 0 /)             
+symop(24,2,:)=(/ -1 , 0 , 0 /)             
+symop(24,3,:)=(/  0 , 0 , 1 /)             
+  read('sym',
 
 
     if (allocated(gind_psi2rho_gw)) deallocate(gind_psi2rho_gw)
@@ -763,8 +860,16 @@ subroutine interp_eps_2d(epsmat_inted,gw_q_g_commonsubset_size,gind_psi2rho_gw,i
            q1(:)= gw_epsq1_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
                   gw_epsq1_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
                   gw_epsq1_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
+
+           do ig1=1,24
+           q1(:)= gw_epsq1_data%qpts_data(1,iq1)*gw_epsq1_data%bvec_data(:,1)+ &
+                  gw_epsq1_data%qpts_data(2,iq1)*gw_epsq1_data%bvec_data(:,2)+ &
+                  gw_epsq1_data%qpts_data(3,iq1)*gw_epsq1_data%bvec_data(:,3)
+
            write(*,*)'q1 dk',(xk(1:3,ik0)-xk(1:3,ik)),q1
            if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))<tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw) then
+             w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
+           else
              w1(iq1)=1/abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)))
            endif
         enddo
@@ -773,7 +878,7 @@ subroutine interp_eps_2d(epsmat_inted,gw_q_g_commonsubset_size,gind_psi2rho_gw,i
 
         if(sum(w1(:))<machine_eps) then
             write(*,*) 'eps 2d interpolation error'
-            stop -1
+            stop 'eps 2d interpolation error'
         endif
         !do iq1 = 1, gw_nq_data(1)
         !   if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1))<machine_eps*1e-6) 
