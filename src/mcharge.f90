@@ -545,12 +545,20 @@ contains
     !write(*,*) 'inv 1',info
     !call  mpi_barrier(gid)
     call flush(6)
+    !Ainv(:,:)=(0.0,0.0)
+    !do ig=1,n
+    !  Ainv(ig,ig)=(1.0,0.0)
+    !enddo
+    !write(*,*)'sum(abs(A-Ainv))', sum(abs(A-Ainv))
     call DGETRF(n, n, Ainv, n, ipiv, info)
     !write(*,*) 'inv 1',info
   
     !call  mpi_barrier(gid)
     call flush(6)
     if (info /= 0) then
+       !write(*,*)Ainv,A,info
+       write(*,*)'info',info,Ainv(info,info),Ainv(1,1),Ainv(2,2),Ainv(3,3),Ainv(4,4),Ainv(5,5)
+       write(*,*)'info',info,Ainv(info,info),Ainv(1,1),Ainv(2,1),Ainv(3,1),Ainv(4,1),Ainv(5,1)
        stop 'Matrix is numerically singular!'
     end if
   
@@ -568,6 +576,7 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
   USE klist , ONLY:  xk
   use splinelib, only: spline,splint
+  real(DP),allocatable ::qabs_tmp(:)
   real(DP),allocatable ::epsint_q0_tmp1(:)
   real(DP),allocatable ::epsint_q0_tmp2(:)
   real(DP),allocatable ::epsint_q0_tmp3(:)
@@ -610,14 +619,16 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
 
 
 
+    if (allocated(qabs_tmp))       deallocate(qabs_tmp)
     if (allocated(epsint_q0_tmp1)) deallocate(epsint_q0_tmp1)
     if (allocated(epsint_q0_tmp2)) deallocate(epsint_q0_tmp2)
     if (allocated(epsint_q0_tmp3)) deallocate(epsint_q0_tmp3)
     if (allocated(epsint_q0_tmp4)) deallocate(epsint_q0_tmp4)
-    allocate(epsint_q0_tmp1(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp2(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp3(gw_epsq0_data%nq_data(1)))
-    allocate(epsint_q0_tmp4(gw_epsq0_data%nq_data(1)))
+    allocate(      qabs_tmp(0:gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp1(0:gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp2(0:gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp3(0:gw_epsq0_data%nq_data(1)))
+    allocate(epsint_q0_tmp4(0:gw_epsq0_data%nq_data(1)))
 
     write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,1)
     write(*,*) 'gw-lin0',shape(epsmat_inted),epsmat_inted(1,2)
@@ -661,6 +672,9 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
             !write(*,*) 'gw3.1',gw_q_g_commonsubset_indinrho(1:5)
             !write(*,*) 'gw3.1',gw_gind_rho2eps_data(1,1:5)
             !write(*,*) 'gw3.1',ig1,ig2
+            epsint_q0_tmp1(0)=0.0
+            epsint_q0_tmp2(0)=0.0
+            qabs_tmp(0)=0.0
             do iq1=1,gw_epsq0_data%nq_data(1)
                !write(*,*) 'gw3.1.1',iq1, gind_gw_eps2,gw_q_g_commonsubset_indinrho(ig2),gw_gind_rho2eps_data(gw_q_g_commonsubset_indinrho(ig2),iq1)
                gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),iq1)
@@ -673,20 +687,34 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
                epsint_q0_tmp1(iq1)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
                !write(*,*) 'gw3.1.3',iq1
                epsint_q0_tmp2(iq1)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+               qabs_tmp(iq1)=gw_epsq0_data%qabs(iq1)
                !write(*,*) 'gw3.1.4',iq1
             enddo
+            if (ig1==ig2) epsint_q0_tmp1(0)=0.9
+            epsint_q0_tmp1(0)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,1)
+            epsint_q0_tmp2(0)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,1)
+
+
             !write(*,*) 'gw3.2',ig1,ig2
-            call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
-            epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltak_para)
-            !write(*,*) 'gw3.2',epsinttmp1s
-            if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
-            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp1s=epsint_q0_tmp2(size(epsint_q0_tmp2))
+            call  spline(qabs_tmp(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
+            epsinttmp1s= splint(qabs_tmp(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltak_para)
                 
-            call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
-            epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltak_para)
-            !write(*,*) 'gw3.2',epsinttmp2s
-            if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
-            if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp2s=epsint_q0_tmp2(size(epsint_q0_tmp2))
+            call  spline(qabs_tmp(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
+            epsinttmp2s= splint(qabs_tmp(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltak_para)
+            
+           ! call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),0.0_DP,0.0_DP,epsint_q0_tmp3(:))
+           ! epsinttmp1s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp1(:),epsint_q0_tmp3(:),deltak_para)
+           ! !write(*,*) 'gw3.2',epsinttmp1s
+           ! if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp1s=minval(epsint_q0_tmp1(:))
+           ! if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp1s=epsint_q0_tmp2(size(epsint_q0_tmp2))
+                
+           ! call  spline(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),0.0_DP,0.0_DP,epsint_q0_tmp4(:))
+           ! epsinttmp2s= splint(gw_epsq0_data%qabs(:),epsint_q0_tmp2(:),epsint_q0_tmp4(:),deltak_para)
+           ! !write(*,*) 'gw3.2',epsinttmp2s
+           ! if (deltak_para>maxval(gw_epsq0_data%qabs(:)))  epsinttmp2s=minval(epsint_q0_tmp2(:))
+           ! if (deltak_para<minval(gw_epsq0_data%qabs(:)))  epsinttmp2s=epsint_q0_tmp2(size(epsint_q0_tmp2))
+
+
             !epsmat_inted(gw_gind_rho2eps_data(ig1,iq1),gw_gind_rho2eps_data(ig2,iq1))=complex(epsinttmp1s,epsinttmp2s)
             epsmat_inted(ig1,ig2)=complex(epsinttmp1s,epsinttmp2s)
             !write(*,*) 'gw3.2',ig1,ig2,epsinttmp1s,epsinttmp2s,epsmat_inted(ig1,ig2)
@@ -866,7 +894,7 @@ symop(24,3,:)=(/  0 , 0 , 1 /)
                       (gw_epsq1_data%qpts_data(:,iq1)*symop(ig1,2,:))*gw_epsq1_data%bvec_data(:,2)+ &
                       (gw_epsq1_data%qpts_data(:,iq1)*symop(ig1,3,:))*gw_epsq1_data%bvec_data(:,3)
 
-               write(*,*)'q1 dk ig1',(xk(1:3,ik0)-xk(1:3,ik)),q1,symop(ig1,:,:)
+               !write(*,*)'q1 dk ig1',(xk(1:3,ik0)-xk(1:3,ik)),q1,symop(ig1,:,:)
                if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)+gw_epsq1_data%bvec_data(:,1)))<&  
                        tpiba*(2*3**.5/3.0)*8.0/nqgrid_gw .or. &
                   abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba)-norm2(q1(:)+gw_epsq1_data%bvec_data(:,2)))<&  
