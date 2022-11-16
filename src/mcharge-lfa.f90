@@ -98,9 +98,9 @@ SUBROUTINE calcmdefect_charge_lfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   mcharge1=mcharge0*tpi/deltak
   mcharge2=mcharge0*tpi/(deltak**2+k0screen**2)**0.5
   mcharge3=mcharge0*tpi/(deltak**2)**0.5*epsk
-  mcharge1=mcharge1/dffts
-  mcharge2=mcharge2/dffts
-  mcharge3=mcharge3/dffts
+  !mcharge1=mcharge1/dffts%nnr
+  !mcharge2=mcharge2/dffts%nnr
+  !mcharge3=mcharge3/dffts%nnr
   write(*,*)   'mcharge0       0ki->kf ',ik0,ik, mcharge0, abs(mcharge0)
   write(*,*)   'Mcharge2DLFAns 0ki->kf ',ik0,ik, mcharge1, abs(mcharge1)
   write(*,*)   'Mcharge2DLFAs  0ki->kf ',ik0,ik, mcharge2, abs(mcharge2) , 'k0screen', k0screen

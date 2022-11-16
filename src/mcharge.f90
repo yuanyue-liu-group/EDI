@@ -35,7 +35,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   integer(DP),allocatable ::gind_psi2rho_gw(:)
   INTEGER :: gw_q_g_commonsubset_size
-  COMPLEX(DP) ::  mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  COMPLEX(DP) ::  mcharge00,mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
   INTEGER :: ibnd, ik, ik0,ibnd0
   real(DP) , allocatable::  eps_data_dy(:)
   real(DP) :: epsk, deltakG_para,q2d_coeff
@@ -241,6 +241,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
            
            !write(*,*) 'deltakG',g(1:3,igk_k(ig1,ik0)),g(1:3,igk_k(ig2,ik)),xk(1:3,ik0)-xk(1:3,ik)
            deltakG=norm2(g(1:3,ig1)-g(1:3,ig2) +xk(1:3,ik0)-xk(1:3,ik))*tpiba
+           deltakG=norm2(g(1:3,ig1)*0-g(1:3,ig2) +xk(1:3,ik0)-xk(1:3,ik))*tpiba
            !w_gw(ig1)=w_gw(ig1)+epsmat_inted(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*(tpi/(deltakG))
 !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
@@ -257,8 +258,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
            !else
  
            !    w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
-           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff/(lzcutoff*2)
            !endif
+         write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(:,ik0)-xk(:,ik),ig1,g(:,ig1),deltakG,w_gw(ig1) ,abs(w_gw(ig1) )
         endif
       Enddo
       if(    abs(w_gw(ig1))>machine_eps) then
@@ -366,9 +368,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       !write(*,*)  'mcharge ig1',ig1
     Enddo
-    mcharge1=mcharge1/dffts
-    mcharge2=mcharge2/dffts
-    mcharge3=mcharge3/dffts
+    !mcharge1=mcharge1/dffts%nnr
+    !mcharge2=mcharge2/dffts%nnr
+    !mcharge3=mcharge3/dffts%nnr
     write(*,*)  'mcharge start ',ik0,ik, mcharge0, abs(mcharge0),icount
     write(*,*)  'Mcharge2DnoLFAns noki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount
     write(*,*)  'Mcharge2DnoLFAs  noki->kf ',ik0,ik, mcharge2, abs(mcharge2),icount , 'k0screen', k0screen
@@ -394,15 +396,23 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     mcharge6gw=0
 
     mcharge0=0
+    mcharge00=0
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
     
          !mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
          if (.not. noncolin )then
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+            if (norm2(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik)))<machine_eps) then
+                mcharge00=mcharge00+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd)
+            endif
          else
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+            if (norm2(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik)))<machine_eps) then
+                 mcharge00=mcharge00+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
+                             +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+            endif
          endif
 
          deltakG=norm2(g(:,igk_k(ig1,ik0))&
@@ -491,14 +501,15 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1,mcharge1gw,mcharge2gw
     Enddo
-    mcharge1gw=mcharge1gw/dffts
-    mcharge2gw=mcharge2gw/dffts
-    mcharge1=mcharge1/dffts
-    mcharge2=mcharge2/dffts
-    mcharge3=mcharge3/dffts
-    mcharge4=mcharge4/dffts
-    mcharge5=mcharge5/dffts
-    mcharge6=mcharge6/dffts
+    !mcharge1gw=mcharge1gw/dffts%nnr
+    !mcharge2gw=mcharge2gw/dffts%nnr
+    !mcharge1=mcharge1/dffts%nnr
+    !mcharge2=mcharge2/dffts%nnr
+    !mcharge3=mcharge3/dffts%nnr
+    !mcharge4=mcharge4/dffts%nnr
+    !mcharge5=mcharge5/dffts%nnr
+    !mcharge6=mcharge6/dffts%nnr
+    write(*,*)  'Mcharge0 ',ik0,ik,    mcharge00, abs(mcharge00)
     write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
     write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
     write(*,*)  'Mcharge3DnoLFAs     0ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
