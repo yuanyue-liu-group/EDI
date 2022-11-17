@@ -104,6 +104,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
           gind_psi2rho_gw(:)=gw_epsq0_data%gind_psi2rho(:)
           gw_q_g_commonsubset_size=gw_epsq0_data%q_g_commonsubset_size
 
+          write(*,*)'q0 gw_q_g_commonsubset_size',gw_epsq0_data%q_g_commonsubset_size
           if (allocated(epsmat_inted)) deallocate(epsmat_inted)
           allocate(epsmat_inted(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
           epsmat_inted(:,:)=(0.0,0.0)
@@ -118,6 +119,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
           allocate(gind_psi2rho_gw(size(gw_epsq1_data%gind_psi2rho)))
           gind_psi2rho_gw(:)=gw_epsq1_data%gind_psi2rho(:)
           gw_q_g_commonsubset_size=gw_epsq1_data%q_g_commonsubset_size
+          write(*,*)'q1 gw_q_g_commonsubset_size',gw_epsq1_data%q_g_commonsubset_size
 
           if (allocated(epsmat_inted)) deallocate(epsmat_inted)
           allocate(epsmat_inted(gw_q_g_commonsubset_size,gw_q_g_commonsubset_size))
@@ -855,11 +857,12 @@ symop(24,1,:)=(/  0 ,-1 , 0 /)
 symop(24,2,:)=(/ -1 , 0 , 0 /)             
 symop(24,3,:)=(/  0 , 0 , 1 /)             
 
-
+    !write(*,*)'shape(gind_psi2rho_gw),gw_q_g_commonsubset_size', shape(gind_psi2rho_gw),gw_q_g_commonsubset_size
     if (allocated(gind_psi2rho_gw)) deallocate(gind_psi2rho_gw)
     allocate(gind_psi2rho_gw(size(gw_epsq1_data%gind_psi2rho)))
     gind_psi2rho_gw(:)=gw_epsq1_data%gind_psi2rho(:)
     gw_q_g_commonsubset_size=gw_epsq1_data%q_g_commonsubset_size
+    !write(*,*)'shape(gind_psi2rho_gw),gw_q_g_commonsubset_size', shape(gind_psi2rho_gw),gw_q_g_commonsubset_size
 
 
     if (allocated(epsmat_inted)) deallocate(epsmat_inted)
@@ -913,7 +916,7 @@ symop(24,3,:)=(/  0 , 0 , 1 /)
            !endif
         enddo
 
-        write(*,*) 'gw_debug w1',w1(:)
+        !write(*,*) 'gw_debug w1',shape(w1),w1(:),shape(epsmat_inted)
 
         if(sum(w1(:))<machine_eps) then
             write(*,*) 'eps 2d interpolation error'
@@ -926,18 +929,35 @@ symop(24,3,:)=(/  0 , 0 , 1 /)
     ! 2d simple interpolate prepare fixme
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    !write(*,*) 'gind_rho2eps_data',gw_epsq1_data%gind_rho2eps_data(:,408)
+    !write(*,*) 'gw_epsq1_data%q_g_commonsubset_indinrho',gw_epsq1_data%q_g_commonsubset_indinrho(:)
+
     do ig1 = 1, gw_q_g_commonsubset_size
       do ig2 = 1, gw_q_g_commonsubset_size
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2d simple interpolate  fixme
         !if (interpolate_2d) then
-            !write(*,*) 'interp 2d'
             do iq1 = 1, gw_epsq1_data%nq_data(1)
+
+                !write(*,*) 'interp 2d',ig1,ig2,iq1
                 gind_gw_eps1=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig1),iq1)
+                !write(*,*) 'interp 2d 1'
                 gind_gw_eps2=gw_epsq1_data%gind_rho2eps_data(gw_epsq1_data%q_g_commonsubset_indinrho(ig2),iq1)
-                epsinttmp1s=gw_epsq1_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                epsinttmp2s=gw_epsq1_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
-                epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)
+
+                !if  (gind_gw_eps1>gw_epsq1_data%nmtx_data(iq1).or. gind_gw_eps2>gw_epsq1_data%nmtx_data(iq1)  )  &
+                !    write(*,*) 'gindex of eps qpts messedup'
+                if  (gind_gw_eps1<gw_epsq1_data%nmtx_data(iq1).and. gind_gw_eps2<gw_epsq1_data%nmtx_data(iq1)  )  then
+                    !write(*,*) 'interp 2d 2',gind_gw_eps1,gind_gw_eps2,shape(gw_epsq1_data%epsmat_full_data)
+                    !write(*,*) 'interp 2d 2',gw_epsq1_data%epsmat_full_data(:,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                    epsinttmp1s=gw_epsq1_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                    !write(*,*) 'interp 2d 3'
+                    epsinttmp2s=gw_epsq1_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,iq1)
+                    !write(*,*) 'interp 2d 4'
+                    !write(*,*) 'epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)',&
+                    !        epsmat_inted(ig1,ig2),complex(epsinttmp1s,epsinttmp2s),w1(iq1)
+                    epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)+complex(epsinttmp1s,epsinttmp2s)*w1(iq1)
+                    !write(*,*) 'interp 2d done',ig1,ig2,iq1
+                 endif
             enddo
             epsmat_inted(ig1,ig2)=epsmat_inted(ig1,ig2)/sum(w1(:))
         !endif
