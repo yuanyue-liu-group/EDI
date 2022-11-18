@@ -4,6 +4,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   Use edic_mod, Only : dogwfull,dogwdiag,doqeh,do2d,do3d
   Use edic_mod, Only : evc1,evc2
   USE fft_base,  ONLY: dfftp, dffts
+  USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
   USE gvect, ONLY: g
   USE gvect, ONLY: ngm
   USE klist , ONLY:  xk, igk_k, ngk
@@ -36,6 +37,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   integer(DP),allocatable ::gind_psi2rho_gw(:)
   INTEGER :: gw_q_g_commonsubset_size
   COMPLEX(DP) ::  mcharge00,mcharge0,mcharge1,mcharge2,mcharge3,mcharge4,mcharge5,mcharge6
+  COMPLEX(DP) ::  mcharge01,mcharge02,mcharge03,mcharge04,mcharge05,mcharge06,mcharge07,mcharge08
   INTEGER :: ibnd, ik, ik0,ibnd0
   real(DP) , allocatable::  eps_data_dy(:)
   real(DP) :: epsk, deltakG_para,q2d_coeff
@@ -399,6 +401,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
 
     mcharge0=0
     mcharge00=0
+    mcharge01=0
+    mcharge02=0
     DO ig1 = 1, ngk(ik0)
       Do ig2=1, ngk(ik)
     
@@ -412,8 +416,12 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
             if (norm2(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik)))<machine_eps) then
+                 write(*,*)'evc1',evc1(ig1,ibnd0),evc1(ig1+npwx,ibnd0),npwx,ngk(ik0)
+                 write(*,*)'evc2',evc2(ig2,ibnd),evc2(ig2+npwx,ibnd),npwx,ngk(ik)
                  mcharge00=mcharge00+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
+                 mcharge01=mcharge01+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) 
+                 mcharge02=mcharge02+conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd) 
             endif
          endif
 
@@ -511,7 +519,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     !mcharge4=mcharge4/dffts%nnr
     !mcharge5=mcharge5/dffts%nnr
     !mcharge6=mcharge6/dffts%nnr
-    write(*,*)  'Mcharge0 ',ik0,ik,    mcharge00, abs(mcharge00)
+    write(*,*)  'Mcharge0 ',ik0,ik,ibnd0,ibnd,    mcharge00, abs(mcharge00),mcharge01, abs(mcharge01),mcharge02, abs(mcharge02)
     write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
     write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
     write(*,*)  'Mcharge3DnoLFAs     0ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
