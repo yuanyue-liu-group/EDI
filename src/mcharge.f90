@@ -71,6 +71,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   if(dogwfull .or. dogwdiag) then
     Nlzcutoff=dffts%nr3/2
     lzcutoff=Nlzcutoff*alat/dffts%nr1
+    write(*,*) 'lzcut',lzcutoff
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! get interpolated eps matrix
@@ -262,7 +263,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
            !else
  
            !    w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
-           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff/(lzcutoff*2)
+           !w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff/(lzcutoff*2)
+           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
            !endif
          write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(:,ik0)-xk(:,ik),ig1,g(:,ig1),deltakG,w_gw(ig1) ,abs(w_gw(ig1) )
         endif
@@ -511,14 +513,14 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1,mcharge1gw,mcharge2gw
     Enddo
-    !mcharge1gw=mcharge1gw/dffts%nnr
-    !mcharge2gw=mcharge2gw/dffts%nnr
-    !mcharge1=mcharge1/dffts%nnr
-    !mcharge2=mcharge2/dffts%nnr
-    !mcharge3=mcharge3/dffts%nnr
-    !mcharge4=mcharge4/dffts%nnr
-    !mcharge5=mcharge5/dffts%nnr
-    !mcharge6=mcharge6/dffts%nnr
+    mcharge1gw=mcharge1gw/dffts%nnr
+    mcharge2gw=mcharge2gw/dffts%nnr
+    mcharge1=mcharge1/dffts%nnr
+    mcharge2=mcharge2/dffts%nnr
+    mcharge3=mcharge3/dffts%nnr
+    mcharge4=mcharge4/dffts%nnr
+    mcharge5=mcharge5/dffts%nnr
+    mcharge6=mcharge6/dffts%nnr
     write(*,*)  'Mcharge0 ',ik0,ik,ibnd0,ibnd,    mcharge00, abs(mcharge00),mcharge01, abs(mcharge01),mcharge02, abs(mcharge02)
     write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
     write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
