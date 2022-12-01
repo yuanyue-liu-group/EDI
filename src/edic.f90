@@ -143,10 +143,11 @@ Program edic
           call read_perturb_file(Bxc_3_d)
       
           allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+          allocate(V_nc1( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+          allocate(V_nc2( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+          allocate(V_nc3( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
+          allocate(V_nc4( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
           V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
-          V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:) 
-          V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:) 
-          V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:) 
       else
           allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
           V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
@@ -213,8 +214,16 @@ Program edic
       endif
       
       if (noncolin .and. lspinorb .and. calcmlocal)then
+          V_nc(:, 1) =     V_d%pot(:) - V_d_shift 
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-      write (*,*)  'Mifl',mlocal,mnonlocal0,mnonlocal1
+          V_nc(:, 1) =     V_p%pot(:) - V_p_shift
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          V_nc(:, 1) =     V_d%pot(:) 
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          V_nc(:, 1) =     V_p%pot(:)
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          write (*,*)  'Mifl',mlocal,mnonlocal0,mnonlocal1
       endif
       if (noncolin .and. lspinorb .and. calcmnonlocal)then
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)

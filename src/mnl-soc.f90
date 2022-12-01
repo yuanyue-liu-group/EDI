@@ -50,6 +50,7 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
               + conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,2,nt_perturb)&
               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,3,nt_perturb)&
               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,4,nt_perturb)
+                write(*,*)'itype,iatom,ih,ikb,jkb',nt_perturb,na_perturb,ih,ikb,jkb,mnl
 !                   ENDIF
               DO jh = ( ih + 1 ), nh(nt_perturb)
                  jkb = ijkb0 + jh
@@ -85,10 +86,12 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
                    conjg(becp1_perturb%nc(jkb, 2, ibnd0))*becp2_perturb%nc(ikb, 2, ibnd) &
                    * dvan_so(jh,ih,4,nt_perturb) 
        
+                    write(*,*)'itype,iatom,ih,ikb,jkb',nt_perturb,na_perturb,ih,ikb,jkb,mnl
                    ENDDO
                    
                 enddo
                 ijkb0 = ijkb0 + nh(nt_perturb)
+             write(*,*)'itype,iatom,',nt_perturb,na_perturb,jkb,mnl
              endif
            enddo
        enddo

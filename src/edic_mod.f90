@@ -179,7 +179,7 @@ Module edic_mod
 
   real(dp) :: v_p_shift,v_d_shift
   real(dp), allocatable, target :: &
-                V_nc(:, :),V_colin(:)
+                V_nc(:, :),V_nc1(:, :),V_nc2(:, :),V_nc3(:, :),V_nc4(:, :),V_colin(:)
 
 
 

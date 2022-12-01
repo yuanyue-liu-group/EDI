@@ -9,9 +9,10 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   USE gvect, ONLY: ngm
   USE klist , ONLY:  xk, igk_k, ngk
   use splinelib, only: spline,splint
-  USE cell_base, ONLY:  alat, tpiba
+  USE cell_base, ONLY:  alat, tpiba,omega
   USE constants, ONLY: tpi, pi
   use edic_mod, only: machine_eps,k0screen_read
+
 
   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
   USE HDF5
@@ -374,9 +375,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       !write(*,*)  'mcharge ig1',ig1
     Enddo
-    !mcharge1=mcharge1/dffts%nnr
-    !mcharge2=mcharge2/dffts%nnr
-    !mcharge3=mcharge3/dffts%nnr
+    mcharge1=mcharge1/omega
+    mcharge2=mcharge2/omega
+    mcharge3=mcharge3/omega
     write(*,*)  'mcharge start ',ik0,ik, mcharge0, abs(mcharge0),icount
     write(*,*)  'Mcharge2DnoLFAns noki->kf ',ik0,ik, mcharge1, abs(mcharge1),icount
     write(*,*)  'Mcharge2DnoLFAs  noki->kf ',ik0,ik, mcharge2, abs(mcharge2),icount , 'k0screen', k0screen
@@ -513,14 +514,22 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       Enddo
       write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1,mcharge1gw,mcharge2gw
     Enddo
-    mcharge1gw=mcharge1gw/dffts%nnr
-    mcharge2gw=mcharge2gw/dffts%nnr
-    mcharge1=mcharge1/dffts%nnr
-    mcharge2=mcharge2/dffts%nnr
-    mcharge3=mcharge3/dffts%nnr
-    mcharge4=mcharge4/dffts%nnr
-    mcharge5=mcharge5/dffts%nnr
-    mcharge6=mcharge6/dffts%nnr
+    mcharge1gw=mcharge1gw/omega
+    mcharge2gw=mcharge2gw/omega
+    mcharge1=mcharge1/omega
+    mcharge2=mcharge2/omega
+    mcharge3=mcharge3/omega
+    mcharge4=mcharge4/omega
+    mcharge5=mcharge5/omega
+    mcharge6=mcharge6/omega
+    !mcharge1gw=mcharge1gw/dffts%nnr
+    !mcharge2gw=mcharge2gw/dffts%nnr
+    !mcharge1=mcharge1/dffts%nnr
+    !mcharge2=mcharge2/dffts%nnr
+    !mcharge3=mcharge3/dffts%nnr
+    !mcharge4=mcharge4/dffts%nnr
+    !mcharge5=mcharge5/dffts%nnr
+    !mcharge6=mcharge6/dffts%nnr
     write(*,*)  'Mcharge0 ',ik0,ik,ibnd0,ibnd,    mcharge00, abs(mcharge00),mcharge01, abs(mcharge01),mcharge02, abs(mcharge02)
     write(*,*)  'Mcharge3DnoLFAgw    0ki->kf ',ik0,ik,    mcharge1gw, abs(mcharge1gw)
     write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
