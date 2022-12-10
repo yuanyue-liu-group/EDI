@@ -712,8 +712,8 @@ subroutine interp_eps_1d(epsmat_inted,gw_q_g_commonsubset_size,ik0,ik)
                !write(*,*) 'gw3.1.4',iq1
             enddo
             if (ig1==ig2) epsint_q0_tmp1(0)=0.9
-            gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),0)
-            gind_gw_eps2=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig2),0)
+            !gind_gw_eps1=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig1),0)
+            !gind_gw_eps2=gw_epsq0_data%gind_rho2eps_data(gw_epsq0_data%q_g_commonsubset_indinrho(ig2),0)
             epsint_q0_tmp1(0)=gw_epsq0_data%epsmat_full_data(1,gind_gw_eps1,gind_gw_eps2,1,1,1)
             epsint_q0_tmp2(0)=gw_epsq0_data%epsmat_full_data(2,gind_gw_eps1,gind_gw_eps2,1,1,1)
 
