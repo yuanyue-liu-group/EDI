@@ -3,6 +3,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   Use edic_mod, Only : qeh_eps_data,eps_type
   Use edic_mod, Only : dogwfull,dogwdiag,doqeh,do2d,do3d
   Use edic_mod, Only : evc1,evc2
+  Use edic_mod, Only : psic1, psic2
   USE fft_base,  ONLY: dfftp, dffts
   USE wvfct, ONLY: npwx, nbnd, wg, et, g2kin
   USE gvect, ONLY: g
@@ -12,6 +13,13 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   USE cell_base, ONLY:  alat, tpiba,omega
   USE constants, ONLY: tpi, pi
   use edic_mod, only: machine_eps,k0screen_read
+
+  USE fft_interfaces, ONLY : fwfft, invfft
+  USE ions_base,        ONLY : nat, ntyp => nsp, ityp, tau, zv, atm
+  USE cell_base,        ONLY : at, bg, omega, alat, celldm, ibrav
+  USE gvecw,            ONLY : ecutwfc
+  USE gvect,            ONLY : gcutm
+  USE gvecs,            ONLY : dual
 
 
   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
@@ -66,6 +74,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
 
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
+  REAL(dp)::arg,argt,argt2,rs(3)
+  COMPLEX(DP)::phase
 
   write(*,*) 'Start Mcharge Calculation'
   !if(eps_type=='gw')then
@@ -265,7 +275,16 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
  
            !    w_gw(ig1)=w_gw(ig1)+1.0/machine_eps
            !w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff/(lzcutoff*2)
-           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff
+           !deltakG=norm2(g(1:3,ig1)*0-g(1:3,ig2) +xk(1:3,ik0)-xk(1:3,ik))*tpiba
+           !rs=3.168/0.529*( / 0.666666667 , 0.333333333 , 0.06265727744/)
+           rs(1)=1.0/0.529* 0.5*3.168 
+           rs(2)=1.0/0.529* 0.28867513459*3.168 
+           rs(3)=1.0/0.529* 25*0.06265727744
+           arg=(-g(1,ig2) +xk(1,ik0)-xk(1,ik))*tpiba*rs(1)&
+              +(-g(2,ig2) +xk(2,ik0)-xk(2,ik))*tpiba*rs(2)&
+              +(-g(3,ig2) +xk(3,ik0)-xk(3,ik))*tpiba*rs(3)
+           phase=CMPLX(COS(-arg),SIN(-arg),kind=dp)
+           w_gw(ig1)=w_gw(ig1)+epsmat_lindhard(gind_psi2rho_gw(ig1),gind_psi2rho_gw(ig2))*4*pi/(deltakG**2)*q2d_coeff*phase
            !endif
          write(*,*) 'gw_debug W_gw vs q:dk, ig1, g, w',xk(:,ik0)-xk(:,ik),ig1,g(:,ig1),deltakG,w_gw(ig1) ,abs(w_gw(ig1) )
         endif
@@ -276,6 +295,28 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
       endif
     Enddo
     write(*,*) 'w nonzero part number', icount
+
+    !!!!!!!!!!!!!!!!!!!!
+    ! w_gw real space
+    write(*,*) 'w invfft'
+    psic1(1:dffts%nnr) = (0.d0,0.d0)
+    psic1 (dffts%nl (1:ngm ) ) = w_gw (1:ngm )
+    CALL plot_io ('Vck.dat', 'V from w_gw invfft', dfftp%nr1, dfftp%nr2, dfftp%nr3,&
+            dfftp%nr1, dfftp%nr2, dfftp%nr3, nat,    ntyp, ibrav, celldm, at,&
+            gcutm, dual, ecutwfc, 0, atm, ityp, zv, tau, psic1, + 1) 
+    CALL invfft ('Rho', psic1, dffts)
+    write(*,*) 'w invfft done'
+    CALL plot_io ('Vcr.dat', 'V from w_gw invfft', dfftp%nr1, dfftp%nr2, dfftp%nr3,&
+            dfftp%nr1, dfftp%nr2, dfftp%nr3, nat,    ntyp, ibrav, celldm, at,&
+            gcutm, dual, ecutwfc, 0, atm, ityp, zv, tau, psic1, + 1) 
+    write(*,*) 'w(r) write done'
+
+    !CALL plot_io ('Vcr.dat', 'V from w_gw invfft', dfftp%nr1, dfftp%nr2, dfftp%nr3,&
+    !        dfftp%nr1, dfftp%nr2, dfftp%nr3, nat,    ntyp, ibrav, celldm, at,&
+    !        gcutm, dual, ecutwfc, plot_num=0, atm, ityp, zv, tau, psic1, + 1) 
+    
+    ! w_gw real space
+    !!!!!!!!!!!!!!!!!!!!
 
     if (allocated(w_gw_non0)) deallocate(w_gw_non0)
     allocate(w_gw_non0(icount))
@@ -291,11 +332,18 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
          icount=icount+1
          w_gw_non0(icount)=w_gw(ig1)
          g_of_w_gw_non0(:,icount)=g(:,ig1)
+         write(*,*)'w_gw: v_vs_k',g(:,ig1),norm2(g(:,ig1))*tpiba,w_gw(ig1)
       endif
     Enddo
     write(*,*)'nonzero w',w_gw_non0
     write(*,*)'g_of_w_gw_non0',g_of_w_gw_non0
- 
+
+
+          deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
+                      -g(1:2,igk_k(ig2,ik))&
+                      +xk(1:2,ik0)-xk(1:2,ik))*tpiba
+
+
  
 ! get w(g)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -503,8 +551,16 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
              !do iq = 1,ngk(ik0) 
              do iq = 1,size(w_gw_non0)
                if (norm2(g_of_w_gw_non0(:,iq)-dg)<machine_eps) then
-                 mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)
-                 mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)            *q2d_coeff
+           !rs=1.0/0.529*( / 0.5*3.168 , 0.28867513459*3.168 , 25*0.06265727744/)
+           rs(1)=1.0/0.529* 0.5*3.168 
+           rs(2)=1.0/0.529* 0.28867513459*3.168 
+           rs(3)=1.0/0.529* 25*0.06265727744
+           arg=(dg(1) +xk(1,ik0)-xk(1,ik))*tpiba*rs(1)&
+              +(dg(2) +xk(2,ik0)-xk(2,ik))*tpiba*rs(2)&
+              +(dg(3) +xk(3,ik0)-xk(3,ik))*tpiba*rs(3)
+           phase=CMPLX(COS(arg),SIN(arg),kind=dp)
+                 mcharge1gw=mcharge1gw+mcharge0*w_gw_non0(iq)  *phase
+                 mcharge2gw=mcharge2gw+mcharge0*w_gw_non0(iq)  *phase          *q2d_coeff
 !                 write(*,*) 'gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',&
 !                           ig1,ig2,iq,g(:,igk_k(ig1,ik0)),g(:,igk_k(ig2,ik)) ,g(1:3,igk_k(iq,ik0)),w_gw_non0(iq) ,mcharge0,mcharge1gw,mcharge2gw
                endif
