@@ -102,7 +102,10 @@ Module edic_mod
 
   ! epsilon defect potential files
   real(DP),allocatable:: qeh_eps_data (:,:)
+  real(DP),allocatable:: chi_data (:,:)
   CHARACTER(LEN=256) :: qeh_eps_filename='eps.dat'
+  CHARACTER(LEN=256) :: chi_filename='chi.dat'
+  integer :: nchilines, nqxofchi,nqyofchi,nqzofchi 
   CHARACTER(LEN=256) :: gw_epsmat_filename='epsmat.h5'
   CHARACTER(LEN=256) :: gw_eps0mat_filename='eps0mat.h5'
   character(len=256) :: V_d_filename = 'none', Bxc_1_d_filename='none', Bxc_2_d_filename='none', Bxc_3_d_filename='none'

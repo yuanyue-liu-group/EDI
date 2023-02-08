@@ -94,6 +94,7 @@ Program edic
     if(dogwfull .or. dogwdiag) then
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Read BGW dielectric data '
+      call get_chi_data()
       if ( p_rank==0) then
           write(*,*)'gw read 1', p_rank
           call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)

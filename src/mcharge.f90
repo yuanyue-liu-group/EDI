@@ -23,6 +23,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
 
 
   Use edic_mod,   only: gw_epsq1_data,gw_epsq0_data
+  use edic_mod,   only: chi_data  ,nchilines 
+  use edic_mod,   only: nqxofchi,nqyofchi,nqzofchi 
   USE HDF5
  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -77,6 +79,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   REAL(dp)::arg,argt,argt2,rs(3)
   COMPLEX(DP)::phase
 
+  real(DP) :: qchi(3)
+  INTEGER :: qchiidx
+
   write(*,*) 'Start Mcharge Calculation'
   !if(eps_type=='gw')then
   if(dogwfull .or. dogwdiag) then
@@ -108,6 +113,20 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     k0screen=k0screen_read
     write(*,*) 'k0sc',k0screen
 
+
+    do ig= 1, nqxofchi*nqyofchi*nqzofchi
+        !qchi(1)=chi_data(1,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)
+        qchi(:)=chi_data(1,ig)*1.0/nqxofchi*bg(:,1)+&
+                chi_data(2,ig)*1.0/nqyofchi*bg(:,2)+&
+                chi_data(3,ig)*1.0/nqzofchi*bg(:,3)
+        !qchi(:)=qchi(:)*1.0/nqxofchi 
+        if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3))*tpiba))<machine_eps) then
+           qchiidx=ig
+           write(*,*) ig,chi_data(:,ig),xk(1:3,ik0),xk(1:3,ik),qchi(1:3)
+        endif
+    enddo
+    k0screen=chi_data(4,qchiidx)
+    
     interpolate_2d=.false.
     interpolate_smallq1d=.false.
     if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik))*tpiba))<tpiba*(2*3**.5/3.0)*2.0/nqgrid_gw*0.5) then

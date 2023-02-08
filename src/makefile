@@ -37,6 +37,7 @@ EDICSRC = \
   edic.f90\
   init_us_2_sc.f90\
   get_qeh_eps_data.f90\
+  get_chi_data.f90\
   ml-rs.f90\
   mnl-ks.f90\
   mcharge-lfa.f90\
