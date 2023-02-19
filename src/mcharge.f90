@@ -114,18 +114,28 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     write(*,*) 'k0sc',k0screen
 
 
+    qchiidx=1
     do ig= 1, nqxofchi*nqyofchi*nqzofchi
         !qchi(1)=chi_data(1,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)
+        !0.577350 1.154701  
         qchi(:)=chi_data(1,ig)*1.0/nqxofchi*bg(:,1)+&
                 chi_data(2,ig)*1.0/nqyofchi*bg(:,2)+&
                 chi_data(3,ig)*1.0/nqzofchi*bg(:,3)
         !qchi(:)=qchi(:)*1.0/nqxofchi 
-        if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3))*tpiba))<machine_eps) then
+        !write(*,*) 'qchi',qchi(:),bg(:,:),xk(1:3,ik0)-xk(1:3,ik)
+        if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3))*tpiba))<machine_eps   .or. &   
+           abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3)+bg(:,1))*tpiba))<machine_eps   .or. &   
+           abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3)+bg(:,2))*tpiba))<machine_eps   .or. &   
+           abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3)+bg(:,1)+bg(:,2))*tpiba))<machine_eps   .or. &   
+           abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3))*tpiba))<machine_eps ) then
+
            qchiidx=ig
-           write(*,*) ig,chi_data(:,ig),xk(1:3,ik0),xk(1:3,ik),qchi(1:3)
+           write(*,*) ig,chi_data(:,ig),xk(1:3,ik0),xk(1:3,ik),qchi(1:3),'chidat idx'
+        !write(*,*) 'qchi',qchi(:),bg(:,:),xk(1:3,ik0)-xk(1:3,ik)
         endif
     enddo
-    k0screen=chi_data(4,qchiidx)
+    k0screen=abs(chi_data(4,qchiidx))
+    write(*,*) 'qchi k0s',    k0screen,chi_data(:,qchiidx)
     
     interpolate_2d=.false.
     interpolate_smallq1d=.false.
@@ -610,7 +620,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     write(*,*)  'Mcharge3DnoLFAns    0ki->kf ',ik0,ik,    mcharge1, abs(mcharge1)
     write(*,*)  'Mcharge3DnoLFAs     0ki->kf ',ik0,ik,    mcharge2, abs(mcharge2) , 'k0screen', k0screen
     write(*,*)  'Mcharge3DnoLFAes    0ki->kf ',ik0,ik,    mcharge3, abs(mcharge3) , 'epsk', epsk
-    write(*,*)  'Mcharge3DcutnoLFAgw 0ki->kf ',ik0,ik,    mcharge2gw, abs(mcharge2gw)
+    write(*,*)  'Mcharge3DcutnoLFAgw 0ki->kf ',ik0,ik,    mcharge2gw, abs(mcharge2gw),'k0screen',k0screen,'q',deltak_para, & 
+            xk(1:3,ik0),xk(1:3,ik)
+
     write(*,*)  'Mcharge3DcutnoLFAns 0ki->kf ',ik0,ik,    mcharge4, abs(mcharge4)
     write(*,*)  'Mcharge3DcutnoLFAs  0ki->kf ',ik0,ik,    mcharge5, abs(mcharge5) , 'k0screen', k0screen
     write(*,*)  'Mcharge3DcutnoLFAes 0ki->kf ',ik0,ik,    mcharge6, abs(mcharge6) , 'epsk', epsk
