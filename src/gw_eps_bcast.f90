@@ -231,7 +231,8 @@ subroutine gw_eps_bcast(p_rank,p_source,gw_,gid,my_mpi_int,my_mpi_dp)
   endif
   write(*,*)'gw read 5.3 rank shape epsmat_full', p_rank,shape(gw_%epsmat_full_data )
   CALL MPI_BCAST( gw_%epsmat_full_data, datasize, my_MPI_dp,p_source, gid, ierr )
-  !!write(*,*)'gw read 5.3 rank epsmat_full', p_rank,gw_%epsmat_full_data 
+  write(*,*)'gw read 5.3 rank shape epsmat_full done', p_rank,shape(gw_%epsmat_full_data )
+  !write(*,*)'gw read 5.3 rank epsmat_full', p_rank,gw_%epsmat_full_data 
   
   
   

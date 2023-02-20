@@ -74,6 +74,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   real(dp)::q1(3)
   logical:: interpolate_2d,interpolate_smallq1d=.false.
 
+  logical:: write_vgw_r=.false.
+
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
   REAL(dp)::arg,argt,argt2,rs(3)
@@ -327,6 +329,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
 
     !!!!!!!!!!!!!!!!!!!!
     ! w_gw real space
+    if(write_vgw_r)then
     write(*,*) 'w invfft'
     psic1(1:dffts%nnr) = (0.d0,0.d0)
     psic1 (dffts%nl (1:ngm ) ) = w_gw (1:ngm )
@@ -344,6 +347,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     !        dfftp%nr1, dfftp%nr2, dfftp%nr3, nat,    ntyp, ibrav, celldm, at,&
     !        gcutm, dual, ecutwfc, plot_num=0, atm, ityp, zv, tau, psic1, + 1) 
     
+    endif
     ! w_gw real space
     !!!!!!!!!!!!!!!!!!!!
 

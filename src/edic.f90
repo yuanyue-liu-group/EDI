@@ -103,14 +103,23 @@ Program edic
  
       write(*,*)'gw read 5 rank', p_rank,gw_epsq0_data%ng_data,MPI_comm_world 
       call gw_eps_bcast(p_rank,0,gw_epsq1_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
+      write(*,*)'gw read 5 rank eps0mat done', p_rank,gw_epsq0_data%ng_data,MPI_comm_world 
       call gw_eps_bcast(p_rank,0,gw_epsq0_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
-      write(*,*)'gw read 5 rank', p_rank,gw_epsq0_data%ng_data 
+      ! if wait here on anvil: mem out
+      write(*,*)'gw read 5 rank epsmat done', p_rank,gw_epsq0_data%ng_data 
+      call flush(6)
    
       call gw_eps_init(gw_epsq1_data)
       call gw_eps_init(gw_epsq0_data)
+      write(*,*)'gw init 5 rank', p_rank,gw_epsq0_data%ng_data 
+      call flush(6)
 
       call get_gind_rhoandpsi_gw(gw_epsq1_data)
       call get_gind_rhoandpsi_gw(gw_epsq0_data)
+      write(*,*)'gw ind 5 rank', p_rank,gw_epsq0_data%ng_data 
+      call flush(6)
+      write (*,"(/A55/)") 'Read BGW dielectric data '
+      write(*,"(///A56)")'----------------------------'
     endif
   
   endif
@@ -171,9 +180,11 @@ Program edic
   allocate(psic3(dfftp%nnr))
   allocate(psic4(dfftp%nnr))
 
+      call flush(6)
   write(*,"(///A56)")'----------------------------'
   write (*,"(/A55/)") 'Start M calculation k loop'
   write(*,"(A56//)")'----------------------------'
+      call flush(6)
 
   call  mpi_barrier(mpi_comm_world,ierr)
   ! k pair parralellization
