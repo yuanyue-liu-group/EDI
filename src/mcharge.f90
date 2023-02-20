@@ -368,9 +368,9 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     write(*,*)'g_of_w_gw_non0',g_of_w_gw_non0
 
 
-          deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
-                      -g(1:2,igk_k(ig2,ik))&
-                      +xk(1:2,ik0)-xk(1:2,ik))*tpiba
+    !      deltakG=norm2(g(1:2,igk_k(ig1,ik0))&
+    !                  -g(1:2,igk_k(ig2,ik))&
+    !                  +xk(1:2,ik0)-xk(1:2,ik))*tpiba
 
 
  
