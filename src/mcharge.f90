@@ -137,7 +137,20 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
         endif
     enddo
     k0screen=abs(chi_data(4,qchiidx))
+
     write(*,*) 'qchi k0s',    k0screen,chi_data(:,qchiidx)
+
+    !!!!!!!!!!!!!!!!!!
+    ! iso m
+    if (norm2((xk(1:3,ik0)-xk(1:3,ik)))<10) then
+        qchiidx=int(norm2((xk(1:3,ik0)-xk(1:3,ik)))/1.15*144)+2
+    endif
+    k0screen=abs(chi_data(4,qchiidx))
+    write(*,*) 'qchi k0s qchiidx', qchiidx,    k0screen,chi_data(:,qchiidx)
+    k0screen=abs(chi_data(4,2))*(1-(norm2((xk(1:3,ik0)-xk(1:3,ik))))/0.06*0.3)
+    write(*,*) 'qchi k0s qchiidx', qchiidx,    k0screen,chi_data(:,qchiidx)
+    ! iso m
+    !!!!!!!!!!!!!!!!!!
     
     interpolate_2d=.false.
     interpolate_smallq1d=.false.
@@ -500,8 +513,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
             mcharge0=conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
             if (norm2(g(:,igk_k(ig1,ik0))-g(:,igk_k(ig2,ik)))<machine_eps) then
-                 write(*,*)'evc1',evc1(ig1,ibnd0),evc1(ig1+npwx,ibnd0),npwx,ngk(ik0)
-                 write(*,*)'evc2',evc2(ig2,ibnd),evc2(ig2+npwx,ibnd),npwx,ngk(ik)
+                 !write(*,*)'evc1',evc1(ig1,ibnd0),evc1(ig1+npwx,ibnd0),npwx,ngk(ik0)
+                 !write(*,*)'evc2',evc2(ig2,ibnd),evc2(ig2+npwx,ibnd),npwx,ngk(ik)
                  mcharge00=mcharge00+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) &
                              +conjg(evc1(ig1+npwx,ibnd0))*evc2(ig2+npwx,ibnd)
                  mcharge01=mcharge01+conjg(evc1(ig1,ibnd0))*evc2(ig2,ibnd) 
@@ -601,7 +614,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
          endif
  
       Enddo
-      write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1,mcharge1gw,mcharge2gw
+      !write(*,*) 'mcharge gw_debug W in M, ig1,ig2,iq,g1,g2,q,w_gw(iq)',ig1,mcharge1gw,mcharge2gw
     Enddo
     mcharge1gw=mcharge1gw/omega
     mcharge2gw=mcharge2gw/omega

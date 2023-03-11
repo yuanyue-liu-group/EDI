@@ -226,14 +226,14 @@ Program edic
       endif
       
       if (noncolin .and. lspinorb .and. calcmlocal)then
-          V_nc(:, 1) =     V_d%pot(:) - V_d_shift 
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          V_nc(:, 1) =     V_p%pot(:) - V_p_shift
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          V_nc(:, 1) =     V_d%pot(:) 
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          V_nc(:, 1) =     V_p%pot(:)
-          call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          !V_nc(:, 1) =     V_d%pot(:) - V_d_shift 
+          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          !V_nc(:, 1) =     V_p%pot(:) - V_p_shift
+          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          !V_nc(:, 1) =     V_d%pot(:) 
+          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
+          !V_nc(:, 1) =     V_p%pot(:)
+          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
           write (*,*)  'Mifl',mlocal,mnonlocal0,mnonlocal1
       endif
