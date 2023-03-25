@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+
+
+    <meta charset="UTF-8">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EDI software | A first principle software that calculates Electron-Defect Interaction.</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="EDI software" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A first principle software that calculates Electron-Defect Interaction." />
+<meta property="og:description" content="A first principle software that calculates Electron-Defect Interaction." />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="EDI software" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EDI software" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"A first principle software that calculates Electron-Defect Interaction.","headline":"EDI software","name":"EDI software","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  <link rel="stylesheet" type="text/css" href="stylesheets/topbar.css" media="screen">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+ <div class="topnav">
+  <a class="active" href="#home">Home</a>
+  <a href="./news.html">News</a>
+  <a href="https://sites.utexas.edu/yuanyue-liu/">Team</a>
+  <a href="https://edi-doc.readthedocs.io/">Doc</a>
+  <a href="https://github.com/zhongcanxiao/edi-doc/issues">Contact</a>
+</div> 
+    <a id="skip-to-content" href="#content">Skip to the content.</a>
+
+    <header class="page-header" role="banner">
+      <h1 class="project-name">EDI software</h1>
+      <h2 class="project-tagline">A first principle software that calculates Electron-Defect Interaction.</h2>
+      
+      
+        <a href="" class="btn">View on GitHub</a>
+        <a href="" class="btn">Download .zip</a>
+        <a href="" class="btn">Download .tar.gz</a>
+      
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      <p>To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state. 
+This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure. 
+EDI(electron-defect interaction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials. 
+It uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics. 
+The current distribution of EDI focuses on electron-defect (e-d) interactions and related transport properties, including electrical conductivity, scattering rate, and mobility. 
+It also includes routines for computing spin-related infromation. 
+The transport module enables accurate calculations of charge transport in a wide range of functional materials. 
+The code is efficient with MPI parallelization, and scales linearly with the supercell size, thus only limited by the DFT code.</p>
+
+<h1 id="capabilities">Capabilities</h1>
+
+<ul>
+  <li>
+    <p>Calculate electron-defect scattering matrix element</p>
+  </li>
+  <li>
+    <p>Find reduced k-point sampling using triangular integral algorithm</p>
+  </li>
+  <li>
+    <p>Calculate carrier mobility limited by both neutral and charged defect as a function of carrier concentration</p>
+
+    <p style="text-align: center;"><img src="./figs/fig1.1.png" alt="fig1" height="394px" width="429px" /></p>
+  </li>
+</ul>
+
+<h1 id="performance">Performance</h1>
+
+<p>EDI uses optimal algorithm to calculate different part of scattering matrix element, giving the optimal performance of accuracy and effeciency.
+The scalability of EDI is very good for system size. 
+The calcualtion cost scales linearly with the volum of super cell, making it capable of calculating large systems easily.
+Calculation of matrix element is parallelizede over k point pairs. 
+EDI could easily run on large HPCs and utilize the full capacity.</p>
+
+<h1 id="reference">Reference</h1>
+<p>The reference could be found at <a href="./another-page.html">arxiv</a>.</p>
+
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="">EDI</a> is maintained at <a href=""> Yuanyue Liu Group </a>.</span>
+      </footer>
+    </main>
+  </body>
+</html>
