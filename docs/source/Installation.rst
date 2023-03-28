@@ -43,7 +43,7 @@ To compiled QE with hdf5 support:
    $ make --with-hdf5 pw
 
 .. note::
-When encountering problem compiling hdf5, try to use ``h5fc -show`` to find hdf5 library.
+    When encountering problem compiling hdf5, try to use ``h5fc -show`` to find hdf5 library.
 
 Compilation
 ------------
@@ -86,14 +86,14 @@ To do this you need to have the following available on your machine:
 
 * sphinx
 
-* pdflatex (to render equations)
+* pdflatex
 
 Then type:
 
 .. code-block:: console
 
    $ cd docs
-   $ make pdflatex
+   $ make latexpdf
 
 
 

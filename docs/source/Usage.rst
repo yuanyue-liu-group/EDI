@@ -47,3 +47,4 @@ To calcualted the transport mobility, the postprocessing script mu.py could be u
     $ python mu.py 
 
 
+Out put data containing the transport properties, including scattering rate and mobility, will be written automatically.

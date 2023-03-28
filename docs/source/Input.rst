@@ -5,7 +5,7 @@ Input
 
 The fortran namelist format is used for the input of EDI.
 The default input file name is `calcmdefect.dat`
-Required other data fils should be specified in the input file.
+Required data fils should be specified in the input file.
 Different calculation options are set in input file as well.
 Below is the detailed discussion of the input variables and their meanings.
 
@@ -42,7 +42,7 @@ calcmcharge                 calculate charged defect
 mcharge_dolfa               use LFA approximation in charged calculation
 qeh_eps_filename            dielectric function file from QEH
 doqeh                       use QEH dielectric function 
-dogwfull                    use BGW dielectric function
+dogw                        use BGW dielectric function
 k0screen_read               Lindhard model carrier screening
 gw_epsmat_filename          BGW dielectric function file for grid q
 gw_eps0mat_filename          BGW dielectric function file for small q
@@ -80,12 +80,12 @@ An example input file is shown below:
     mcharge_dolfa=.true.
     qeh_eps_filename='./eps.dat'
     eps_type='gw'
-    eps_type='qeh'
-    eps_type='tf'
-    doqeh=.true.
-    dogwfull=.true.
-    dogwdiag=.true.
-    k0screen_read=0.27
+    dogw=.true.
+    chidat='./chi.dat'
+    !eps_type='qeh'
+    !eps_type='tf'
+    !doqeh=.true.
+    !k0screen_read=0.27
     gw_epsmat_filename='./epsmat.h5'
     gw_eps0mat_filename='./eps0mat.h5'
     /
