@@ -37,7 +37,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !REAL(dp) ,intent(in)::k0screen
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff
+  REAL(dp):: kbT,deltak,deltakG0,deltakG, qxy,qz,lzcutoff,qcut
   INTEGER:: icount,jcount,kcount
   real(DP):: mscreen, rmod
   complex(DP),intent(inout):: mcharge
@@ -115,6 +115,30 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     k0screen=k0screen_read
     write(*,*) 'k0sc',k0screen
 
+!    !do ig= 1, nqxofchi*nqyofchi*nqzofchi
+!    !    !qchi(1)=chi_data(1,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)
+!    !    qchi(:)=chi_data(1,ig)*1.0/nqxofchi*bg(:,1)+&
+!    !            chi_data(2,ig)*1.0/nqyofchi*bg(:,2)+&
+!    !            chi_data(3,ig)*1.0/nqzofchi*bg(:,3)
+!    !    !qchi(:)=qchi(:)*1.0/nqxofchi 
+!    !    if(abs(norm2((xk(1:3,ik0)-xk(1:3,ik)-qchi(1:3))*tpiba))<machine_eps) then
+!    !       qchiidx=ig
+!    !       write(*,*) ig,chi_data(:,ig),xk(1:3,ik0),xk(1:3,ik),qchi(1:3)
+!    !    endif
+!    !enddo
+!    !k0screen=chi_data(4,qchiidx)
+!
+!
+!
+!    deltak=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
+!    qcut=tpi/alat*0.1
+!    write(*,*)'qcut',qcut
+!    if (deltak<qcut*0.95)then
+!        k0screen=k0screen_read*(deltak-qcut)*(-1/qcut)
+!    else
+!        k0screen=k0screen_read*0.05
+!    endif
+ 
 
     qchiidx=1
     do ig= 1, nqxofchi*nqyofchi*nqzofchi
