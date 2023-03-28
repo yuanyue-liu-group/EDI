@@ -40,6 +40,7 @@ jobs:
         with:
           source: ./web
           destination: ./web/_site
+          path: _site/
 
   # Deployment job
   deploy:
