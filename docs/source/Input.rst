@@ -3,6 +3,52 @@ Input
 
 .. _installation:
 
+The fortran namelist format is used for the input of EDI.
+The default input file name is `calcmdefect.dat`
+Required other data fils should be specified in the input file.
+Different calculation options are set in input file as well.
+Below is the detailed discussion of the input variables and their meanings.
+
+
+Variables
+------------
+
+The meaning of all variables are listed below in the table:
+
+====================      ======================================
+variable                     meaning                            
+====================      ======================================
+prefix                       qe prefix
+outdir                       qe outdir
+lvacalign                    vacuum aligment
+vac_idx                     vacuum alignment location
+lcorealign                   core alignment
+core_v_d                    core alignment value for defect
+core_v_p                    core alignment value for pristine
+wt_filename                  weight file for mobility calculation
+noncolin                     non-colinear calculation
+lspinorb                     spin-orbit calculation
+calcmlocal                   calculate local part M
+calcmnonlocal                   calculate non-local part M
+V_d_filename                 defect system local potential 
+Bxc_1_d_filename             defect system magnetic field along x
+Bxc_2_d_filename             defect system magnetic field along y
+Bxc_3_d_filename             defect system magnetic field along z
+V_p_filename                 pristine system local potential
+Bxc_1_p_filename             pristine system magnetic field along x
+Bxc_2_p_filename             pristine system magnetic field along y
+Bxc_3_p_filename             pristine system magnetic field along z
+calcmcharge                 calculate charged defect
+mcharge_dolfa               use LFA approximation in charged calculation
+qeh_eps_filename            dielectric function file from QEH
+doqeh                       use QEH dielectric function 
+dogwfull                    use BGW dielectric function
+k0screen_read               Lindhard model carrier screening
+gw_epsmat_filename          BGW dielectric function file for grid q
+gw_eps0mat_filename          BGW dielectric function file for small q
+====================      ======================================
+
+
 An example input file is shown below:
 
 .. code-block:: console
@@ -43,46 +89,4 @@ An example input file is shown below:
     gw_epsmat_filename='./epsmat.h5'
     gw_eps0mat_filename='./eps0mat.h5'
     /
-
-
-Variables
-------------
-
-The detailed meaning of all variables are listed below in the table:
-
-====================      ======================================
-variable                     meaning                            
-====================      ======================================
-prefix                       qe prefix
-outdir                       qe outdir
-lvacalign                    vacuum aligment
-vac_idx                     vacuum alignment location
-lcorealign                   core alignment
-core_v_d                    core alignment value for defect
-core_v_p                    core alignment value for pristine
-wt_filename                  weight file
-klist_filename               k point list file
-ev_filename                  
-noncolin                     non-colinear calculation
-lspinorb                     spin-orbit calculation
-calcmlocal                   calculate local part M
-calcmnonlocal                   calculate non-local part M
-V_d_filename                 defect system local potential 
-Bxc_1_d_filename             defect system magnetic field
-Bxc_2_d_filename             defect system magnetic field
-Bxc_3_d_filename             defect system magnetic field
-V_p_filename                 pristine system local potential
-Bxc_1_p_filename             pristine system magnetic field
-Bxc_2_p_filename             pristine system magnetic field
-Bxc_3_p_filename             pristine system magnetic field
-calcmcharge                 charged defect
-mcharge_dolfa               LFA approximation
-qeh_eps_filename            dielectric function file from QEH
-doqeh                       use QEH dielectric function 
-dogwfull                    use BGW dielectric function
-k0screen_read               Lindhard model carrier screening
-gw_epsmat_filename          BGW dielectric function file
-gw_eps0mat_filename          BGW dielectric function file
-====================      ======================================
-
 
