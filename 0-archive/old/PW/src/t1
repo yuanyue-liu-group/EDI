@@ -1,0 +1,171 @@
+      SUBROUTINE calcmdefect_mnl_0(ibnd0,ibnd,ik0,ik)
+    !      USE becmod, ONLY: becp,becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb, calbec, allocate_bec_type, deallocate_bec_type
+          USE cell_base,       ONLY : alat, ibrav, omega, at, bg, celldm, wmass
+    
+          USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
+          USE becmod, ONLY: becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb 
+    
+          INTEGER :: ibnd, ik, ik0,ibnd0
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!! initialization
+    nkb_perturb=0
+                   DO nt_perturb = 1, ntyp_perturb
+                      DO na_perturb = 1, nat_perturb
+                         IF(ityp_perturb (na_perturb) == nt_perturb)THEN
+                             nkb_perturb = nkb_perturb + nh (nt_perturb)
+                         ENDIF
+                      ENDDO
+                   ENDDO
+    
+    
+          CALL allocate_bec_type ( nkb, nbnd, becp )
+          CALL allocate_bec_type ( nkb, nbnd, becp1 )
+          CALL allocate_bec_type ( nkb, nbnd, becp2 )
+    !write (*,*) '1 ', shape(vkb_perturb),'becp',shape(becp1%k),nkb,nbnd
+          CALL allocate_bec_type ( nkb_perturb, nbnd, becp_perturb )
+          CALL allocate_bec_type ( nkb_perturb, nbnd, becp1_perturb )
+          CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
+    !write (*,*) '1 ', shape(vkb_perturb),'becp',shape(becp1_perturb%k),nkb_perturb,nbnd
+    
+      ALLOCATE(vkb_perturb(npwx,nkb_perturb))
+            CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
+    do ik=1,nk
+    
+            CALL get_buffer ( evc, nwordwfc, iunwfc, ik )
+            CALL save_buffer ( evc, nwordwfc, iuntmp, ik )
+    write (*,*) "save" ,ik
+    enddo
+            CALL close_buffer ( iuntmp, 'KEEP' )
+            CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
+    !call flush(iuntmp)
+    write (*,*) "size evc evc1:" , size(evc),size(evc1)
+    write (*,*) "s nnr:" , dffts%nnr
+    write (*,*) "p nnr:" , dfftp%nnr
+    !write (*,*) "ngk(4):" ,  igk_k(4)
+    !write (*,*) "ngk(14):" , igk_k(14)
+    !write (*,*) "ngk(29):" , igk_k(29)
+    
+    !!!!!! initialization
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    
+    
+    mnl=0
+    
+    
+                IF( nks > 1 ) CALL get_buffer (evc, nwordwfc, iunwfc, ik )
+    
+         npw = ngk(ik)
+                CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+                CALL calbec ( npw, vkb, evc, becp )
+    
+            CALL get_buffer ( evc1, nwordwfc, iunwfc, ik0 )
+            CALL get_buffer ( evc2, nwordwfc, iunwfc, ik )
+    
+    
+    
+    
+    !!! Vnl: Ry
+    
+    enl1=0
+    !            CALL calbec ( npw, vkb, evc, becp )
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!pp
+    
+    !DO na = 1, nat
+    !           ! ordering: first all betas for atoms of type 1
+    !           !           then  all betas for atoms of type 2  and so on
+    !           IF (ityp(na) == nt) THEN
+    !              !
+    !              arg = ( q_(1) * tau(1,na) + &
+    !                      q_(2) * tau(2,na) + &
+    !                      q_(3) * tau(3,na) ) * tpi
+    !              phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
+    !              !
+    !              DO ig = 1, realblocksize
+    !                 ig_orig = (iblock-1)*blocksize+ig
+    !                 sk(ig) = eigts1(mill(1,igk_(ig_orig)), na) * &
+    !                          eigts2(mill(2,igk_(ig_orig)), na) * &
+    !                          eigts3(mill(3,igk_(ig_orig)), na)
+    !              ENDDO
+    !              !
+    !              DO ih = 1, nh(nt)
+    !                 jkb = jkb + 1
+    !                 pref = (0.d0, -1.d0)**nhtol(ih, nt) * phase
+    !                 DO ig = 1, realblocksize
+    !                    vkb_((iblock-1)*blocksize+ig, jkb) = vkb1(ig,ih) * sk(ig) * pref
+    !                 ENDDO
+    !                 ! clean up garbage in the last block
+    !                 IF (iblock == numblock) THEN
+    !                    DO ig = npw_+1, npwx
+    !                       vkb_(ig, jkb) = (0.0_DP, 0.0_DP)
+    !                    ENDDO
+    !                 ENDIF
+    !              ENDDO
+    !              !
+    !           ENDIF
+    !           !
+    !        ENDDO
+    
+    !!! !!!!!!!!!!
+    
+                !CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+    
+    write (*,*) 'primitive', npw, igk_k(1,ik), xk (1, ik)
+             npw = ngk(ik0)
+            CALL get_buffer ( evc1, nwordwfc, iuntmp, ik0 )
+            CALL get_buffer ( evc2, nwordwfc, iuntmp, ik )
+                CALL init_us_2 (npw, igk_k(1,ik0), xk (1, ik0), vkb)
+                CALL calbec ( npw, vkb, evc1, becp1 )
+             npw = ngk(ik)
+                CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+                CALL calbec ( npw, vkb, evc2, becp2 )
+                   ijkb0 = 0
+                   DO nt = 1, ntyp
+                      DO na = 1, nat
+                        arg=(xk(1,ik)*tau(1,na)+xk(2,ik)*tau(2,na)+xk(3,ik)*tau(3,na))*tpi/alat
+                        arg=arg-(xk(1,ik0)*tau(1,na)+xk(2,ik0)*tau(2,na)+xk(3,ik0)*tau(3,na))*tpi/alat
+                  phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
+                  phase = 1
+                         IF(ityp (na) == nt)THEN
+                            DO ih = 1, nh (nt)
+                               ikb = ijkb0 + ih
+                               IF(gamma_only)THEN
+                                  enl1=enl1+becp1%r(ikb,ibnd0)*becp2%r(ikb,ibnd) &
+                                     * dvan(ih,ih,nt)
+                               ELSE
+                                  enl1=enl1+conjg(becp1%k(ikb,ibnd0))*becp2%k(ikb,ibnd) &
+                                     * dvan(ih,ih,nt)
+                               ENDIF
+                               DO jh = ( ih + 1 ), nh(nt)
+                                  jkb = ijkb0 + jh
+                                  IF(gamma_only)THEN
+                                     enl1=enl1 + &
+                                        (becp1%r(ikb,ibnd0)*becp2%r(jkb,ibnd)+&
+                                           becp1%r(jkb,ibnd0)*becp2%r(ikb,ibnd))&
+                                         * dvan(ih,jh,nt)
+                                  ELSE
+                                     enl1=enl1 + &
+                                        (conjg(becp1%k(ikb,ibnd0))*becp2%k(jkb,ibnd)+&
+                                           conjg(becp1%k(jkb,ibnd0))*becp2%k(ikb,ibnd))&
+                                         * dvan(ih,jh,nt) *phase
+                                  ENDIF
+    
+                               ENDDO
+    
+                            ENDDO
+                            ijkb0 = ijkb0 + nh (nt)
+                         ENDIF
+                      ENDDO
+                   ENDDO
+    mnltot=mnltot+enl1*wg(ibnd,ik)!
+     
+    !if(ibnd .eq.9) 
+    write (stdout,*) 'ik0,ik,ibnd: original', ik0,ik, ibnd, 'mnl', enl1,'abs mnl', abs(enl1),'mnltot', mnltot
+    write (stdout,*) 'modmnl ik0,ik original', ik0,ik, abs(enl1)
+    !!! Vnl
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Mnl
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

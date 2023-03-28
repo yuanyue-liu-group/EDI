@@ -1,0 +1,1205 @@
+diff --git a/Modules/becmod.f90 b/Modules/becmod.f90
+index a633d32f4..ed06f2cf1 100644
+--- a/Modules/becmod.f90
++++ b/Modules/becmod.f90
+@@ -38,6 +38,11 @@ MODULE becmod
+   END TYPE bec_type
+   !
+   TYPE (bec_type) :: becp
++  TYPE (bec_type) :: becp1  ! <beta|psi>
++  TYPE (bec_type) :: becp2  ! <beta|psi>
++  TYPE (bec_type) :: becp_perturb  ! <beta|psi>
++  TYPE (bec_type) :: becp1_perturb  ! <beta|psi>
++  TYPE (bec_type) :: becp2_perturb  ! <beta|psi>
+   !! \(\langle\text{beta}|\text{psi}\rangle\)
+   !
+   PRIVATE
+@@ -55,6 +60,7 @@ MODULE becmod
+   END INTERFACE
+   !
+   PUBLIC :: bec_type, becp, allocate_bec_type, deallocate_bec_type, calbec, &
++            becp1,becp2,becp_perturb,becp1_perturb,becp2_perturb, &
+             beccopy, becscal, is_allocated_bec_type
+   !
+ CONTAINS
+diff --git a/Modules/environment.f90 b/Modules/environment.f90
+index f8b7175b5..b0b636550 100644
+--- a/Modules/environment.f90
++++ b/Modules/environment.f90
+@@ -50,6 +50,7 @@ CONTAINS
+ 
+   SUBROUTINE environment_start( code )
+ 
++  USE mp_pools, ONLY : npool, my_pool_id
+     CHARACTER(LEN=*), INTENT(IN) :: code
+ 
+     LOGICAL           :: exst, debug = .false.
+@@ -58,6 +59,7 @@ CONTAINS
+     CHARACTER(LEN=3)           :: env_maxdepth
+     INTEGER :: ios, crashunit, max_depth 
+ 
++      write(*,*)' 1.1pool_id',my_pool_id
+ 
+     ! ... The Intel compiler allocates a lot of stack space
+     ! ... Stack limit is often small, thus causing SIGSEGV and crash
+@@ -67,6 +69,7 @@ CONTAINS
+ #if defined(__INTEL_COMPILER)
+     CALL remove_stack_limit ( )
+ #endif
++      write(*,*)' 1.2pool_id',my_pool_id
+     ! ... use ".FALSE." to disable all clocks except the total cpu time clock
+     ! ... use ".TRUE."  to enable clocks
+ #if defined(__TRACE)
+@@ -88,6 +91,7 @@ CONTAINS
+     nd_nmbr = ' '
+ #endif
+ 
++      write(*,*)' 1.3pool_id',my_pool_id
+     IF( meta_ionode ) THEN
+ 
+        ! ...  search for file CRASH and delete it
+@@ -106,15 +110,18 @@ CONTAINS
+        ! ... one processor per image (other than meta_ionode)
+        ! ... or, for debugging purposes, all processors,
+        ! ... open their own standard output file
+-!#define DEBUG
++#define DEBUG
++      write(*,*)' 1.4pool_id',my_pool_id
+ #if defined(DEBUG)
+        debug = .true.
+ #endif
++      write(*,*)' 1.41pool_id',my_pool_id
+        IF (me_image == root_image .OR. debug ) THEN
+           uname = 'out.' // trim(int_to_char( my_image_id )) // '_' // &
+                trim(int_to_char( me_image))
+           OPEN ( unit = stdout, file = TRIM(uname),status='unknown')
+        ELSE
++      write(*,*)' 1.41pool_id',my_pool_id
+ #if defined(_WIN32)
+           OPEN ( unit = stdout, file='NUL:', status='unknown' )
+ #else
+@@ -135,6 +142,7 @@ CONTAINS
+ #if defined(__HDF5)
+     CALL initialize_hdf5()
+ #endif
++      write(*,*)' 1.5pool_id',my_pool_id
+     !
+     WRITE(stdout,'(5x, I0, A, A)') get_mem_avail()/1024, &
+                 &" MiB available memory on the printing compute node ", &
+diff --git a/Modules/input_parameters.f90 b/Modules/input_parameters.f90
+index 6f2c7fc26..58667c161 100644
+--- a/Modules/input_parameters.f90
++++ b/Modules/input_parameters.f90
+@@ -1469,6 +1469,25 @@ MODULE input_parameters
+ !  END manual
+ ! ----------------------------------------------------------------------
+ 
++!=----------------------------------------------------------------------------=!
++!  CALCMCONTROL Namelist Input Parameters
++!=----------------------------------------------------------------------------=!
++
++          CHARACTER(LEN=256) :: vperturb_filename='vloc.dat'
++          CHARACTER(LEN=256) :: eps_filename='eps.dat'
++          INTEGER :: kpoint_initial 
++          INTEGER :: kpoint_final 
++          INTEGER :: bnd_initial 
++          INTEGER :: bnd_final 
++          LOGICAL :: calcmlocal = .false.
++          LOGICAL :: calcmnonlocal = .false.
++          LOGICAL :: calcmcharge = .false.
++          NAMELIST / calcmcontrol / vperturb_filename,eps_filename, kpoint_initial, kpoint_final, &
++                                   bnd_initial, bnd_final, calcmlocal,calcmnonlocal,calcmcharge
++
++!  END manual
++! ----------------------------------------------------------------------
++!
+ 
+ ! ----------------------------------------------------------------
+ ! BEGIN manual
+diff --git a/Modules/io_base.f90 b/Modules/io_base.f90
+index b236e4ca8..ce08b2da6 100644
+--- a/Modules/io_base.f90
++++ b/Modules/io_base.f90
+@@ -218,6 +218,7 @@ MODULE io_base
+       USE mp_wave,     ONLY : splitwf, splitkg
+       USE mp,          ONLY : mp_bcast, mp_size, mp_rank, mp_max
+       !
++use hdf5
+ #if defined (__HDF5)
+       USE  qeh5_base_module
+ #endif
+@@ -251,14 +252,18 @@ MODULE io_base
+       TYPE (qeh5_file)    ::   h5file
+       TYPE (qeh5_dataset) ::   h5dset_wfc, h5dset_mill
+       CHARACTER(LEN=8)    ::   char_buf 
++INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
+ #endif  
+       !
+       me_in_group     = mp_rank( intra_group_comm )
+       nproc_in_group  = mp_size( intra_group_comm )
+       ionode_in_group = ( me_in_group == root_in_group )
++!write(*,*) '1.1 ionode',ionode_in_group
+       !
+       igwx = MAXVAL( igl(1:ngwl) )
++!write(*,*) '1.1 igl',igl
+       CALL mp_max( igwx, intra_group_comm )
++!write(*,*) '1.1 igwx',igwx
+       !
+       IF ( ionode_in_group ) THEN
+ #if !defined __HDF5
+@@ -266,6 +271,7 @@ MODULE io_base
+                 FORM='unformatted', STATUS = 'old', IOSTAT = ierr_)
+ #else
+          CALL qeh5_openfile( h5file, TRIM(filename)//'.hdf5', ACTION = 'read', ERROR = ierr_)
++!write(*,*) '1.1 ierr_ openfile        ', ierr_
+ #endif
+       END IF
+       CALL mp_bcast( ierr_, root_in_group, intra_group_comm )
+@@ -279,23 +285,42 @@ MODULE io_base
+       !
+       IF ( ionode_in_group ) THEN
+ #if defined  __HDF5
++!
++!! qeh5_module bug
++!        CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )
++!write(*,*) 'ierr        H5T_NATIVE_INTEGER',ierr,H5T_NATIVE_INTEGER, mem_type,sizeof(H5T_NATIVE_INTEGER), sizeof(mem_type)
++!! qeh5_module bug
++!
++
++
+          CALL qeh5_read_attribute (h5file%id, "ik", ik_)
++!write(*,*)  ' 1.1 h5, ik_',  ik_
+          CALL qeh5_read_attribute (h5file%id, "xk",xk, RANK =1, DIMENSIONS = [3])
++!write(*,*)  ' 1.1 h5, xk',  xk
+          CALL qeh5_read_attribute (h5file%id, "ispin", ispin)
++!write(*,*)  ' 1.1 h5, ispin',  ispin
+          CALL qeh5_read_attribute (h5file%id, "gamma_only", char_buf, MAXLEN = len(char_buf) )
++!write(*,*)  ' 1.1 h5, char_buf', char_buf
+          IF (TRIM(char_buf) =='.TRUE.' .OR. TRIM(char_buf)=='.true.') THEN 
+             gamma_only = .TRUE. 
+          ELSE 
+             gamma_only = .FALSE.
+          END IF
++!write(*,*)  ' 1.1 h5, gamma_only', gamma_only
+          CALL qeh5_read_attribute (h5file%id, "scale_factor",scalef)
++!write(*,*)  ' 1.1 h5, scalef',    scalef
+          CALL qeh5_read_attribute (h5file%id, "ngw", ngw)
++!write(*,*)  ' 1.1 h5, ngw',    ngw
+          CALL qeh5_read_attribute (h5file%id, "nbnd", nbnd_)
++!write(*,*)  ' 1.1 h5, nbnd_',    nbnd_
+          CALL qeh5_read_attribute (h5file%id, "npol",npol)
++!write(*,*)  ' 1.1 h5, npol',    npol
+          CALL qeh5_read_attribute (h5file%id, "igwx",igwx_)
++!write(*,*)  ' 1.1 h5, igwx',    igwx_
+ #else
+          READ (iuni) ik_, xk, ispin, gamma_only, scalef
+          READ (iuni) ngw, igwx_, npol, nbnd_
++!write(*,*)  ' 1.1 dat, npol',    npol
+ #endif
+       END IF
+       !
+@@ -310,6 +335,7 @@ MODULE io_base
+       CALL mp_bcast( nbnd_,   root_in_group, intra_group_comm )
+       !
+       npwx = SIZE( wfc, 1 ) / npol
++!write(*,*)  '    1.2  npwx , SIZE( wfc, 1 ) , npol',      npwx , SIZE( wfc, 1 ) , npol
+       !
+       IF ( ionode_in_group ) THEN 
+          ALLOCATE( itmp( 3,MAX( igwx_, igwx ) ) )
+diff --git a/Modules/plugin_arguments.f90 b/Modules/plugin_arguments.f90
+index 56bddfa16..19db8b024 100644
+--- a/Modules/plugin_arguments.f90
++++ b/Modules/plugin_arguments.f90
+@@ -29,6 +29,7 @@ SUBROUTINE plugin_arguments()
+   ! add here more plugins
+   use_plumed = .false.
+   use_pw2casino = .false.
++  use_calcmdefect = .false.
+   use_environ = .false.
+   !
+   DO iiarg = 1, nargs 
+@@ -48,6 +49,10 @@ SUBROUTINE plugin_arguments()
+        IF ( TRIM(arg)=='pw2casino' ) THEN
+           use_pw2casino = .true.
+        ENDIF
++       IF ( TRIM(arg)=='calcmdefect' ) THEN
++          use_calcmdefect = .true.
++!write(*,*) 'use_calcmdefect', use_calcmdefect
++       ENDIF
+        IF ( TRIM(arg)=='environ' ) THEN
+           use_environ = .true.
+        ENDIF
+@@ -75,6 +80,8 @@ END SUBROUTINE plugin_arguments
+   !
+   CALL mp_bcast(use_pw2casino,root,comm)
+   !
++  CALL mp_bcast(use_calcmdefect,root,comm)
++  !
+   CALL mp_bcast(use_environ,root,comm)
+   !
+ !  write(0,*) "use_plumed: ", use_plumed
+diff --git a/Modules/plugin_flags.f90 b/Modules/plugin_flags.f90
+index c90883d2e..863d2573c 100644
+--- a/Modules/plugin_flags.f90
++++ b/Modules/plugin_flags.f90
+@@ -27,6 +27,7 @@ MODULE plugin_flags
+   CHARACTER(LEN=256), PUBLIC :: plugin_name
+   LOGICAL, PUBLIC :: use_plumed
+   LOGICAL, PUBLIC :: use_pw2casino
++  LOGICAL, PUBLIC :: use_calcmdefect
+   LOGICAL, PUBLIC :: use_environ 
+   !
+ END MODULE plugin_flags
+diff --git a/Modules/qeh5_module.f90 b/Modules/qeh5_module.f90
+index 51de89ff6..87f46b60e 100644
+--- a/Modules/qeh5_module.f90
++++ b/Modules/qeh5_module.f90
+@@ -934,22 +934,33 @@ END SUBROUTINE finalize_hdf5
+      !
+      loc_id = h5_hid
+      buf = C_LOC(value) 
++!write(*,*) 'ierr        id attr', loc_id,attribute
+      IF (PRESENT (rank ) ) THEN 
+         ALLOCATE(hdims(rank)) 
+         DO i =1, rank 
+           hdims(i) =dimensions(i)*1_HSIZE_T 
+         END DO
+         CALL H5Tarray_create_f(H5T_NATIVE_INTEGER, rank, hdims, mem_type, ierr  )
++!write(*,*) 'ierr        hdims', hdims,rank
+      ELSE 
+         CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )
++!write(*,*) 'ierr rank',rank
++!write(*,*) 'ierr        H5T_NATIVE_INTEGER',H5T_NATIVE_INTEGER, mem_type,sizeof(H5T_NATIVE_INTEGER), sizeof(mem_type)
+      END IF 
++!write(*,*) 'ierr        ', ierr
+      !
+      ! 
+      CALL H5Aopen_by_name_f( loc_id, '.', TRIM(attribute), attr_id, ierr) 
++
++!write(*,*) 'ierr        ', ierr
+      CALL H5Aread_f( attr_id, mem_type, buf, ierr )
++     !CALL H5Aread_f( attr_id, H5T_NATIVE_INTEGER, buf, ierr )
++!write(*,*) 'ierr        ', ierr
+      !
+      CALL H5Tclose_f( mem_type, ierr) 
++!write(*,*) 'ierr        ', ierr
+      CALL H5Aclose_f( attr_id, ierr) 
++!write(*,*) 'ierr        ', ierr
+      !
+   END SUBROUTINE read_integer_attribute         
+ 
+diff --git a/Modules/read_namelists.f90 b/Modules/read_namelists.f90
+index d315671d7..3b16c0190 100644
+--- a/Modules/read_namelists.f90
++++ b/Modules/read_namelists.f90
+@@ -41,7 +41,8 @@ MODULE read_namelists_module
+        system_bcast, electrons_bcast, ions_bcast, cell_bcast, &
+        press_ai_bcast, wannier_bcast, wannier_ac_bcast, control_checkin, &
+        system_checkin, electrons_checkin, ions_checkin, cell_checkin, &
+-       wannier_checkin, wannier_ac_checkin, fixval
++       wannier_checkin, wannier_ac_checkin, calcmcontrol_defaults,calcmcontrol_bcast,calcmcontrol_checkin,   fixval
++
+   !
+   !  ... end of module-scope declarations
+   !
+@@ -1143,6 +1144,7 @@ MODULE read_namelists_module
+      END SUBROUTINE
+      !
+      !
++     !----------------------------------------------------------------------
+      !-----------------------------------------------------------------------
+      SUBROUTINE cell_bcast()
+        !-----------------------------------------------------------------------
+@@ -1763,6 +1765,83 @@ MODULE read_namelists_module
+        !
+      END SUBROUTINE
+      !
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++     SUBROUTINE calcmcontrol_defaults( prog )
++       !----------------------------------------------------------------------
++       !! Variables initialization for Namelist calcmcontrol.
++       !
++       IMPLICIT NONE
++       !
++       CHARACTER(LEN=2) :: prog
++       !! specify the calling program
++       !
++       !
++          CHARACTER(LEN=256) :: vperturb_filename='vloc_perturb.dat'
++          CHARACTER(LEN=256) :: eps_filename='eps.dat'
++          INTEGER :: kpoint_initial 
++          INTEGER :: kpoint_final 
++          INTEGER :: bnd_initial 
++          INTEGER :: bnd_final 
++          LOGICAL :: calcmlocal = .false.
++          LOGICAL :: calcmnonlocal = .false.
++          LOGICAL :: calcmcharge = .false.
++      !
++       RETURN
++       !
++     END SUBROUTINE
++     !
++  
++     !-----------------------------------------------------------------------
++     SUBROUTINE calcmcontrol_bcast()
++       !-----------------------------------------------------------------------
++       !! Broadcast variables values for Namelist CELL.
++       !
++       USE io_global, ONLY: ionode_id
++       USE mp, ONLY: mp_bcast
++       USE mp_images, ONLY : intra_image_comm
++       !
++       IMPLICIT NONE
++       !
++       CALL mp_bcast( vperturb_filename,  ionode_id, intra_image_comm )
++       CALL mp_bcast( eps_filename,       ionode_id, intra_image_comm )
++       CALL mp_bcast( kpoint_initial,     ionode_id, intra_image_comm )
++       CALL mp_bcast( kpoint_final,       ionode_id, intra_image_comm )
++       CALL mp_bcast( bnd_initial,        ionode_id, intra_image_comm )
++       CALL mp_bcast( bnd_final,          ionode_id, intra_image_comm )
++       CALL mp_bcast( calcmlocal,         ionode_id, intra_image_comm )
++       CALL mp_bcast( calcmnonlocal,      ionode_id, intra_image_comm )
++       CALL mp_bcast( calcmcharge,        ionode_id, intra_image_comm )
++       !
++       RETURN
++       !
++     END SUBROUTINE
++     !
++     !-----------------------------------------------------------------------
++     SUBROUTINE calcmcontrol_checkin( prog )
++       !-----------------------------------------------------------------------
++       !! Check input values for Namelist IONS
++       !
++       IMPLICIT NONE
++       !
++       CHARACTER(LEN=2)  :: prog
++       !! specify the calling program
++       !
++       CHARACTER(LEN=20) :: sub_name = ' ions_checkin '
++       !
++       !
++       IF( kpoint_initial <1  ) &
++          CALL errore( sub_name,' k_i <0 ',1)
++       IF( bnd_initial <1  ) &
++          CALL errore( sub_name,' n_i <0 ',1)
++       !
++       RETURN
++       !
++     END SUBROUTINE
++ 
++ 
++
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
+      !
+      !-----------------------------------------------------------------------
+      SUBROUTINE fixval( prog )
+@@ -1896,6 +1975,7 @@ MODULE read_namelists_module
+        !
+      END SUBROUTINE
+      !
++
+      !
+      !-----------------------------------------------------------------------
+      SUBROUTINE read_namelists( prog_, unit )
+@@ -1910,6 +1990,13 @@ MODULE read_namelists_module
+        USE io_global, ONLY : ionode, ionode_id
+        USE mp,        ONLY : mp_bcast
+        USE mp_images, ONLY : intra_image_comm
++       !-----------------------------------------------------------------------
++       !--not used since plugin reading is after input file reading------------
++       !-----------------------------------------------------------------------
++USE plugin_flags, ONLY : use_pw2casino ,use_calcmdefect
++       !-----------------------------------------------------------------------
++       !-----------------------------------------------------------------------
++       !-----------------------------------------------------------------------
+        !
+        IMPLICIT NONE
+        !
+@@ -2089,6 +2176,25 @@ MODULE read_namelists_module
+           CALL fcp_checkin( prog )
+        END IF
+        !
++       ! ... calcmcontrol NAMELIST
++write(*,*) "cmd nlread 0",use_calcmdefect
++  
++       IF( use_calcmdefect ) THEN
++       !
++write(*,*) "cmd nlread 1"
++          CALL calcmcontrol_defaults( prog )
++          ios = 0
++          IF( ionode ) THEN
++             READ( unit_loc, calcmcontrol, iostat = ios )
++          END IF
++          !write(*,*) vperturb_filename
++          CALL check_namelist_read(ios, unit_loc, "calcmcontrol")
++          !
++          CALL calcmcontrol_bcast()
++          CALL calcmcontrol_checkin( prog )
++       END IF
++       !
++ 
+        RETURN
+        !
+      END SUBROUTINE read_namelists
+@@ -2109,9 +2215,13 @@ MODULE read_namelists_module
+          IF (ios /=0) THEN
+            BACKSPACE(unit_loc)
+            READ(unit_loc,'(A512)', iostat=ios2) line
++!write(*,*) vperturb_filename, nl_name, '0', ios, ios2
++!write(*,*) line
+          END IF
++!write(*,*) vperturb_filename, nl_name, '1'
+        END IF
+ 
++!write(*,*) vperturb_filename, nl_name, '2'
+        CALL mp_bcast( ios2, ionode_id, intra_image_comm )
+        IF( ios2 /= 0 ) THEN
+           CALL errore( ' read_namelists ', ' could not find namelist &'//TRIM(nl_name), 2)
+diff --git a/Modules/recvec.f90 b/Modules/recvec.f90
+index 353cb604f..4c61fdb3b 100644
+--- a/Modules/recvec.f90
++++ b/Modules/recvec.f90
+@@ -74,6 +74,7 @@
+      COMPLEX(DP), ALLOCATABLE :: eigts1(:,:)
+      !! the phases \(e^{-iG\text{tau}_s}\) used to calculate structure factors.
+      COMPLEX(DP), ALLOCATABLE :: eigts2(:,:), eigts3(:,:)
++     COMPLEX(DP), ALLOCATABLE :: eigts1_perturb(:,:), eigts2_perturb(:,:), eigts3_perturb(:,:)
+      COMPLEX(DP), ALLOCATABLE :: eigts1_d(:,:)    ! device
+      COMPLEX(DP), ALLOCATABLE :: eigts2_d(:,:)
+      COMPLEX(DP), ALLOCATABLE :: eigts3_d(:,:)
+diff --git a/Modules/wavefunctions.f90 b/Modules/wavefunctions.f90
+index b5ee7deed..9599281c4 100644
+--- a/Modules/wavefunctions.f90
++++ b/Modules/wavefunctions.f90
+@@ -21,15 +21,24 @@
+ 
+      !
+      COMPLEX(DP), ALLOCATABLE, TARGET :: &
+-       evc(:,:)
++       evc(:,:)     ! wavefunctions in the PW basis set
+        !! wavefunctions in the PW basis set.  
+        !! noncolinear case: first index is a combined PW + spin index
+        !
++     COMPLEX(DP), ALLOCATABLE, TARGET :: &
++       evc1(:,:), &     ! wavefunctions in the PW basis set
++       evc2(:,:), &     ! wavefunctions in the PW basis set
++       evc3(:,:), &     ! wavefunctions in the PW basis set
++       evc4(:,:)     ! wavefunctions in the PW basis set
+ #if defined(__CUDA)
+        attributes(PINNED) :: evc
+ #endif
+      !
+      COMPLEX(DP) , ALLOCATABLE, TARGET :: psic(:)
++     COMPLEX(DP) , ALLOCATABLE, TARGET :: psic1(:)
++     COMPLEX(DP) , ALLOCATABLE, TARGET :: psic2(:)
++     COMPLEX(DP) , ALLOCATABLE, TARGET :: psic3(:)
++     COMPLEX(DP) , ALLOCATABLE, TARGET :: psic4(:)
+      !! additional memory for FFT
+      COMPLEX(DP) , ALLOCATABLE, TARGET :: psic_nc(:,:)
+      !! additional memory for FFT for the noncolinear case
+diff --git a/PP/src/local_dos.f90 b/PP/src/local_dos.f90
+index 746608d7e..881bc17bd 100644
+--- a/PP/src/local_dos.f90
++++ b/PP/src/local_dos.f90
+@@ -81,6 +81,7 @@ SUBROUTINE local_dos (iflag, lsign, kpoint, kband, spin_component, &
+   IF (noncolin.and. lsign) CALL errore('local_dos','not available',1)
+   IF (noncolin.and. gamma_only) CALL errore('local_dos','not available',2)
+   !
++             
+   IF ( iflag == 0 ) THEN
+      IF ( kband < 1 .or. kband > nbnd )  &
+        CALL errore ('local_dos', 'wrong band specified', 1)
+@@ -112,13 +113,13 @@ SUBROUTINE local_dos (iflag, lsign, kpoint, kband, spin_component, &
+   !
+   !   calculate the correct weights
+   !
+-  IF (iflag /= 0.and. iflag /=3 .and. .not.lgauss) CALL errore ('local_dos', &
++  IF (iflag /= 203.and.iflag /= 0.and. iflag /=3 .and. .not.lgauss) CALL errore ('local_dos', &
+       'gaussian broadening needed', 1)
+   IF (iflag == 2 .and. ngauss /= -99) CALL errore ('local_dos', &
+       ' beware: not using Fermi-Dirac function ',  - ngauss)
+   DO ik = 1, nks
+      DO ibnd = 1, nbnd
+-        IF (iflag == 0) THEN
++        IF (iflag == 0 .or. iflag==203) THEN
+            wg (ibnd, ik) = 0.d0
+         ELSEIF (iflag == 1) THEN
+            !    Local density of states at energy emin with broadening emax
+@@ -429,6 +430,24 @@ SUBROUTINE local_dos (iflag, lsign, kpoint, kband, spin_component, &
+   !
+   CALL sym_rho_deallocate()
+   !
++  IF ( iflag == 203 ) THEN
++        ik=kpoint
++        ibnd=kband
++        !write (*,*) 'ik,ngk',ik, ngk(:)
++        CALL read_collected_wfc ( restart_dir(), ik, evc )
++        npw = ngk(ik)
++        psic(1:dffts%nnr) = (0.d0,0.d0)
++        DO ig = 1, npw
++           psic (dffts%nl (igk_k(ig,ik) ) ) = evc (ig, ibnd)
++        ENDDO
++        CALL invfft ('Wave', psic, dffts)
++ 
++        DO ig = 1, npw
++           dos(ig) = ATAN2(AIMAG(psic(ig)),REAL(psic(ig)))
++           write (*,*) 'psic', psic(ig),dos(ig)
++        ENDDO
++  ENDIF
++ 
+   RETURN
+ 
+ END SUBROUTINE local_dos
+diff --git a/PP/src/postproc.f90 b/PP/src/postproc.f90
+index 21f605068..e1cd2299e 100644
+--- a/PP/src/postproc.f90
++++ b/PP/src/postproc.f90
+@@ -27,7 +27,7 @@ SUBROUTINE extract (plot_files,plot_num)
+   USE ions_base, ONLY : nat, ntyp=>nsp, ityp, tau
+   USE gvect
+   USE fft_base,  ONLY : dfftp
+-  USE klist,     ONLY : two_fermi_energies, degauss
++  USE klist,     ONLY : two_fermi_energies, degauss,ngk
+   USE vlocal,    ONLY : strf
+   USE io_files,  ONLY : tmp_dir, prefix
+   USE io_global, ONLY : ionode, ionode_id
+@@ -126,7 +126,7 @@ SUBROUTINE extract (plot_files,plot_num)
+      RETURN
+   ENDIF
+   !
+-  IF (plot_num < 0 .or. (plot_num > 22 .and. &
++  IF (plot_num < 0 .or. (plot_num > 322 .and. &
+         plot_num /= 119 .and. plot_num /= 123)) CALL errore ('postproc', &
+           'Wrong plot_num', abs (plot_num) )
+ 
+@@ -145,7 +145,7 @@ SUBROUTINE extract (plot_files,plot_num)
+   !   If needed, allocate and initialize wavefunction-related variables
+   !
+   needwf=(plot_num==3).or.(plot_num==4).or.(plot_num==5).or.(plot_num==7).or. &
+-         (plot_num==8).or.(plot_num==10)
++         (plot_num==8).or.(plot_num==10).or.(plot_num==203)
+   CALL read_file_new ( needwf )
+   !
+   IF ( ( two_fermi_energies .or. i_cons /= 0) .and. &
+diff --git a/PP/src/punch_plot.f90 b/PP/src/punch_plot.f90
+index 51b5ce132..85198eb5e 100644
+--- a/PP/src/punch_plot.f90
++++ b/PP/src/punch_plot.f90
+@@ -29,7 +29,7 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+   USE fft_interfaces,   ONLY : fwfft, invfft
+   USE gvect,            ONLY : gcutm
+   USE gvecs,            ONLY : dual
+-  USE klist,            ONLY : nks, nkstot, xk
++!  USE klist,            ONLY : nks, nkstot, xk
+   USE lsda_mod,         ONLY : nspin, lsda
+   USE ener,             ONLY : ehart
+   USE io_global,        ONLY : stdout, ionode
+@@ -38,7 +38,15 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+   USE gvecw,            ONLY : ecutwfc
+   USE noncollin_module, ONLY : noncolin
+   USE paw_postproc,     ONLY : PAW_make_ae_charge
+-
++USE wavefunctions, ONLY : evc,evc1,evc2,evc3,evc4, psic,psic1,psic2
++USE klist , ONLY: nks, nelec, xk, wk, degauss, ngauss, igk_k, ngk, init_igk
++  USE wvfct,            ONLY : npwx, g2kin
++USE io_files, ONLY: nd_nmbr, nwordwfc, iunwfc, prefix, tmp_dir, seqopn, iuntmp
++USE buffers,          ONLY : open_buffer,get_buffer, close_buffer, save_buffer
++  USE control_flags,        ONLY : io_level, lscf
++
++  USE gvecw,            ONLY : gcutw
++  USE gvect,            ONLY : ngm, g
+   IMPLICIT NONE
+   CHARACTER(len=*), INTENT(IN) :: filplot
+   INTEGER, INTENT(IN) :: plot_num, kpoint, kband, spin_component
+@@ -53,8 +61,12 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+ #endif
+   ! auxiliary vector
+   REAL(DP), ALLOCATABLE :: raux (:), raux2(:,:)
++  complex(DP), ALLOCATABLE :: caux (:), caux2(:,:)
++  INTEGER :: ig
+ 
+ 
++  INTEGER, EXTERNAL :: n_plane_waves
++  LOGICAL :: exst, exst_mem, exst_file, opnd_file, twfcollect_file
+   IF (filplot == ' ') RETURN
+ #if defined(__MPI)
+   ALLOCATE (raux1(  dfftp%nr1x *  dfftp%nr2x *  dfftp%nr3x))
+@@ -72,10 +84,66 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+                                                           spin_component
+   !
+   ALLOCATE (raux(dfftp%nnr))
++  ALLOCATE (caux(dfftp%nnr))
+   !IF
+   !     Here we decide which quantity to plot
++  IF (plot_num == 201) THEN
++     !
++     ! Vh+vxc
++     !
++     raux(:) = v%of_r(:,1) 
++     !
++     ! Vbare+Vh+vxc
++     !
++     raux(:) = v%of_r(:,1) + vltot(:)
++     !
++     ! Vh
++     !
++     ALLOCATE( raux2(dfftp%nnr,nspin) )
++     raux2(:,1) = vltot(:)
++     CALL v_h( rho%of_g(:,1), ehart, charge, raux2 )
++     raux(:) = raux2(:,1)-vltot(:)
++     IF (tefield.and.dipfield) CALL add_efield(raux, dummy, rho%of_r(:,1),.true.)
++     DEALLOCATE( raux2 )
++  ELSEIF (plot_num == 202) THEN
++     !
++     ! Vxc
++     !
++     ALLOCATE( raux2(dfftp%nnr,nspin) )
++     raux2(:,1) = vltot(:)
++     CALL v_h( rho%of_g(:,1), ehart, charge, raux2 )
++     raux(:) = v%of_r(:,1)-(raux2(:,1)-vltot(:))
++     IF (tefield.and.dipfield) CALL add_efield(raux, dummy, rho%of_r(:,1),.true.)
++     DEALLOCATE( raux2 )
++
++  ELSEIF (plot_num == 203) THEN
++     !
++     ! psi arg, unfinished
++     !
++!    allocate(psic1(dfftp%nnr))
++!    psic1(1:dfftp%nnr) = (0.d0,0.d0)
++!  npwx = n_plane_waves( gcutw, nks, xk, g, ngm )
++!    allocate(evc1(npwx,nbnd))
++!   CALL open_buffer(iunwfc,'wfc', nwordwfc, io_level, exst_mem, exst_file)
++!        CALL get_buffer ( evc1, nwordwfc, iunwfc, kpoint )
++!  CALL init_igk( npwx, ngm, g, gcutw )
++!write (*,*) 'ngk',kpoint, ngk(:),size(igk_k(:,:)),dfftp%nl (: )
++!    DO ig = 1, ngk(kpoint)
++!       psic1 (dfftp%nl (igk_k(ig,kpoint) ) ) = evc1 (ig, kband)
++!    ENDDO
++!    CALL invfft ('Wave', psic1, dfftp)
++ 
++
++     CALL local_dos(203, lsign, kpoint, kband, spin_component, emin, emax, raux)
++!    DO ig = 1, dfftp%nnr
++!     raux(ig) = ATAN2(AIMAG(psic1(ig)),REAL(psic1(ig)))
++!    ENDDO
++
++
++
++     !
++  ELSEIF (plot_num == 0) THEN
+   !
+-  IF (plot_num == 0) THEN
+      !
+      !      plot of the charge density - total rho
+      !
+@@ -91,6 +159,9 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+         END IF
+      ENDIF
+      !
++
++     
++
+   ELSEIF (plot_num == 1) THEN
+      !
+      !       The total self-consistent potential V_loc+V_H+V_xc
+@@ -104,6 +175,7 @@ SUBROUTINE punch_plot (filplot, plot_num, sample_bias, z, dz, &
+      ELSE
+         raux(:) = v%of_r(:,1) + vltot(:)
+      END IF
++    
+      !
+   ELSEIF (plot_num == 2) THEN
+      !
+diff --git a/PW/CMakeLists.txt b/PW/CMakeLists.txt
+index b983c5d36..986e7c270 100644
+--- a/PW/CMakeLists.txt
++++ b/PW/CMakeLists.txt
+@@ -173,6 +173,7 @@ set(src_pw
+    src/pwcom.f90 
+    src/pw2blip.f90 
+    src/pw2casino.f90 
++   src/calcmdefect.f90 
+    src/pw2casino_write.f90 
+    src/rdiagh.f90 
+    src/read_conf_from_file.f90 
+diff --git a/PW/src/Makefile b/PW/src/Makefile
+index 6346b154b..b5d16ed8a 100644
+--- a/PW/src/Makefile
++++ b/PW/src/Makefile
+@@ -184,6 +184,7 @@ pw_init_qexsd_input.o \
+ pwcom.o \
+ pw2blip.o \
+ pw2casino.o \
++calcmdefect.o \
+ pw2casino_write.o \
+ rdiagh.o \
+ read_conf_from_file.o \
+diff --git a/PW/src/init_us_2.f90 b/PW/src/init_us_2.f90
+index 149503266..909001f89 100644
+--- a/PW/src/init_us_2.f90
++++ b/PW/src/init_us_2.f90
+@@ -73,3 +73,229 @@ SUBROUTINE init_us_2_gpu( npw_, igk__d, q_, vkb__d )
+   !
+ END SUBROUTINE init_us_2_gpu
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!calculate supercell based <beta>, vloc file needs to have same atom type/order list as scf input file
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++SUBROUTINE init_us_2_perturb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
++  !----------------------------------------------------------------------
++  !! Calculates beta functions (Kleinman-Bylander projectors), with
++  !! structure factor, for all atoms, in reciprocal space.
++  !
++  USE kinds,        ONLY : DP
++  USE ions_base,    ONLY : nat, ntyp => nsp, ityp, tau
++  USE cell_base,    ONLY : tpiba, bg
++  USE constants,    ONLY : tpi
++  USE gvect,        ONLY : eigts1, eigts2, eigts3,eigts1_perturb, eigts2_perturb, eigts3_perturb, mill, g, ngm
++  USE wvfct,        ONLY : npwx
++  USE vlocal,       ONLY : strf
++  USE fft_base,         ONLY : dfftp
++  USE uspp_data,           ONLY : nqx, dq, tab, tab_d2y, spline_ps
++  USE m_gth,        ONLY : mk_ffnl_gth
++  USE splinelib
++  USE uspp,         ONLY : nkb, nhtol, nhtolm, indv
++  USE uspp_param,   ONLY : upf, lmaxkb, nhm, nh
++
++
++
++  USE kinds,        ONLY : DP
++  USE ions_base,    ONLY : nat, ityp, tau
++  USE cell_base,    ONLY : tpiba, omega
++  USE gvect,        ONLY : eigts1, eigts2, eigts3, mill, g
++  USE wvfct,        ONLY : npwx
++  USE uspp,         ONLY : nkb
++  USE fft_base ,    ONLY : dfftp
++  
++  !
++  IMPLICIT NONE
++  !
++  INTEGER, INTENT(IN) :: npw_
++  !! number of PWs 
++  INTEGER, INTENT(IN) :: igk_(npw_)
++  INTEGER, INTENT(IN) :: nat_perturb,ityp_perturb(nat_perturb),nkb_perturb
++  !! indices of G in the list of q+G vectors
++  REAL(DP), INTENT(IN) :: q_(3)
++  REAL(DP), INTENT(IN) :: tau_perturb(3,nat_perturb)
++  !! q vector (2pi/a units)
++  COMPLEX(DP), INTENT(OUT) :: vkb_(npwx,nkb_perturb)
++  !! beta functions (npw_ <= npwx)
++  !
++  ! ... Local variables
++  !
++  INTEGER :: i0, i1, i2, i3, ig, ig_orig, lm, na, nt, nb, ih, jkb
++  REAL(DP) :: px, ux, vx, wx, arg
++  REAL(DP), ALLOCATABLE :: gk(:,:), qg(:), vq(:), ylm(:,:), vkb1(:,:)
++  COMPLEX(DP) :: phase, pref
++  COMPLEX(DP), ALLOCATABLE :: sk(:)
++  REAL(DP), ALLOCATABLE :: xdata(:)
++  INTEGER :: iq
++  ! cache blocking parameters
++  INTEGER, PARAMETER :: blocksize = 256
++  INTEGER :: iblock, numblock, realblocksize
++  !
++  !
++  IF (lmaxkb < 0) RETURN
++  !
++  CALL start_clock( 'init_us_2_perturb' )
++  !
++  ! write(*,'(3i4,i5,3f10.5)') size(tab,1), size(tab,2), size(tab,3), size(vq), q_
++  !
++  ! setting cache blocking size
++  numblock = (npw_+blocksize-1)/blocksize
++  ALLOCATE( eigts1_perturb(-dfftp%nr1:dfftp%nr1,nat_perturb) )
++  ALLOCATE( eigts2_perturb(-dfftp%nr2:dfftp%nr2,nat_perturb) )
++  ALLOCATE( eigts3_perturb(-dfftp%nr3:dfftp%nr3,nat_perturb) )
++
++!write(*,*) '1',eigts1_perturb
++!write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
++!write(*,*) 'shape(eigts1)',shape(eigts1)
++  CALL struc_fact( nat_perturb, tau_perturb, ntyp, ityp_perturb, ngm, g, bg, &
++                   dfftp%nr1, dfftp%nr2, dfftp%nr3, &
++                   strf, eigts1_perturb, eigts2_perturb, eigts3_perturb )
++!write(*,*) 'shape(eigts1_perturb)',shape(eigts1_perturb)
++  !
++  IF (spline_ps) THEN
++    ALLOCATE( xdata(nqx) )
++    DO iq = 1, nqx
++      xdata(iq) = (iq - 1) * dq
++    ENDDO
++  ENDIF
++  !
++!$omp parallel private(vkb1, sk, qg, vq, ylm, gk, ig_orig, &
++!$omp                  realblocksize, jkb, px, ux, vx, wx, &
++!$omp                  i0, i1, i2, i3, lm, arg, phase, pref)
++  !
++  ALLOCATE( vkb1(blocksize,nhm) )
++  ALLOCATE( sk(blocksize) )
++  ALLOCATE( qg(blocksize) )
++  ALLOCATE( vq(blocksize) )
++  ALLOCATE( ylm(blocksize,(lmaxkb+1)**2) )
++  ALLOCATE( gk(3,blocksize) )
++  !
++!$omp do
++  DO iblock = 1, numblock
++     !
++     realblocksize = MIN(npw_-(iblock-1)*blocksize,blocksize)
++     !
++     DO ig = 1, realblocksize
++        ig_orig = (iblock-1)*blocksize+ig
++        gk(1,ig) = q_(1) + g(1,igk_(ig_orig) )
++        gk(2,ig) = q_(2) + g(2,igk_(ig_orig) )
++        gk(3,ig) = q_(3) + g(3,igk_(ig_orig) )
++        qg(ig) = gk(1, ig)**2 +  gk(2, ig)**2 + gk(3, ig)**2
++     ENDDO
++     !
++     CALL ylmr2( (lmaxkb+1)**2, realblocksize, gk, qg, ylm(1:realblocksize,:) )
++     !
++     ! set now qg=|q+G| in atomic units
++     !
++     DO ig = 1, realblocksize
++        qg(ig) = SQRT(qg(ig))*tpiba
++     ENDDO
++     !
++     ! |beta_lm(q)> = (4pi/omega).Y_lm(q).f_l(q).(i^l).S(q)
++     jkb = 0
++     DO nt = 1, ntyp
++        ! ... calculate beta in G-space using an interpolation table:
++        !     f_l(q)=\int _0 ^\infty dr r^2 f_l(r) j_l(q.r)
++        DO nb = 1, upf(nt)%nbeta
++           !
++           IF ( upf(nt)%is_gth ) THEN
++              CALL mk_ffnl_gth( nt, nb, realblocksize, omega, qg, vq )
++           ELSE
++              DO ig = 1, realblocksize
++                 IF (spline_ps) THEN
++                    vq(ig) = splint(xdata, tab(:,nb,nt), tab_d2y(:,nb,nt), qg(ig))
++                 ELSE
++                    px = qg(ig) / dq - INT( qg(ig)/dq )
++                    ux = 1.d0 - px
++                    vx = 2.d0 - px
++                    wx = 3.d0 - px
++                    i0 = INT( qg(ig)/dq ) + 1
++                    i1 = i0 + 1
++                    i2 = i0 + 2
++                    i3 = i0 + 3
++                    vq(ig) = tab(i0,nb,nt) * ux * vx * wx / 6.d0 + &
++                             tab(i1,nb,nt) * px * vx * wx / 2.d0 - &
++                             tab(i2,nb,nt) * px * ux * wx / 2.d0 + &
++                             tab(i3,nb,nt) * px * ux * vx / 6.d0
++                 ENDIF
++              ENDDO
++           ENDIF
++           ! add spherical harmonic part  (Y_lm(q)*f_l(q)) 
++           DO ih = 1, nh(nt)
++              IF (nb == indv(ih,nt) ) THEN
++                 !l = nhtol(ih, nt)
++                 lm = nhtolm(ih,nt)
++                 DO ig = 1, realblocksize
++                    vkb1(ig,ih) = ylm(ig,lm) * vq(ig)
++                 ENDDO
++              ENDIF
++           ENDDO
++           !
++        ENDDO
++        !
++        ! vkb1 contains all betas including angular part for type nt
++        ! now add the structure factor and factor (-i)^l
++        !
++        DO na = 1, nat_perturb
++           ! ordering: first all betas for atoms of type 1
++           !           then  all betas for atoms of type 2  and so on
++           IF (ityp_perturb(na) == nt) THEN
++              !
++              arg = ( q_(1) * tau_perturb(1,na) + &
++                      q_(2) * tau_perturb(2,na) + &
++                      q_(3) * tau_perturb(3,na) ) * tpi
++              phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
++              !
++              DO ig = 1, realblocksize
++                 ig_orig = (iblock-1)*blocksize+ig
++                 sk(ig) = eigts1_perturb(mill(1,igk_(ig_orig)), na) * &
++                          eigts2_perturb(mill(2,igk_(ig_orig)), na) * &
++                          eigts3_perturb(mill(3,igk_(ig_orig)), na)
++              ENDDO
++              !            write(*,*),'eigts3',eigts3_perturb(mill(3,igk_(ig_orig)), na)
++              !
++              DO ih = 1, nh(nt)
++                 jkb = jkb + 1
++                 pref = (0.d0, -1.d0)**nhtol(ih, nt) * phase
++                 DO ig = 1, realblocksize
++                    vkb_((iblock-1)*blocksize+ig, jkb) = vkb1(ig,ih) * sk(ig) * pref
++                 ENDDO
++                 ! clean up garbage in the last block
++                 IF (iblock == numblock) THEN
++                    DO ig = npw_+1, npwx
++                       vkb_(ig, jkb) = (0.0_DP, 0.0_DP)
++                    ENDDO
++                 ENDIF
++              ENDDO
++              !
++           ENDIF
++           !
++        ENDDO
++        !
++     ENDDO
++     !
++  ENDDO
++!$omp end do nowait
++  DEALLOCATE( gk )
++  DEALLOCATE( ylm )
++  DEALLOCATE( vq )
++  DEALLOCATE( qg )
++  DEALLOCATE( sk )
++  DEALLOCATE( vkb1 )
++  deALLOCATE( eigts1_perturb)
++  deALLOCATE( eigts2_perturb)
++  deALLOCATE( eigts3_perturb)
++!$omp end parallel
++  !
++  IF (spline_ps) DEALLOCATE( xdata )
++  !
++  CALL stop_clock( 'init_us_2_perturb' )
++  !
++  !
++  RETURN
++  !
++END SUBROUTINE init_us_2_perturb
++
+diff --git a/PW/src/make.depend b/PW/src/make.depend
+index 7caaa4d67..966769f64 100644
+--- a/PW/src/make.depend
++++ b/PW/src/make.depend
+@@ -1917,6 +1917,16 @@ pw2blip.o : ../../Modules/io_global.o
+ pw2blip.o : ../../Modules/kind.o
+ pw2blip.o : ../../Modules/mp_pools.o
+ pw2blip.o : ../../UtilXlib/mp.o
++
++calcmdefect.o : ../../Modules/io_files.o
++calcmdefect.o : ../../Modules/kind.o
++calcmdefect.o : ../../Modules/mp_bands.o
++calcmdefect.o : ../../Modules/mp_images.o
++calcmdefect.o : ../../Modules/mp_pools.o
++calcmdefect.o : ../../Modules/noncol.o
++calcmdefect.o : ../../Modules/plugin_flags.o
++calcmdefect.o : pwcom.o
++
+ pw2casino.o : ../../Modules/io_files.o
+ pw2casino.o : ../../Modules/kind.o
+ pw2casino.o : ../../Modules/mp_bands.o
+diff --git a/PW/src/pw2casino.f90 b/PW/src/pw2casino.f90
+index 0b505bcaf..01bfa695e 100644
+--- a/PW/src/pw2casino.f90
++++ b/PW/src/pw2casino.f90
+@@ -22,7 +22,7 @@ SUBROUTINE pw2casino( istep )
+   USE spin_orb,         ONLY : lspinorb
+   USE io_files, ONLY : tmp_dir
+   !
+-  USE plugin_flags, ONLY : use_pw2casino
++  USE plugin_flags, ONLY : use_pw2casino ,use_calcmdefect
+   !
+   IMPLICIT NONE
+   !
+@@ -48,6 +48,9 @@ SUBROUTINE pw2casino( istep )
+    n_points_for_test
+   !
+   !
++!write(*,*)'pw2casino'
++!write(*,*) 'use_calcmdefect', use_calcmdefect
++!write(*,*) 'use_pw2casino', use_pw2casino
+   IF ( use_pw2casino ) THEN
+     !
+     IF ( npool > 1 .or. nimage > 1 .or. nbgrp > 1 ) &
+diff --git a/PW/src/pw2casino_write.f90 b/PW/src/pw2casino_write.f90
+index 63e60f552..0792f3f80 100644
+--- a/PW/src/pw2casino_write.f90
++++ b/PW/src/pw2casino_write.f90
+@@ -420,8 +420,12 @@ CONTAINS
+                                  *wg(ibnd,ikk)* dvan(ih,ih,nt)
+                            ELSE
+                               enl=enl+conjg(becp%k(ikb,ibnd))*becp%k(ikb,ibnd) &
+-                                 *wg(ibnd,ikk)* dvan(ih,ih,nt)
++                                 * dvan(ih,ih,nt)
++                                 !*wg(ibnd,ikk)* dvan(ih,ih,nt)
+                            ENDIF
++                           write(*,*) "ibnd",ibnd,"na",na,"enl",conjg(becp%k(ikb,ibnd))*becp%k(ikb,ibnd) &
++                                 * dvan(ih,ih,nt)
++
+                            DO jh = ( ih + 1 ), nh(nt)
+                               jkb = ijkb0 + jh
+                               IF(gamma_only)THEN
+@@ -443,6 +447,7 @@ CONTAINS
+                      ENDIF
+                   ENDDO
+                ENDDO
++               !write(*,*) "enl",enl
+             ENDDO
+          ENDDO
+       ENDDO
+diff --git a/PW/src/pw_restart_new.f90 b/PW/src/pw_restart_new.f90
+index 3761e0741..340bf9ab8 100644
+--- a/PW/src/pw_restart_new.f90
++++ b/PW/src/pw_restart_new.f90
+@@ -1243,10 +1243,12 @@ MODULE pw_restart_new
+       ionode_k = (me_pool == root_pool)
+       !
+       iks = global_kpoint_index (nkstot, 1)
++!      iks = 1
+       ike = iks + nks - 1
+       !
+       ! ik_g: index of k-point ik in the global list
+       !
++!write(*,*) ' nkstot,nks,iks,ik',nkstot,nks,iks,ik
+       ik_g = ik + iks - 1
+       !
+       ! ... the igk_l2g_kdip local-to-global map is needed to read wfcs
+@@ -1299,10 +1301,29 @@ MODULE pw_restart_new
+       !
+       evc=(0.0_DP, 0.0_DP)
+       !
++!      write(*,*)'read_wfc inp', iunpun, filename
++!      write(*,*)'ik _g',            ik_g
++!write(*,*) '1 xk_       ', xk_
++!write(*,*) '1 ispin     ', ispin
++!write(*,*) '1 npol_     ', npol_
++!write(*,*) '1  npw_g    ',  npw_g
++!write(*,*) '1 gamma_only', gamma_only
++!write(*,*) '1 nbnd_     ', nbnd_
++!write(*,*) '1 ngk(ik)   ', ngk(ik)
++!!write(*,*) '1 mill_k    ', mill_k
++!write(*,*) '1 scalef    ', scalef 
++!
++!write(*,*) '1 evc(1,1)    ', evc(1,1) 
++
+       CALL read_wfc( iunpun, filename, root_bgrp, intra_bgrp_comm, &
+            ik_g, xk_, ispin, npol_, evc, npw_g, gamma_only, nbnd_, &
+            igk_l2g_kdip(:), ngk(ik), b1, b2, b3, mill_k, scalef )
+-      !
++!write(*,*) '1 b1        ', b1
++!write(*,*) '1 b2        ', b2
++!write(*,*) '1 b3        ', b3
++!      !
++!write(*,*) '1 evc(1,1)    ', evc(1,1) 
++
+       DEALLOCATE ( mill_k )
+       DEALLOCATE ( igk_l2g_kdip )
+       !
+diff --git a/PW/src/pwscf.f90 b/PW/src/pwscf.f90
+index 1a919510e..f055277af 100644
+--- a/PW/src/pwscf.f90
++++ b/PW/src/pwscf.f90
+@@ -83,6 +83,9 @@ PROGRAM pwscf
+                           'image parallelization not allowed',1)
+        CALL read_input_file( 'PW', input_file_ )
+        CALL run_pwscf( exit_status )
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++! first read input.pwi, then update plugin parameters
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !
+     ENDIF
+     !
+diff --git a/PW/src/read_file_new.f90 b/PW/src/read_file_new.f90
+index 64137c93e..50f661a6c 100644
+--- a/PW/src/read_file_new.f90
++++ b/PW/src/read_file_new.f90
+@@ -142,6 +142,7 @@ SUBROUTINE post_xml_init (  )
+   ! ... Various initializations needed to start a calculation:
+   ! ... pseudopotentials, G vectors, FFT arrays, rho, potential
+   !
++  USE uspp,         ONLY : nhtol, nhtoj, nhtolm, ijtoh, dvan, qq_at, qq_nt, indv
+   USE kinds,                ONLY : DP
+   USE io_global,            ONLY : stdout
+   USE uspp_param,           ONLY : upf
+@@ -231,7 +232,9 @@ SUBROUTINE post_xml_init (  )
+   ! ... allocate the potentials
+   !
+   CALL allocate_locpot()
++write(*,*)'dvan',shape(dvan)
+   CALL allocate_nlpot()
++write(*,*)'dvan',shape(dvan)
+   IF (okpaw) THEN
+      CALL allocate_paw_internals()
+      CALL paw_init_onecenter()
+@@ -252,7 +255,9 @@ SUBROUTINE post_xml_init (  )
+   CALL init_vloc()
+   IF (tbeta_smoothing) CALL init_us_b0(ecutwfc,intra_bgrp_comm)
+   IF (tq_smoothing) CALL init_us_0(ecutrho,intra_bgrp_comm)
++write(*,*)'dvan',shape(dvan)
+   CALL init_us_1(nat, ityp, omega, ngm, g, gg, intra_bgrp_comm)
++write(*,*)'dvan',shape(dvan)
+   IF ( lda_plus_U .AND. ( U_projection == 'pseudo' ) ) CALL init_q_aeps()
+   CALL init_tab_atwfc(omega, intra_bgrp_comm)
+   !
+diff --git a/PW/src/run_pwscf.f90 b/PW/src/run_pwscf.f90
+index 311b0b7b4..0900cd98d 100644
+--- a/PW/src/run_pwscf.f90
++++ b/PW/src/run_pwscf.f90
+@@ -60,6 +60,7 @@ SUBROUTINE run_pwscf( exit_status )
+   USE ldaU,                 ONLY : lda_plus_u
+   !
+   USE device_fbuff_m,             ONLY : dev_buf
++!use calcmdefect , only calc
+   !
+   IMPLICIT NONE
+   !
+@@ -166,10 +167,13 @@ SUBROUTINE run_pwscf( exit_status )
+      !
+      ! ... file in CASINO format written here if required
+      !
++     CALL calcmdefect( 0 )
+      IF ( lmd ) THEN
+         CALL pw2casino( istep )
++!        CALL calcmdefect( istep )
+      ELSE
+         CALL pw2casino( 0 )
++!        CALL calcmdefect( 0 )
+      END IF
+      !
+      ! ... ionic section starts here
+diff --git a/UtilXlib/clib_wrappers.f90 b/UtilXlib/clib_wrappers.f90
+index f87cfa302..7116809e8 100644
+--- a/UtilXlib/clib_wrappers.f90
++++ b/UtilXlib/clib_wrappers.f90
+@@ -257,6 +257,7 @@ CONTAINS
+     cfile = TRIM(ffile)//C_NULL_CHAR
+     !
+     CALL cget_md5(cfile, cmd5, cierr)
++!write(*,*)'md5t',cierr
+     !
+     DO i = 1,md5_length
+        fmd5(i:i) = cmd5(i:i)
+diff --git a/clib/md5_from_file.c b/clib/md5_from_file.c
+index 32812c629..afce3fb8a 100644
+--- a/clib/md5_from_file.c
++++ b/clib/md5_from_file.c
+@@ -114,6 +114,7 @@ void get_md5(const char *file, char *md5, int err)
+      }
+      fclose(fp);
+ 
++//!write(*,*)'md5t',cierr
+      free(data);
+      err = 0;
+      return;
+diff --git a/upflib/init_us_1.f90 b/upflib/init_us_1.f90
+index dd24d122c..72d1091f5 100644
+--- a/upflib/init_us_1.f90
++++ b/upflib/init_us_1.f90
+@@ -108,6 +108,7 @@ subroutine init_us_1( nat, ityp, omega, ngm, g, gg, intra_bgrp_comm )
+      qq_nt=0.d0
+      qq_at  = 0.d0
+   endif
++write(*,*)'dvan',shape(dvan)
+   !
+   !   For each pseudopotential we initialize the indices nhtol, nhtolm,
+   !   nhtoj, indv, and if the pseudopotential is of KB type we initialize the
+@@ -335,6 +336,7 @@ subroutine init_us_1( nat, ityp, omega, ngm, g, gg, intra_bgrp_comm )
+ #endif
+   !
+   call stop_clock ('init_us_1')
++write(*,*)'dvan',shape(dvan)
+   return
+   !
+ end subroutine init_us_1

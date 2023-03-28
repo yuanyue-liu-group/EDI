@@ -1,0 +1,85 @@
+Subroutine calcmdefect_noncolin()
+      Use kinds,    only: dp
+      USE io_files,  ONLY : prefix, tmp_dir, nwordwfc, iunwfc, restart_dir
+      Use v_type,   only: V_file, V_loc, V_0, Bxc_1, Bxc_2, Bxc_3, V_p
+      Use input_parameters_calcmdefect
+      Use wvfct, ONLY: npwx, nbnd, wg, et, g2kin
+      Use fft_base,  ONLY: dfftp, dffts
+      Use fft_interfaces, ONLY : fwfft, invfft
+      Use wavefunctions_calcmdefect, Only : evc1,evc2,evc3,evc4,&
+                               psic1, psic2, psic3, psic4
+      USE pw_restart_new,   ONLY : read_collected_wfc
+      Use klist,  Only : nks
+      Use input_parameters_calcmdefect, Only: m_loc, m_nloc
+
+      Implicit none
+      
+      
+      integer :: tmp_unit
+      integer, external :: find_free_unit
+      integer :: ios
+      integer :: ikk, ikk0, ibnd, ibnd0, ik, ik0, nk
+
+      write(*,"(///A60)")'-----------------------------------'
+      write(*,"(/A59/)") 'Enter calcmdefect_noncolin module'
+      write(*,"(A60//)")'-----------------------------------'
+
+      tmp_unit = find_free_unit()
+
+      OPEN(unit=tmp_unit,file = 'calcmdefect.dat',status='old',err=20)
+      20 continue
+         READ(tmp_unit,calcmcontrol,iostat=ios)
+      CLOSE(tmp_unit)
+
+       V_0%filename = V_0_filename
+      Bxc_1%filename = Bxc_1_filename
+      Bxc_2%filename = Bxc_2_filename
+      Bxc_3%filename = Bxc_3_filename
+      V_p%filename = V_p_filename
+      
+
+      call read_perturb_file(V_0)
+      
+      ! call read_perturb_file(Bxc_1)
+      ! call read_perturb_file(Bxc_2)
+       call read_perturb_file(Bxc_3)
+       
+       call read_perturb_file(V_p)
+      
+      
+
+       allocate(V_loc( V_0%nr1 * V_0%nr2 * V_0%nr3, 2))
+       call get_vloc_colin()
+       
+      allocate(evc1(2*npwx,nbnd))
+      allocate(evc2(2*npwx,nbnd))
+      !allocate(evc3(2*npwx,nbnd))
+      !allocate(evc4(2*npwx,nbnd))
+      allocate(psic1(dfftp%nnr))
+      allocate(psic2(dfftp%nnr))
+      allocate(psic3(dfftp%nnr))
+      allocate(psic4(dfftp%nnr))
+
+      write(*,"(///A56)")'----------------------------'
+      write (*,"(/A55/)") 'Start M calculation k loop'
+      write(*,"(A56//)")'----------------------------'
+      nk = nks
+      ibnd0=bnd_initial
+      ibnd=bnd_final
+
+      do ik0 = kpoint_initial,kpoint_final
+            do ik = 1, nk
+                  ikk = ik 
+                  ikk0 = ik0
+           
+                  CALL read_collected_wfc ( restart_dir(), ikk, evc2 )
+                  CALL read_collected_wfc ( restart_dir(), ikk0, evc1 )
+                  call calcmdefect_ml_rs_noncolin(ibnd0,ibnd,ikk0,ikk)
+                  call calcmdefect_mnl_ks_soc(ibnd0,ibnd,ikk0,ikk)
+
+1003 format(A24,I6,I6,A6,I6,I6 " ( ",e17.9," , ",e17.9," ) ",e17.9//)
+            write (*,1003) 'M_tot ni ki --> nf kf ', ibnd0,ikk0, '-->', ibnd,ikk, &
+            m_loc+m_nloc, abs(m_loc+m_nloc)
+            end do
+      end do
+End Subroutine calcmdefect_noncolin

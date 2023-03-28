@@ -1,0 +1,85 @@
+
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Mnl in super use primitive old
+    mnl=0
+    !write (*,*) 'primitive', npw, igk_k(1,ik), xk (1, ik)
+                CALL init_us_2 (npw, igk_k(1,ik0), xk (1, ik0), vkb)
+                CALL calbec ( npw, vkb, evc1, becp1 )
+                CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+                CALL calbec ( npw, vkb, evc2, becp2 )
+                !CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+    !evc1(:,:)=0.0
+    !        CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
+    !        CALL save_buffer ( evc, nwordwfc, iuntmp, ik0 )
+    !        CALL get_buffer ( evc1, nwordwfc, iuntmp, ik0 )
+    !write (*,*) 'evc1', evc1
+    !write (*,*) 'evc ', evc
+    !write (*,*) 'log evc1', log(evc1)
+    !write (*,*) 'log evc ', log(evc)
+    !write (*,*) 'igk_k ', igk_k(:,:)
+    !write (*,*) 'igtog ', igtog(:)
+    !write (*,*) 'gtoig ', gtoig(:)
+    !write (*,*) 'tau ', tau
+    
+    !            CALL calbec ( npw, vkb, evc1, becp1 )
+    !            CALL calbec ( npw, vkb, evc2, becp2 )
+                   ijkb0 = 0
+    !write (stdout,*) 'mnl: ',mnl
+                   DO nt_perturb = 1, ntyp_perturb
+                      DO na_perturb = 1, nat_perturb
+                        arg=(xk(1,ik)*tau(1,na)+xk(2,ik)*tau(2,na)+xk(3,ik)*tau(3,na))*tpi/alat
+                        arg=arg-(xk(1,ik0)*tau(1,na)+xk(2,ik0)*tau(2,na)+xk(3,ik0)*tau(3,na))*tpi/alat
+                  phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
+                  phase = 1
+                         IF(ityp_perturb (na_perturb) == nt_perturb)THEN
+                            DO ih = 1, nh (nt_perturb)
+                               ikb = ijkb0 + ih
+                               IF(gamma_only)THEN
+                                  mnl=mnl+becp1%r(ikb,ibnd0)*becp2%r(ikb,ibnd) &
+                                     * dvan(ih,ih,nt_perturb)
+                               ELSE
+                                  mnl=mnl+conjg(becp1%k(ikb,ibnd0))*becp2%k(ikb,ibnd) &
+                                     * dvan(ih,ih,nt_perturb)
+                               ENDIF
+    !write (stdout,*) 'mnl: ',mnl
+    !write (stdout,*) 'becp1: ',becp1%k(ikb,ibnd0)
+    !write (stdout,*) 'becp2: ',becp2%k(ikb,ibnd)
+    !write (stdout,*) 'dvan: ', dvan(ih,ih,nt_perturb)
+                               DO jh = ( ih + 1 ), nh(nt_perturb)
+                                  jkb = ijkb0 + jh
+                                  IF(gamma_only)THEN
+                                     mnl=mnl + &
+                                        (becp1%r(ikb,ibnd0)*becp2%r(jkb,ibnd)+&
+                                           becp1%r(jkb,ibnd0)*becp2%r(ikb,ibnd))&
+                                         * dvan(ih,jh,nt_perturb)
+                                  ELSE
+                                     mnl=mnl + &
+                                        (conjg(becp1%k(ikb,ibnd0))*becp2%k(jkb,ibnd)+&
+                                           conjg(becp1%k(jkb,ibnd0))*becp2%k(ikb,ibnd))&
+                                         * dvan(ih,jh,nt_perturb) *phase
+                                  ENDIF
+    !write (stdout,*) 'mnl: ',mnl
+    
+                               ENDDO
+    
+                            ENDDO
+                            ijkb0 = ijkb0 + nh (nt_perturb)
+                         ENDIF
+                      ENDDO
+                   ENDDO
+    mnltot=mnltot+mnl*wg(ibnd,ik)!
+     
+    !if(ibnd .eq.9) 
+    write (stdout,*) 'ik,ibnd: old', ik, ibnd, 'mnl', mnl,'abs mnl', abs(mnl),'mnltot', mnltot
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Mnl super use primitive old
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    
+    
+      END SUBROUTINE calcmdefect_mnl_0
+    
+

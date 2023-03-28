@@ -1,0 +1,6 @@
+Installation
+ ------------
+ To compile the code you first need to issue ./configure in /Quantum-Espresso.
+ Indeed EDSC rely on the make.inc file created by QE.
+ Then you can run ./make inside Quantum-Espresso/EDSC.
+

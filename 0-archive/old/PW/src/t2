@@ -1,0 +1,104 @@
+
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Mnl in super use primitive
+    mnl=0
+            CALL get_buffer ( evc1, nwordwfc, iuntmp, ik0 )
+            CALL get_buffer ( evc2, nwordwfc, iuntmp, ik )
+    !
+    !write (*,*) 'primitive', npw, igk_k(1,ik), xk (1, ik)
+             npw = ngk(ik0)
+    !nat_perturb=1
+                !CALL init_us_2 (npw, igk_k(1,ik0), xk (1, ik0), vkb)
+    write (*,*) '1 ', shape(vkb_perturb),'becp',shape(becp1_perturb)
+    write (*,*) 'nat_perturb ', shape(nat_perturb),nat_perturb
+    write (*,*) ',ityp_perturb, ', shape(ityp_perturb),ityp_perturb
+    write (*,*) 'tau_perturb, ', shape(tau_perturb),tau_perturb
+    write (*,*) 'nkb_perturb ', shape(nkb_perturb),nkb_perturb
+    !write (*,*) '1 ', shape(vkb),'becp',shape(becp1_perturb)
+    CALL init_us_2_perturb (npw, igk_k(1,ik0), xk (1, ik0), vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+    write (*,*) '1 ', shape(vkb_perturb),shape(evc1),npw,npwx
+    CALL calbec ( npw, vkb_perturb, evc1, becp1_perturb )
+    !write (*,*) 'evc1 ', evc1
+    !write (*,*) 'vkb ', vkb
+    !write (*,*) '1 ', shape(vkb_perturb),shape(becp1_perturb)
+    npw = ngk(ik)
+    CALL init_us_2_perturb (npw, igk_k(1,ik), xk (1, ik), vkb_perturb,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+    CALL calbec ( npw, vkb_perturb, evc2, becp2_perturb )
+    
+    !write (*,*) 'becp1 ', shape(vkb),shape(becp1)
+    !write (*,*) 'becp1 ', shape(vkb),shape(becp1)
+    !write (*,*) '1 ', shape(vkb_perturb),shape(becp1_perturb)
+    !write (*,*) 'evc2 ', evc2
+    !write (*,*) 'vkb ', vkb
+                !CALL init_us_2 (npw, igk_k(1,ik), xk (1, ik), vkb)
+    !evc1(:,:)=0.0
+    !        CALL open_buffer ( iuntmp, 'wfctemp', nwordwfc, io_level, exst )
+    !        CALL save_buffer ( evc, nwordwfc, iuntmp, ik0 )
+    !        CALL get_buffer ( evc1, nwordwfc, iuntmp, ik0 )
+    !write (*,*) 'evc1', evc1
+    !write (*,*) 'evc ', evc
+    !write (*,*) 'log evc1', log(evc1)
+    !write (*,*) 'log evc ', log(evc)
+    !write (*,*) 'igk_k ', igk_k(:,:)
+    !write (*,*) 'igtog ', igtog(:)
+    !write (*,*) 'gtoig ', gtoig(:)
+    !write (*,*) 'tau ', tau
+    
+    !            CALL calbec ( npw, vkb, evc1, becp1 )
+    !            CALL calbec ( npw, vkb, evc2, becp2 )
+                   ijkb0 = 0
+    !write (stdout,*) 'mnl: ',mnl
+    DO nt_perturb = 1, ntyp_perturb
+        DO na_perturb = 1, nat_perturb
+          arg=(xk(1,ik)*tau(1,na_perturb)+xk(2,ik)*tau(2,na_perturb)+xk(3,ik)*tau(3,na_perturb))*tpi/alat
+          arg=arg-(xk(1,ik0)*tau(1,na_perturb)+xk(2,ik0)*tau(2,na_perturb)+xk(3,ik0)*tau(3,na_perturb))*tpi/alat
+    phase = CMPLX( COS(arg), -SIN(arg) ,KIND=DP)
+    phase = 1
+           IF(ityp_perturb (na_perturb) == nt_perturb)THEN
+              DO ih = 1, nh (nt_perturb)
+                 ikb = ijkb0 + ih
+                 IF(gamma_only)THEN
+                    mnl=mnl+becp1%r(ikb,ibnd0)*becp2%r(ikb,ibnd) &
+                       * dvan(ih,ih,nt_perturb)
+                 ELSE
+                    mnl=mnl+conjg(becp1_perturb%k(ikb,ibnd0))*becp2_perturb%k(ikb,ibnd) &
+                       * dvan(ih,ih,nt_perturb)
+                 ENDIF
+    !write (stdout,*) 'mnl: ',mnl
+    !write (stdout,*) 'becp1: ',becp1%k(ikb,ibnd0)
+    !write (stdout,*) 'becp2: ',becp2%k(ikb,ibnd)
+    !write (stdout,*) 'dvan: ', dvan(ih,ih,nt_perturb)
+                 DO jh = ( ih + 1 ), nh(nt_perturb)
+                    jkb = ijkb0 + jh
+                    IF(gamma_only)THEN
+                       mnl=mnl + &
+                          (becp1%r(ikb,ibnd0)*becp2%r(jkb,ibnd)+&
+                             becp1%r(jkb,ibnd0)*becp2%r(ikb,ibnd))&
+                           * dvan(ih,jh,nt_perturb)
+                    ELSE
+                       mnl=mnl + &
+                          (conjg(becp1_perturb%k(ikb,ibnd0))*becp2_perturb%k(jkb,ibnd)+&
+                             conjg(becp1_perturb%k(jkb,ibnd0))*becp2_perturb%k(ikb,ibnd))&
+                           * dvan(ih,jh,nt_perturb) *phase
+                    ENDIF
+    !write (stdout,*) 'mnl: ',mnl
+    
+                 ENDDO
+    
+             ENDDO
+             ijkb0 = ijkb0 + nh (nt_perturb)
+          ENDIF
+       ENDDO
+    ENDDO
+    mnltot=mnltot+mnl*wg(ibnd,ik)!
+     
+    !mnl=mnl/nr1_perturb/nr2_perturb/nr3_perturb
+    !if(ibnd .eq.9) 
+    write (stdout,*) 'ik0,ik,ibnd: super2primitive', ik0, ik, ibnd, 'mnl', mnl,'abs mnl', abs(mnl),'mnltot', mnltot
+    write (stdout,*) 'modmnl ik0,ik super2primitive', ik0,ik, abs(enl1)
+    !
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Mnl super use primitive
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
