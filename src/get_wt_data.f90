@@ -50,6 +50,6 @@ subroutine get_wt_data()
           bndkp_pair%wt(ig)
     enddo
     CALL md5_from_file(wt_filename, wt_md5_cksum)
-    write (*,*) 'wt files:',trim(wt_filename),'  MD5 sum:',wt_md5_cksum
+    write (*,*) 'WT files:',trim(wt_filename),'  MD5 sum:',wt_md5_cksum
  
 end subroutine get_wt_data

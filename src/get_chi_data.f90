@@ -23,25 +23,13 @@ subroutine get_chi_data()
     if (nqxofchi*nqyofchi*nqzofchi/=nchilines-1) then
        write(*,*) 'chi data file corrupt'
     endif
-    !read (iunpot_perturb, * ) nchilines
     
-    !allocate(chi_data(2,nchilines))
     allocate(chi_data(4,nqxofchi*nqyofchi*nqzofchi))
     do ig= 1, nqxofchi*nqyofchi*nqzofchi
          read (iunpot_perturb, * ) chi_data(1,ig),chi_data(2,ig),chi_data(3,ig),chi_data(4,ig)
     enddo
-    write (*,*) 'chi lines  ', nchilines
-    write (*,*) 'chi data  ',  chi_data(1,1),chi_data(2,1),chi_data(3,1),chi_data(4,1)
-    write (*,*) 'chi data  ', chi_data(1,2),chi_data(2,2)
-    write (*,*) 'chi data  ', chi_data(1,3),chi_data(2,3)
-    write (*,*) 'chi data  ', chi_data(1,7),chi_data(2,7)
-    !k0screen=k0screen_read
     
     CALL md5_from_file(chi_filename, chif_md5_cksum)
     write (*,*) 'chi files:',trim(chi_filename),'  MD5 sum:',chif_md5_cksum
-    !write (*,*) 'dv readin-vrs', plot_perturb(:)-vrs(:,1)
-    !write (*,*) 'dv readin-vrs', vrs(:,1)
-    !write (*,*) 'dv readin-vrs', plot_perturb(:)
-    !
  
 end subroutine get_chi_data

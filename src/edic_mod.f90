@@ -69,9 +69,6 @@ Module edic_mod
   end type 
   
   type(S_wt_rj),allocatable::wfc_pair(:)
-
-
-
   ! <beta|psi> with proper supercell handling 
   TYPE (bec_type) :: becp1_perturb  ! <beta|psi>
   TYPE (bec_type) :: becp2_perturb  ! <beta|psi>
@@ -155,9 +152,6 @@ Module edic_mod
             V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
             V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
             noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
-            !V_up_filename, V_down_filename,&
-            !bnd_initial, bnd_final,& 
-            !kpoint_initial, kpoint_final, &
 
   Complex(dp) :: m_loc, m_nloc
 
@@ -171,7 +165,6 @@ Module edic_mod
                   nat, ntyp, ibrav, plot_num,  i,nkb
           integer :: iunplot, ios, ipol, na, nt, &
                   ir, ndum
-          !integer :: vac_direction
           real(dp) :: celldm(6), gcutm, dual, ecut,  at(3,3), omega, alat
           integer, allocatable:: ityp(:), intyp(:)
           real(dp),allocatable:: zv(:), tau(:, :)  , pot(:)
@@ -193,22 +186,14 @@ Module edic_mod
     real(dp), allocatable :: vcoul_data(:,:),qpts_data(:,:)
     real(dp), allocatable :: blat_data(:),bvec_data(:,:)
   
-  !!!!!!!!!!!!gw scf set up
     integer, allocatable :: nq_data(:),nmtx_max_data(:),fftgrid_data(:),qgrid_data(:),ng_data(:)
     integer, allocatable :: gind_rho2eps_data(:,:)
     integer, allocatable :: gind_eps2rho_data(:,:)
     integer, allocatable :: nmtx_data(:)
     integer, allocatable :: grho_data(:),  geps_data(:),g_components_data(:,:)
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !  integer(i8b), allocatable :: gw_nqi8(:)
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !  simple info
     real(DP),allocatable ::qabs(:)
   
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!! gw set up to qe set up
     integer(DP),allocatable ::q_g_commonsubset_indinrhotmp1(:)
     INTEGER :: q_g_commonsubset_size
     integer(DP),allocatable ::q_g_commonsubset_indinrho(:)
