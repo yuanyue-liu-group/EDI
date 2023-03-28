@@ -11,9 +11,6 @@ It is based on DFT, and supports postprocessing of charge carrier mobility calcu
    Installation
    Input
    Usage
-   Postprocessing
-   Tutorials
-   Optimization
    Developing
 
 .. note::

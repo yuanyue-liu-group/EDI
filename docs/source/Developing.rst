@@ -6,7 +6,7 @@ Development
 Future functionality
 ------------
 
-More functions to come in the future..
+More supported calculation methods and models to come in the future.
 
 Contribution
 ----------------
