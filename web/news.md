@@ -5,6 +5,6 @@ title: News
 
 # News
 
-- The first official version, [EDI Version 0.1](https://github.com/zhongcanxiao/EDIC/releases/tag/v0.1) is released.
-  Questions and issues could be sent via the [github issues](https://github.com/zhongcanxiao/EDIC/issues) page.
+- The first official version, [EDI Version 1.0](https://github.com/zhongcanxiao/EDI/releases/tag/v1.0) is released.
+  Questions and issues could be sent via the [github issues](https://github.com/zhongcanxiao/EDI/issues) page.
   Ongoing developments will continue at develop branch.
