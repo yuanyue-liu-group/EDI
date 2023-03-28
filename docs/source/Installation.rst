@@ -7,8 +7,8 @@ Download
 --------
 
 EDI is a freeware licensed under GPL v3.0.
-Its stable version can be downloaded as zip file from the `main website<https://zhongcanxiao.github.io/EDI>`__.
-Alternatively, the most up to date version could be accessed from `github page<https://github.com/zhongcanxiao/EDI>`__. 
+Its stable version can be downloaded as zip file from the `main website<https://zhongcanxiao.github.io/EDI>`_.
+Alternatively, the most up to date version could be accessed from `github page<https://github.com/zhongcanxiao/EDI>`_. 
 However, stable version is encouraged to use since develop version may not be fully tested.
 
 Prerequisites
@@ -29,7 +29,7 @@ Compile Quantum Espresso
 
 Currently, Quantum Espresso package is required to run EDI.
 Additional required library hdf5 should be compiled with QE.
-Supported version of Quantum Espresso is  `6.8 <https://gitlab.com/QEF/q-e/-/archive/qe-6.8/q-e-qe-6.8.tar.gz>`. 
+Supported version of Quantum Espresso is  `6.8 <https://gitlab.com/QEF/q-e/-/archive/qe-6.8/q-e-qe-6.8.tar.gz>`_. 
 To compile edi, first download the respective version. 
 
 
