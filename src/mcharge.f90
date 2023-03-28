@@ -75,6 +75,8 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
   logical:: interpolate_2d,interpolate_smallq1d=.false.
 
   logical:: write_vgw_r=.false.
+  logical:: lchidat=.false.
+  logical:: lchifun=.false.
 
   COMPLEX(DP) ::  mcharge0gw,mcharge1gw,mcharge2gw,mcharge3gw,mcharge4gw,mcharge5gw,mcharge6gw
 
@@ -140,6 +142,7 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
 !    endif
  
 
+if(lchidat) then
     qchiidx=1
     do ig= 1, nqxofchi*nqyofchi*nqzofchi
         !qchi(1)=chi_data(1,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)+chi_data(2,ig)*bg(1,1)
@@ -163,6 +166,20 @@ SUBROUTINE calcmdefect_charge_nolfa(ibnd,ibnd0,ik,ik0,noncolin,mcharge)
     k0screen=abs(chi_data(4,qchiidx))
 
     write(*,*) 'qchi k0s',    k0screen,chi_data(:,qchiidx)
+
+endif
+if(lchifun)then
+
+    deltak=norm2(xk(1:2,ik0)-xk(1:2,ik))*tpiba
+    qcut=tpi/alat*0.1
+    write(*,*)'qcut',qcut
+    if (deltak<qcut*0.95)then
+        k0screen=k0screen_read*(deltak-qcut)*(-1/qcut)
+    else
+        k0screen=k0screen_read*0.05
+    endif
+ 
+endif
 
     !!!!!!!!!!!!!!!!!!
     ! iso m
