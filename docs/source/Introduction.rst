@@ -1,10 +1,11 @@
+=====
 Introduction
 =====
 
 .. _installation:
 
 Background
-----------
+=====
 
 In recent years, there has been an increasing demand for the development of software tools that can perform electron defect interaction calculations. Such tools are essential in materials science and engineering as they help in understanding the properties and behavior of materials at the atomic and molecular levels. The purpose of this research paper is to discuss a software tool that can perform electron defect interaction calculations and its potential applications. Electron defect interaction is a fundamental concept in materials science and engineering that describes the interaction between electrons and defects in a material. Defects are any irregularities or imperfections in the structure of a material, such as vacancies, interstitials, and dislocations. The interaction between electrons and defects can have a significant impact on the properties of materials, including their mechanical, electrical, and optical properties.
 To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state. This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure. EDI(electron-defect interaction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials. It uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics. The current distribution of EDI focuses on electron-defect (e-d) interactions and related transport properties, including electrical conductivity, scattering rate, and mobility. It also includes routines for computing spin-related infromation. The transport module enables accurate calculations of charge transport in a wide range of functional materials. The code is efficient with MPI parallelization, and scales linearly with the supercell size, thus only limited by the DFT code. 
