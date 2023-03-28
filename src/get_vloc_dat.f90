@@ -1,4 +1,4 @@
-Subroutine read_perturb_file(v_file_)
+Subroutine get_vloc_dat(v_file_)
     use kinds,    only: dp
     use edic_mod,   only: V_file   
     USE cell_base, ONLY: omega, alat, tpiba2, at, bg, tpiba
@@ -51,6 +51,6 @@ Subroutine read_perturb_file(v_file_)
 
 
     
-End Subroutine read_perturb_file
+End Subroutine get_vloc_dat
 
 

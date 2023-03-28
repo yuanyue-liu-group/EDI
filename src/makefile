@@ -29,7 +29,7 @@ EDICSRC = edic.f90\
           ml-nc.f90\
           mnl-nc.f90\
           mnl-soc.f90\
-          read_perturb_file.f90\
+          get_vloc_dat.f90\
           get_gind_rhoandpsi_gw.f90\
           get_wt_data.f90\
           gw_eps_read.f90\

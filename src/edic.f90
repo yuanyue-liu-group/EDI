@@ -128,8 +128,8 @@ Program edic
   if (calcmlocal .or. calcmnonlocal) then
       V_d%filename = V_d_filename
       V_p%filename = V_p_filename
-      call read_perturb_file(V_d)
-      call read_perturb_file(V_p)
+      call get_vloc_dat(V_d)
+      call get_vloc_dat(V_p)
       if (lvacalign) then
           v_d_shift = sum(V_d%pot(vac_idx*V_d%nr1*V_d%nr2:(vac_idx+1)*V_d%nr1*V_d%nr2))/(V_d%nr1*V_d%nr2)
           v_p_shift = sum(v_p%pot(vac_idx*v_p%nr1*v_p%nr2:(vac_idx+1)*v_p%nr1*v_p%nr2))/(v_p%nr1*v_p%nr2)
@@ -142,15 +142,15 @@ Program edic
           Bxc_1_p%filename = Bxc_1_p_filename
           Bxc_2_p%filename = Bxc_2_p_filename
           Bxc_3_p%filename = Bxc_3_p_filename
-          call read_perturb_file(Bxc_1_p)
-          call read_perturb_file(Bxc_2_p)
-          call read_perturb_file(Bxc_3_p)
+          call get_vloc_dat(Bxc_1_p)
+          call get_vloc_dat(Bxc_2_p)
+          call get_vloc_dat(Bxc_3_p)
           Bxc_1_d%filename = Bxc_1_d_filename
           Bxc_2_d%filename = Bxc_2_d_filename
           Bxc_3_d%filename = Bxc_3_d_filename
-          call read_perturb_file(Bxc_1_d)
-          call read_perturb_file(Bxc_2_d)
-          call read_perturb_file(Bxc_3_d)
+          call get_vloc_dat(Bxc_1_d)
+          call get_vloc_dat(Bxc_2_d)
+          call get_vloc_dat(Bxc_3_d)
       
           allocate(V_nc( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
           allocate(V_nc1( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
