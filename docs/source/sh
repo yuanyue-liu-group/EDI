@@ -1,0 +1,9 @@
+   cp usage.rst Introduction.rst
+   cp usage.rst Installation.rst
+   cp usage.rst Input.rst
+   cp usage.rst Usage.rst
+   cp usage.rst Postprocessing.rst
+   cp usage.rst Tutorials.rst
+   cp usage.rst Optimization.rst
+   cp usage.rst Developing.rst
+                  
