@@ -79,7 +79,7 @@ Program edic
   1000 format(A24," = ",I6)
   nwordwfc = nbnd*npwx*npol
 
-  call getwtdata()
+  call get_wt_data()
   call  mpi_barrier(mpi_comm_world,ierr)
 
   if (calcmcharge) then

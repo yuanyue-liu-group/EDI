@@ -1,4 +1,4 @@
-subroutine getwtdata()
+subroutine get_wt_data()
     use kinds,    only: dp
     use edic_mod, only: wfc_pair
     use edic_mod, only: bndkp_pair
@@ -52,4 +52,4 @@ subroutine getwtdata()
     CALL md5_from_file(wt_filename, wt_md5_cksum)
     write (*,*) 'wt files:',trim(wt_filename),'  MD5 sum:',wt_md5_cksum
  
-end subroutine getwtdata
+end subroutine get_wt_data

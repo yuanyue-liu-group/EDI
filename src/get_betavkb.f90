@@ -1,4 +1,4 @@
-SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
+SUBROUTINE get_betavkb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_perturb,nkb_perturb)
     !----------------------------------------------------------------------
     !! Calculates beta functions (Kleinman-Bylander projectors), with
     !! structure factor, for all atoms, in reciprocal space.
@@ -58,7 +58,7 @@ SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_per
     !
     IF (lmaxkb < 0) RETURN
     !
-    CALL start_clock( 'init_us_2_sc' )
+    CALL start_clock( 'get_betavkb' )
     !
     ! write(*,'(3i4,i5,3f10.5)') size(tab,1), size(tab,2), size(tab,3), size(vq), q_
     !
@@ -214,9 +214,9 @@ SUBROUTINE init_us_2_sc( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_per
     !
     IF (spline_ps) DEALLOCATE( xdata )
     !
-    CALL stop_clock( 'init_us_2_sc' )
+    CALL stop_clock( 'get_betavkb' )
     !
     !
     RETURN
     !
-  END SUBROUTINE init_us_2_sc
+  END SUBROUTINE get_betavkb

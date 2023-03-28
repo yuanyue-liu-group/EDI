@@ -36,10 +36,10 @@ SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   CALL allocate_bec_type ( nkb_perturb, nbnd, becp1_perturb )
   CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
   ALLOCATE(vkb_perturb(npwx,nkb_perturb))
-  CALL init_us_2_sc (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
+  CALL get_betavkb (ngk(ik0), igk_k(1,ik0), xk (1, ik0), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
   CALL calbec ( ngk(ik0), vkb_perturb, evc1, becp1_perturb )
   
-  CALL init_us_2_sc (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
+  CALL get_betavkb (ngk(ik), igk_k(1,ik), xk (1, ik), vkb_perturb,v_mnl%nat,v_mnl%ityp,v_mnl%tau,nkb_perturb)
   CALL calbec ( ngk(ik), vkb_perturb, evc2, becp2_perturb )
   
   

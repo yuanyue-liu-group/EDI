@@ -1,9 +1,9 @@
 
 default: all
 
-all: edsc
+all: edi
 
-edsc: pw
+edi: pw
 	cd src && make
 
 pw: 
