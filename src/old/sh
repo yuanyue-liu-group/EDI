@@ -1,0 +1,12 @@
+
+cp  calcmdefect-get_gind_rhoandpsi_gw.f90           get_gind_rhoandpsi_gw.f90
+cp  calcmdefect-gw_eps_init.f90                     gw_eps_init.f90
+cp  calcmdefect-h5gw_read.f90                       h5gw_read.f90
+cp  calcmdefect-mcharge.f90                         mcharge.f90
+cp  calcmdefect-mcharge-lfa.f90                     mcharge-lfa.f90
+cp  calcmdefect-ml-nc.f90                           ml-nc.f90
+cp  calcmdefect-ml-rs.f90                           ml-rs.f90
+cp  calcmdefect-mnl-ks.f90                          mnl-ks.f90
+cp  calcmdefect-mnl-nc.f90                          mnl-nc.f90
+cp  calcmdefect-mnl-soc.f90                         mnl-soc.f90
+
