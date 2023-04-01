@@ -16,6 +16,10 @@ The interaction between electrons and defects can have a significant impact on t
 To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state.
 This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure.
 
+.. math ::
+  \gamma=\int 2\pi \hbar \tau_{ik} \del f \bar f d k 
+
+
 EDI(electron-defect interaction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials.
 It uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics.
 The current distribution of EDI focuses on electron-defect (e-d) interactions and related transport properties, including electrical conductivity, scattering rate, and mobility.
