@@ -173,12 +173,26 @@ If defect is charged, the perturbation potential is represented with a different
 Currently, supported model is Coulomb potential of a point charge, screened by the material. 
 Various screening model is supported by EDI.
 
-To perform this calculation, set the parameter ``calcmcharge`` to ``.true.``
-calcmcharge                 calculate charged defect
-mcharge_dolfa               use LFA approximation in charged calculation
-qeh_eps_filename            dielectric function file from QEH
-doqeh                       use QEH dielectric function 
-dogw                        use BGW dielectric function
-k0screen_read               Lindhard model carrier screening
-gw_epsmat_filename          BGW dielectric function file for grid q
-gw_eps0mat_filename          BGW dielectric function file for small q
+To perform this calculation, set the parameter ``calcmcharge`` to ``.true.``.
+
+Local Fielad Approximation (LFA) is supported for the charged defect systems.
+To turn on, set the parameter ``mcharge_dolfa`` to ``.true.``.
+
+Currently, the supported screening models include:
+
+* Thomas-Fermi model with dielectric constant
+
+..
+  <* Set ``qeh_eps_filename`` for 
+
+* Quantum Electrostatic Hetereostructure model (scalar dielectric function)
+
+* Lindhard model (matrix dielectric function)
+
+..
+  qeh_eps_filename            dielectric function file from QEH
+  doqeh                       use QEH dielectric function 
+  dogw                        use BGW dielectric function
+  k0screen_read               Lindhard model carrier screening
+  gw_epsmat_filename          BGW dielectric function file for grid q
+  gw_eps0mat_filename          BGW dielectric function file for small q
