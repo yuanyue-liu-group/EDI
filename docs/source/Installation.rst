@@ -126,10 +126,8 @@ Anvil
 Under QE root folder::
 
    $ module load hdf5 fftw gcc intel-mkl 
-   $ ./configure --with-hdf5 --with-hdf5-libs="-lhdf5_fortran -lhdf5" --with-hdf5-include="$HDF5_HOME/include/"
-
+   $ ./configure --with-hdf5 --with-hdf5-libs="-lhdf5_fortran -lhdf5" --with-hdf5-include="$HDF5_HOME/include"
    $ make --with-hdf5 pw
-
 
 .. note::
     When running under Anvil, if the wait time is extensively long at gw_bcast routine, it's likely the memory is out.
