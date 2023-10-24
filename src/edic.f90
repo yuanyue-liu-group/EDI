@@ -158,6 +158,12 @@ Program edic
           allocate(V_nc3( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
           allocate(V_nc4( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
           V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
+
+
+          V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:)
+          V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:)
+          V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:)
+
       else
           allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
           V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift

@@ -16,7 +16,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   Implicit None 
 
   COMPLEX(DP) ::  mlocal
-  complex(dp) :: ml_up, ml_down,ml
+  complex(dp) :: ml_up, ml_down,ml,psiprod1
   real(dp) :: d1, d2, d3
 
   INTEGER :: ibnd, ik, ik0,ibnd0, ig!,ipair
@@ -104,6 +104,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   write(*,*) 'xk-xk01',xk(1,ik)-xk(1,ik0)
   write(*,*) 'xk-xk02',xk(2,ik)-xk(2,ik0)
   write(*,*) 'xk-xk03',xk(3,ik)-xk(3,ik0)
+
+  psiprod1=0.0
   do irz =0, V_d%nr3-1
     ir3mod=irz-(irz/(dffts%nr3))*dffts%nr3
     do iry =0, V_d%nr2-1
@@ -133,6 +135,8 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
                +CONJG(psic3(irnmod))*psic4(irnmod)*phase*(v_nc(inr, 1)-v_nc(inr,4))&
                +CONJG(psic1(irnmod))*psic2(irnmod)*phase*(v_nc(inr, 2)+v_nc(inr,3))&
                +CONJG(psic3(irnmod))*psic4(irnmod)*phase*(v_nc(inr, 2)-v_nc(inr,3)) 
+          psiprod1=psiprod1+CONJG(psic1(irnmod))*psic2(irnmod)*phase&
+                           +CONJG(psic3(irnmod))*psic4(irnmod)*phase
           !ml_up=ml_up+CONJG(psic1(irnmod))*psic2(irnmod)*phase*v_nc(inr, 1)
           !ml_down=ml_down+CONJG(psic3(irnmod))*psic4(irnmod)*phase*v_nc(inr, 2)
 
@@ -162,6 +166,7 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   write (*,1001) 'Mlocal ki->kf ',ik0,ik, mlocal
   mlocal=ml
   write (*,1001) 'Mlocal ki->kf ',ik0,ik, mlocal
+  write (*,1001) 'psiprod ',ik0,ik, psiprod1
    
     
     
