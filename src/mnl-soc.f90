@@ -106,7 +106,6 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   CALL deallocate_bec_type (  becp2_perturb )
   DEALLOCATE(vkb_perturb)
 
-  write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
   mnonlocal=mnl
 
 1001 format(A16,I9,I9, " ( ",e17.9," , ",e17.9," ) ",e17.9)

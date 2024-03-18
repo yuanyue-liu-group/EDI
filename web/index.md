@@ -4,7 +4,7 @@ layout: default
 
 
   {:refdef: style="text-align: center;"}
- ![fig1](./figs/fig0.png){:height="394px" width="429px"}
+ ![fig1](./figs/TOC.png){:height="394px" width="429px"}
   {: refdef}
 
 It is crucial to understand the processes involving electrons and atomic defects in the solid state, in order to develop advanced materials and devices. 
@@ -24,7 +24,7 @@ EDI has the following functions:
 
 - K-point sampling for 2D system based on triangular integral algorithm
 
-- Calculate carrier mobility 
+- Calculate transport property such as carrier mobility 
 
 
 
@@ -44,5 +44,5 @@ EDI could easily run on large HPCs and utilize the full capacity.
 
 # Reference
 
-Available soon.
+ Zhongcan Xiao, Rongjing Guo, Chenmu Zhang, and Yuanyue Liu. Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides.  ACS Nano.  [DOI: 10.1021/acsnano.4c01033](https://pubs.acs.org/doi/10.1021/acsnano.4c01033)
 

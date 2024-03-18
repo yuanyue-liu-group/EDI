@@ -67,9 +67,6 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   CALL invfft ('Wave', psic3, dffts)
   arg=0
   inr=0
-  write(*,*) 'xk-xk01',xk(1,ik)-xk(1,ik0)
-  write(*,*) 'xk-xk02',xk(2,ik)-xk(2,ik0)
-  write(*,*) 'xk-xk03',xk(3,ik)-xk(3,ik0)
   do irz =0, V_d%nr3-1
     ir3mod=irz-(irz/(dffts%nr3))*dffts%nr3
     do iry =0, V_d%nr2-1
@@ -116,7 +113,6 @@ subroutine calcmdefect_ml_rs_noncolin(ibnd,ibnd0,ik,ik0,mlocal)
   ml=ml/dffts%nnr
 1001 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
-  write (*,1001) 'Mlocal ki->kf ',ik0,ik, mlocal
   mlocal=ml
    
     

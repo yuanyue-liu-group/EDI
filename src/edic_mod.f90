@@ -73,11 +73,8 @@ Module edic_mod
   TYPE (bec_type) :: becp1_perturb  ! <beta|psi>
   TYPE (bec_type) :: becp2_perturb  ! <beta|psi>
 
-
-
   ! factor with proper supercell handling 
   Complex(dp), allocatable :: eigts1_perturb(:,:), eigts2_perturb(:,:), eigts3_perturb(:,:)
-
 
   ! primitive wavefunctions 
   complex(dp), allocatable, target :: &
@@ -90,8 +87,6 @@ Module edic_mod
         psic2(:), &
         psic3(:), &
         psic4(:) 
-
-
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! control file variables

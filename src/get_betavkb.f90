@@ -38,13 +38,11 @@ SUBROUTINE get_betavkb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_pert
     INTEGER, PARAMETER :: blocksize = 256
     INTEGER :: iblock, numblock, realblocksize
     !
-    !
     IF (lmaxkb < 0) RETURN
     !
     CALL start_clock( 'get_betavkb' )
     !
     numblock = (npw_+blocksize-1)/blocksize
-    write(*,*)'nr1,nat_perturb)',-dfftp%nr1,dfftp%nr1,nat_perturb
     ALLOCATE( eigts1_perturb(-dfftp%nr1:dfftp%nr1,nat_perturb) )
     ALLOCATE( eigts2_perturb(-dfftp%nr2:dfftp%nr2,nat_perturb) )
     ALLOCATE( eigts3_perturb(-dfftp%nr3:dfftp%nr3,nat_perturb) )
@@ -140,7 +138,6 @@ SUBROUTINE get_betavkb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_pert
                             eigts2_perturb(mill(2,igk_(ig_orig)), na) * &
                             eigts3_perturb(mill(3,igk_(ig_orig)), na)
                 ENDDO
-                !            write(*,*),'eigts3',eigts3_perturb(mill(3,igk_(ig_orig)), na)
                 !
                 DO ih = 1, nh(nt)
                    jkb = jkb + 1
@@ -148,7 +145,6 @@ SUBROUTINE get_betavkb( npw_,  igk_, q_, vkb_ ,nat_perturb,ityp_perturb,tau_pert
                    DO ig = 1, realblocksize
                       vkb_((iblock-1)*blocksize+ig, jkb) = vkb1(ig,ih) * sk(ig) * pref
                    ENDDO
-                   ! clean up garbage in the last block
                    IF (iblock == numblock) THEN
                       DO ig = npw_+1, npwx
                          vkb_(ig, jkb) = (0.0_DP, 0.0_DP)

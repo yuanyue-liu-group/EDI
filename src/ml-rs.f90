@@ -53,9 +53,6 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   CALL invfft ('Wave', psic1, dffts)
   arg=0
   inr=0
-  write(*,*) 'xk-xk01',xk(1,kp_idx_i)-xk(1,kp_idx_f)
-  write(*,*) 'xk-xk02',xk(2,kp_idx_i)-xk(2,kp_idx_f)
-  write(*,*) 'xk-xk03',xk(3,kp_idx_i)-xk(3,kp_idx_f)
 
   do irz =0, V_d%nr3-1
     ir3mod=irz-(irz/(dffts%nr3))*dffts%nr3
@@ -102,7 +99,6 @@ SUBROUTINE calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
   enddo
   
   ml=ml/dffts%nnr
-  write (*,*) 'Ml ibnd,ki->fbnd,kf ',bnd_idx_i,kp_idx_i,bnd_idx_f,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), ml, abs(ml)
 1001 format(A,I9,I9,3F14.9,3F14.9," ( ",e17.9," , ",e17.9," ) ",e17.9)
   mlocal=ml
 END SUBROUTINE calcmdefect_ml_rs
