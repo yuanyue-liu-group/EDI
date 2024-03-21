@@ -39,23 +39,33 @@ Methodology
 The mobility is calculated using Boltzmann transport theory under the momentum relaxation time approximation (MRTA).
 In the sampling of k point to calculate mobility, triangular integral algorithm is used.
 The triangular integral is a commonly used mathematical tool to calculate physical properties of crystalline materials.
-It involves integrating over a triangular region in the Brillouin zone, which is a mathematical construct that represents the periodicity of the crystal lattice.
-It is used to calculate quantities such as the density of states and the electronic band structure, which are important for understanding the behavior of electrons in solids.
-The integral takes into account the periodicity of the crystal lattice, and is used to calculate the dispersion relation of electrons, which determines their momentum and energy.
-The triangular integral is a fundamental tool in the study of electronic properties of materials, and is widely used in both theoretical and experimental research.
 For neutral defects, we employ a supercell method. The perturbation potential is calculated from DFT.  
-The charged defect are treated as a point charge and its perturbation potential as screened Coulomb potential. 
+The scattering matrix element is calculated by integrating the pertubration potential in supercell and the wavefunctions,
+which consists of local component integrated in real space and non-local component integrated in reciprocal space.
+For charged defects, they are treated as a point charge and its perturbation potential as screened Coulomb potential. 
+The dielectric function is obtained from first-principles calculations.
+The details of the methods could be found `here<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`.
+
 
 
 Capabilities
 ----
-EDI is capable of the following functions:
 
-- Calculate electron-defect scattering matrix element 
+Currently, the following functions are supported by EDI:
 
-- Find reduced k-point sampling using triangular integral algorithm
+- Calculate matrix element of electrons scattered by defect
 
-- Calculate carrier mobility limited by both neutral and charged defect as a function of carrier concentration
+   * Neutral defect
+
+   * Point charge defect
+
+- Calculate transport property such as carrier mobility 
+
+Planed functions to be supported in the future by EDI:
+
+- Calculate line defect scattering process
+
+- Calculate plane defect scattering process
 
 Performance 
 ----
@@ -70,7 +80,7 @@ EDI could easily run on large HPCs and utilize the full capacity.
 Reference
 ----
 
-The details in the above sections could be found in reference to be released soon.
+The details in the above sections could be found in `ACS Nano 2024, 18, 11, 8511–8516<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`.
 
 
 

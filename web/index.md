@@ -18,16 +18,21 @@ The code is efficient with MPI parallelization, and scales linearly with the sup
 
 # Capabilities
 
-EDI has the following functions:
+Currently, the following functions are supported by EDI:
 
-- Calculate electron-defect scattering matrix element 
+- Calculate matrix element of electrons scattered by defect
 
-- K-point sampling for 2D system based on triangular integral algorithm
+   * Neutral defect
+
+   * Point charge defect
 
 - Calculate transport property such as carrier mobility 
 
+Planed functions to be supported in the future by EDI:
 
+- Calculate line defect scattering process
 
+- Calculate plane defect scattering process
 
   {:refdef: style="text-align: center;"}
    ![fig1](./figs/fig1.png){:height="394px" width="429px"}
