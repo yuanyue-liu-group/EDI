@@ -16,6 +16,7 @@ The interaction between electrons and defects can have a significant impact on t
 To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state.
 This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure.
 
+..
 .. math ::
   \gamma=\int 2\pi \hbar \tau_{ik} \del f \bar f d k 
 
@@ -80,7 +81,7 @@ EDI could easily run on large HPCs and utilize the full capacity.
 Reference
 ----
 
-The details in the above sections could be found in `ACS Nano 2024, 18, 11, 8511–8516<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
+The details in the above sections could be found in `ACS Nano 2024, 18, 11, 8511–8516 <https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
 
 
