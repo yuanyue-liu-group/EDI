@@ -16,9 +16,8 @@ The interaction between electrons and defects can have a significant impact on t
 To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state.
 This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure.
 
-..
 .. math ::
-  \gamma=\int 2\pi \hbar \tau_{ik} \del f \bar f d k 
+..  \gamma=\int 2\pi \hbar \tau_{ik} \del f \bar f d k 
 
 
 EDI(electron-defect interaction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials.
@@ -45,7 +44,7 @@ The scattering matrix element is calculated by integrating the pertubration pote
 which consists of local component integrated in real space and non-local component integrated in reciprocal space.
 For charged defects, they are treated as a point charge and its perturbation potential as screened Coulomb potential. 
 The dielectric function is obtained from first-principles calculations.
-The details of the methods could be found `here<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
+The details of the methods could be found `here <https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
 
 
