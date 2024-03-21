@@ -44,7 +44,7 @@ The scattering matrix element is calculated by integrating the pertubration pote
 which consists of local component integrated in real space and non-local component integrated in reciprocal space.
 For charged defects, they are treated as a point charge and its perturbation potential as screened Coulomb potential. 
 The dielectric function is obtained from first-principles calculations.
-The details of the methods could be found `here<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`.
+The details of the methods could be found `here<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
 
 
@@ -80,7 +80,7 @@ EDI could easily run on large HPCs and utilize the full capacity.
 Reference
 ----
 
-The details in the above sections could be found in `ACS Nano 2024, 18, 11, 8511–8516<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`.
+The details in the above sections could be found in `ACS Nano 2024, 18, 11, 8511–8516<https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
 
 
