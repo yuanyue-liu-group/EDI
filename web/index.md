@@ -4,7 +4,7 @@ layout: default
 
 
   {:refdef: style="text-align: center;"}
- ![toc](./figs/TOC.png){:height="556px" width="715px"}
+ ![toc](./figs/edi2.png){:height="695px" width="1285px"}
   {: refdef}
 
 It is crucial to understand the processes involving electrons and atomic defects in the solid state, in order to develop advanced materials and devices. 
