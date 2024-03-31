@@ -6,6 +6,20 @@ Usage
 Running
 ------------
 
+EDI requires the wavefunction and perturbation potential obtained from first principle code as input data for calculations.
+Currently, QE is supported DFT engine.
+Here is a step-by-step instruction for generating the required data.
+
+Preparation
+^^^^^
+
+.. code-block:: console
+
+    $ mpirun -np $N edi.x -ni $N  >output
+
+
+calculated
+ 
 To run edi, use the following command:
 
 .. code-block:: console
@@ -41,6 +55,7 @@ Calculating mobility
 ------------
 
 To calcualted the transport mobility, the postprocessing script mu.py could be used.
+
 
 .. code-block:: console
 

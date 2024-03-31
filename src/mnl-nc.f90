@@ -20,9 +20,6 @@ SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
   integer ::nkb_perturb
   integer :: ijkb0, ih, jh, ikb, jkb
-  
-  !INTEGER,intent(in) :: bnd_idx_i, kp_idx_i, kp_idx_f,bnd_idx_f
-
   nkb_perturb=0
   DO nt_perturb = 1, v_mnl%ntyp
      DO na_perturb = 1, v_mnl%nat
@@ -74,7 +71,6 @@ SUBROUTINE calcmdefect_mnl_ks_noncolin(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   CALL deallocate_bec_type (  becp2_perturb )
   DEALLOCATE(vkb_perturb)
 
-  write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
 1001 format(A16,I9,I9, " ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)
   mnonlocal=mnl

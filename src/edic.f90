@@ -31,17 +31,10 @@ Program edic
   integer :: ierr
   COMPLEX(DP)  :: mlocal0,mlocal1,mlocal,mnonlocal0,mnonlocal1,mnonlocal,mcharge
     
-  !!!!!!!!!!!!! hdf5 debug
-  !INTEGER(HID_T)                               :: loc_id, attr_id, data_type, mem_type
-  !CALL H5Tcopy_f( H5T_NATIVE_INTEGER, mem_type, ierr )      
-  !write(*,*) 'ierr        ', ierr
-  !!!!!!!!!!!!! hdf5 debug
-
   integer::p_source
   real(dp):: m_tmp1,m_tmp2,m_tmp3,m_tmp4
 
   CALL mp_startup( start_images=.TRUE. )
-  !CALL mp_startup ( )
   IF ( ionode )  THEN
       write(*,"(///A56)")'----------------------------'
       write (*,"(/A55/)") 'Start EDIC program '
@@ -70,12 +63,6 @@ Program edic
 
   wfc_is_collected=.true.
   CALL read_file_new(wfc_is_collected)
-  write(*,1003) 'Number of Bands', nbnd
-  write(*,1003) 'Number of Plane Waves', npwx
-  write(*,1003) 'Number of K-points', nks
-  write(*,*) 'dogw', dogwfull
-  write(*,*) 'dogw', dogwdiag
-  write(*,*) 'dogw', do2d,do3d
   1000 format(A24," = ",I6)
   nwordwfc = nbnd*npwx*npol
 
@@ -96,28 +83,18 @@ Program edic
       write (*,"(/A55/)") 'Read BGW dielectric data '
       call get_chi_data()
       if ( p_rank==0) then
-          write(*,*)'gw read 1', p_rank
           call gw_eps_read(gw_epsmat_filename,gw_epsq1_data)
           call gw_eps_read(gw_eps0mat_filename,gw_epsq0_data)
       endif
  
-      write(*,*)'gw read 5 rank', p_rank,gw_epsq0_data%ng_data,MPI_comm_world 
       call gw_eps_bcast(p_rank,0,gw_epsq1_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
-      write(*,*)'gw read 5 rank eps0mat done', p_rank,gw_epsq0_data%ng_data,MPI_comm_world 
       call gw_eps_bcast(p_rank,0,gw_epsq0_data,MPI_comm_world,mpi_integer,MPI_DOUBLE_PRECISION)
-      ! if wait here on anvil: mem out
-      write(*,*)'gw read 5 rank epsmat done', p_rank,gw_epsq0_data%ng_data 
-      call flush(6)
    
       call gw_eps_init(gw_epsq1_data)
       call gw_eps_init(gw_epsq0_data)
-      write(*,*)'gw init 5 rank', p_rank,gw_epsq0_data%ng_data 
-      call flush(6)
 
       call get_gind_rhoandpsi_gw(gw_epsq1_data)
       call get_gind_rhoandpsi_gw(gw_epsq0_data)
-      write(*,*)'gw ind 5 rank', p_rank,gw_epsq0_data%ng_data 
-      call flush(6)
       write (*,"(/A55/)") 'Read BGW dielectric data '
       write(*,"(///A56)")'----------------------------'
     endif
@@ -159,16 +136,14 @@ Program edic
           allocate(V_nc4( V_d%nr1 * V_d%nr2 * V_d%nr3, 4))
           V_nc(:, 1) =     V_d%pot(:) -    V_p%pot(:) - V_d_shift + V_p_shift
 
-
-          V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:)
-          V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:)
-          V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:)
-
+          V_nc(:, 2) = Bxc_1_d%pot(:) -Bxc_1_p%pot(:) 
+          V_nc(:, 3) = Bxc_2_d%pot(:) -Bxc_2_p%pot(:) 
+          V_nc(:, 4) = Bxc_3_d%pot(:) -Bxc_3_p%pot(:) 
       else
           allocate(V_colin( V_d%nr1 * V_d%nr2 * V_d%nr3))
           V_colin(:) = V_d%pot(:) -V_p%pot(:) - V_d_shift + V_p_shift
       endif
-      write(*,*) 'vcolin' ,shape(v_colin)
+      write(*,*)'V_d_shift,V_p_shift',V_d_shift,V_p_shift
     
   endif
        
@@ -197,28 +172,19 @@ Program edic
   
   nchunk=bndkp_pair%npairs/(p_size)+1
   do ig = 1,bndkp_pair%npairs
-    write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
     if ( (ig<=nchunk*(p_rank+1) .and. ig>nchunk*(p_rank)) )then
-      write(*,*)'in loop, image_id',ig,my_image_id
       kp_idx_i = bndkp_pair%kp_idx(ig,1) 
       kp_idx_f = bndkp_pair%kp_idx(ig,2) 
       bnd_idx_i = bndkp_pair%bnd_idx(ig,1) 
       bnd_idx_f = bndkp_pair%bnd_idx(ig,2) 
-      write(*,*)'evc1 size',shape(evc1)
-      write(*,*)'restart_dir()', restart_dir()
-      write(*,*)'kp_idx_i,kp_idx_f',kp_idx_i,kp_idx_f
-      write(*,*)'bnd_idx_i,bnd_idx_f',bnd_idx_i,bnd_idx_f
       CALL read_collected_wfc ( restart_dir(), kp_idx_i, evc1 )
-      write(*,*)'evc1',evc1(1,1),size(evc1)
       CALL read_collected_wfc ( restart_dir(), kp_idx_f, evc2 )
-      write(*,*)'evc2',evc2(1,1),shape(evc2)
 
       if (calcmcharge .and. mcharge_dolfa) then
           call calcmdefect_charge_lfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
           bndkp_pair%mc(ig)=mcharge
       endif
       if (calcmcharge .and. .not. mcharge_dolfa) then
-          write(*,*) 'k0sc1',k0screen_read
           call calcmdefect_charge_nolfa(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,noncolin,mcharge)
           bndkp_pair%mc(ig)=mcharge
       endif
@@ -232,16 +198,7 @@ Program edic
       endif
       
       if (noncolin .and. lspinorb .and. calcmlocal)then
-          !V_nc(:, 1) =     V_d%pot(:) - V_d_shift 
-          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          !V_nc(:, 1) =     V_p%pot(:) - V_p_shift
-          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          !V_nc(:, 1) =     V_d%pot(:) 
-          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          !V_nc(:, 1) =     V_p%pot(:)
-          !call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
           call calcmdefect_ml_rs_noncolin(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
-          write (*,*)  'Mifl',mlocal,mnonlocal0,mnonlocal1
       endif
       if (noncolin .and. lspinorb .and. calcmnonlocal)then
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
@@ -258,7 +215,6 @@ Program edic
       bndkp_pair%m(ig)=mlocal+mnonlocal0-mnonlocal1
    
 
-      write (*,*)    'ibnd, ik,ki(xyz),ei,vi(xyz);fbnd, fk,kf(xyz),ef,vf(xyz);  wt, m,mc,ml,mnl0,mnl1'
       write (*,*)  'Mif',  bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1),&
                    bndkp_pair%k_coord(ig,1,1),bndkp_pair%k_coord(ig,2,1),bndkp_pair%k_coord(ig,3,1),&
                    bndkp_pair%e_pair(ig,1),&
@@ -269,24 +225,15 @@ Program edic
                    bndkp_pair%v_pair(ig,1,2),bndkp_pair%v_pair(ig,2,2),bndkp_pair%v_pair(ig,3,2), &
                    bndkp_pair%wt(ig),bndkp_pair%m(ig),bndkp_pair%mc(ig),mlocal,mnonlocal0,mnonlocal1
  
-  
-      write (*,1003) 'M_tot ni ki --> nf kf ', bnd_idx_f,kp_idx_f, '-->', bnd_idx_i,kp_idx_i, &
-      m_loc+m_nloc, abs(m_loc+m_nloc)
-      
     endif
   enddo
 
 
   call  mpi_barrier(mpi_comm_world,ierr)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! bcast bndkp_pair%m and mc
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   nchunk=bndkp_pair%npairs/(p_size)+1
   do ig = 1,bndkp_pair%npairs
-    write(*,*)'ig image_id_loop image',ig,p_rank,p_size 
     if ( (ig<=nchunk*(p_rank+1) .and. ig>nchunk*(p_rank)) )then
-      write(*,*)'in loop, image_id',ig,my_image_id
       p_source=p_rank
       m_tmp1= real(bndkp_pair%m(ig))
       m_tmp2= aimag(bndkp_pair%m(ig))
@@ -294,8 +241,6 @@ Program edic
       m_tmp4= aimag(bndkp_pair%mc(ig))
     endif
     p_source=(ig-1)/nchunk
-    write(*,*)'ps',p_rank,p_source
-    write(*,*)'ig, image_id',ig,p_rank,p_source,my_image_id
     CALL MPI_BCAST(   m_tmp1, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
     CALL MPI_BCAST(   m_tmp2, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
     CALL MPI_BCAST(   m_tmp3, 1, MPI_DOUBLE_PRECISION,p_source, mpi_comm_world, ierr )
@@ -304,9 +249,6 @@ Program edic
     bndkp_pair%mc(ig)=complex(m_tmp3,m_tmp4)
   enddo
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! gamma mu calculation
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if ( p_rank==0) call postprocess()
 
   call environment_end('EDIC')

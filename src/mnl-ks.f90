@@ -71,7 +71,6 @@ SUBROUTINE calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_mnl,mnonlo
   CALL deallocate_bec_type (  becp2_perturb )
   DEALLOCATE(vkb_perturb)
 
-  write (stdout,*) 'Mnl ki->kf ', kp_idx_i,kp_idx_f, xk(:,kp_idx_i),xk(:,kp_idx_f), mnl, abs(mnl)
 
 1001 format(A,I9,I9,3F14.9,3F14.9," ( ",e17.9," , ",e17.9," ) ",e17.9)
 1002 format(A16,I9,I9," ( ",e17.9," , ",e17.9," ) ",e17.9/)

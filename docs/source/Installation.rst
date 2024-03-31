@@ -126,7 +126,7 @@ Anvil
 Under QE root folder::
 
    $ module load hdf5 fftw gcc intel-mkl 
-   $ ./configure --with-hdf5 --with-hdf5-libs="-lhdf5_fortran -lhdf5"
+   $ ./configure --with-hdf5 --with-hdf5-libs="-lhdf5_fortran -lhdf5" --with-hdf5-include="$HDF5_HOME/include"
    $ make --with-hdf5 pw
 
 .. note::

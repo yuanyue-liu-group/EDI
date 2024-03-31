@@ -4,7 +4,7 @@ layout: default
 
 
   {:refdef: style="text-align: center;"}
- ![fig1](./figs/fig0.png){:height="394px" width="429px"}
+ ![toc](./figs/edi2.png){:height="487px" width="900px"}
   {: refdef}
 
 It is crucial to understand the processes involving electrons and atomic defects in the solid state, in order to develop advanced materials and devices. 
@@ -18,16 +18,21 @@ The code is efficient with MPI parallelization, and scales linearly with the sup
 
 # Capabilities
 
-EDI has the following functions:
+Currently, the following functions are supported by EDI:
 
-- Calculate electron-defect scattering matrix element 
+- Calculate matrix element of electrons scattered by defect
 
-- K-point sampling for 2D system based on triangular integral algorithm
+   * Neutral defect
 
-- Calculate carrier mobility 
+   * Point charge defect
 
+- Calculate transport property such as carrier mobility 
 
+Planed functions to be supported in the future by EDI:
 
+- Calculate line defect scattering process
+
+- Calculate plane defect scattering process
 
   {:refdef: style="text-align: center;"}
    ![fig1](./figs/fig1.png){:height="394px" width="429px"}
@@ -44,5 +49,5 @@ EDI could easily run on large HPCs and utilize the full capacity.
 
 # Reference
 
-Available soon.
+ Zhongcan Xiao, Rongjing Guo, Chenmu Zhang, and Yuanyue Liu. Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides.  ACS Nano.  [DOI: 10.1021/acsnano.4c01033](https://pubs.acs.org/doi/10.1021/acsnano.4c01033)
 

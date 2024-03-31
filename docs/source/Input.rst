@@ -10,10 +10,10 @@ Different calculation options are set in input file as well.
 Below is the detailed discussion of the input variables and their meanings.
 
 
-Variables
+Input file
 ------------
 
-The meaning of all variables are listed below in the table:
+A brief table showing the meaning of all variables are listed below in the table:
 
 ====================      ======================================
 variable                     meaning                            
@@ -90,3 +90,109 @@ An example input file is shown below:
     gw_eps0mat_filename='./eps0mat.h5'
     /
 
+Input parameters
+----------------
+
+A detailed description of the input parameters is as follows:
+
+QE parameters 
+^^^^^^^^^^
+.. code::
+  prefix
+  outdir
+  noncolin  
+  lspinorb  
+
+They should be the same as used in QE.
+
+..
+They should be the same as the ``prefix`` and ``outdir`` parameter in QE.
+
+
+Energy alignment
+^^^^^^^^
+The energies calculated from different systems may not be able to directly compare. 
+In order to obtain the correct perturbation potential, we need to choose proper energy alignment methods.
+EDI provides 2 types of energy alignment algorithms:
+
+* vacuum alignment
+* core alignment.
+
+Vacuum alignment is suitable for 2D materials, a 2D plane chosen from input file will be used to calculate an averaged energy to represent the vacuum energy.
+Currently, only plane perpendicular to z direction is supported.
+To use vacuum alignment, set ``lvacalign`` to ``.true.``.
+``vac_idx`` also needs to be set.
+This parameter sets the location of the vacuum plane, in the form of the FFT grid number index from the DFT calculation.
+
+
+Core alignment is suitable for 3D bulk materials, the value should be the core level energies of proper element. 
+To use core alignment, set ``lcorealign`` to ``.true.``.
+``core_v_d`` and ``core_v_p`` needs to be set for this option.
+The represent the core level energy of defect and pristine structures respectively.
+
+Transport calculation data
+^^^^^^^^^^^
+The scattering input and output wavefunctions are needed for the calcualtion of matrix elment.
+For the mobility calculation in charge carrier transport, the wavefunctions pairs are determined using triangular algorithm from the energy conservation term in the Fermi's golden rule.
+The index of the wavefunction pairs are given in the weight file, which is set by parameter ``wt_filename``.
+
+..
+  RTA approximation of mobility.
+  wt_filename                  weight file for mobility calculation
+
+
+The weight file can be obtained with the provided scripts.
+
+
+Neutral defect perturbtation potential
+^^^^^^^^^^^
+
+The neutral defect perturbation potential is separated into local and non-local parts. 
+To calculate matrix element from it, set ``calcmlocal`` and ``calcmnonlocal`` to ``.true.``. 
+Additionally, the following parameters should be set to determine the files for the potentials.
+
+*  V_d_filename                 defect system local potential 
+*  Bxc_1_d_filename             defect system magnetic field along x
+*  Bxc_2_d_filename             defect system magnetic field along y
+*  Bxc_3_d_filename             defect system magnetic field along z
+*  V_p_filename                 pristine system local potential
+*  Bxc_1_p_filename             pristine system magnetic field along x
+*  Bxc_2_p_filename             pristine system magnetic field along y
+*  Bxc_3_p_filename             pristine system magnetic field along z
+
+.. note::
+  The Bxc file is needed only for SOC calculations.
+
+
+
+
+Charged defect perturbtation potential
+^^^^^^^^^^^
+
+If defect is charged, the perturbation potential is represented with a different model from neutral ones.
+Currently, supported model is Coulomb potential of a point charge, screened by the material. 
+Various screening model is supported by EDI.
+
+To perform this calculation, set the parameter ``calcmcharge`` to ``.true.``.
+
+Local Fielad Approximation (LFA) is supported for the charged defect systems.
+To turn on, set the parameter ``mcharge_dolfa`` to ``.true.``.
+
+Currently, the supported screening models include:
+
+* Thomas-Fermi model with dielectric constant
+
+..
+  <* Set ``qeh_eps_filename`` for 
+
+* Quantum Electrostatic Hetereostructure model (scalar dielectric function)
+
+* Lindhard model (matrix dielectric function)
+
+..
+  qeh_eps_filename            dielectric function file from QEH
+  doqeh                       use QEH dielectric function 
+  dogw                        use BGW dielectric function
+  k0screen_read               Lindhard model carrier screening
+  gw_epsmat_filename          BGW dielectric function file for grid q
+  gw_eps0mat_filename          BGW dielectric function file for small q

@@ -14,7 +14,7 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   USE becmod, ONLY: becp, calbec, allocate_bec_type, deallocate_bec_type
      
   Complex(dp), allocatable :: vkb_perturb(:,:)
-  COMPLEX(DP) :: mnl
+  COMPLEX(DP) :: mnl,mnl_at
   COMPLEX(DP) ,intent(inout):: mnonlocal
   type(V_file),intent(in):: v_mnl
   INTEGER :: ibnd, ik, ik0,ibnd0, na_perturb, nt_perturb
@@ -31,6 +31,7 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
      ENDDO
   ENDDO
 
+  write(*,*)'nh',nh
   CALL allocate_bec_type ( nkb_perturb, nbnd, becp1_perturb )
   CALL allocate_bec_type ( nkb_perturb, nbnd, becp2_perturb )
   ALLOCATE(vkb_perturb(npwx,nkb_perturb))
@@ -43,19 +44,21 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
   DO nt_perturb = 1, v_mnl%ntyp
     DO na_perturb = 1, v_mnl%nat
        IF(v_mnl%ityp (na_perturb) == nt_perturb)THEN
+          mnl_at=0
           DO ih = 1, nh (nt_perturb)
               ikb = ijkb0 + ih
-              mnl=mnl+&
+              mnl_at=mnl_at+&
                 conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,1,nt_perturb)&
               + conjg(becp1_perturb%nc(ikb,1,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,2,nt_perturb)&
               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,1,ibnd) * dvan_so(ih,ih,3,nt_perturb)&
               + conjg(becp1_perturb%nc(ikb,2,ibnd0))*becp2_perturb%nc(ikb,2,ibnd) * dvan_so(ih,ih,4,nt_perturb)
-                write(*,*)'itype,iatom,ih,ikb,jkb',nt_perturb,na_perturb,ih,ikb,jkb,mnl
+                   
+               !write(*,*)'mnl_at diag',na_perturb,nt_perturb,nh (nt_perturb),ih, dvan_so(ih,ih,:,nt_perturb),mnl_at
 !                   ENDIF
               DO jh = ( ih + 1 ), nh(nt_perturb)
                  jkb = ijkb0 + jh
 
-                mnl=mnl + &
+                mnl_at=mnl_at + &
                    conjg(becp1_perturb%nc(ikb, 1, ibnd0))*becp2_perturb%nc(jkb, 1, ibnd) &
                    * dvan_so(ih,jh,1,nt_perturb) &
                    + &
@@ -85,23 +88,24 @@ SUBROUTINE calcmdefect_mnl_ks_soc(ibnd,ibnd0,ik,ik0,v_mnl,mnonlocal)
                    + &
                    conjg(becp1_perturb%nc(jkb, 2, ibnd0))*becp2_perturb%nc(ikb, 2, ibnd) &
                    * dvan_so(jh,ih,4,nt_perturb) 
-       
-                    write(*,*)'itype,iatom,ih,ikb,jkb',nt_perturb,na_perturb,ih,ikb,jkb,mnl
-                   ENDDO
                    
-                enddo
-                ijkb0 = ijkb0 + nh(nt_perturb)
-             write(*,*)'itype,iatom,',nt_perturb,na_perturb,jkb,mnl
-             endif
-           enddo
-       enddo
+           
+               !write(*,*)'mnl_at offdiag',na_perturb,nt_perturb,nh (nt_perturb),jh,ih, dvan_so(jh,ih,:,nt_perturb),mnl_at
+              ENDDO
+         enddo
+         ijkb0 = ijkb0 + nh(nt_perturb)
+         mnl=mnl+mnl_at
+
+         write(*,*)'mnl_at',na_perturb,nt_perturb,nh (nt_perturb),mnl_at
+       endif
+    enddo
+  enddo
 
 
   CALL deallocate_bec_type (  becp1_perturb )
   CALL deallocate_bec_type (  becp2_perturb )
   DEALLOCATE(vkb_perturb)
 
-  write (stdout,1002) 'Mnl ki->kf ', ik0,ik, mnl, abs(mnl)
   mnonlocal=mnl
 
 1001 format(A16,I9,I9, " ( ",e17.9," , ",e17.9," ) ",e17.9)
