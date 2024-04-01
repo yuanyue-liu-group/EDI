@@ -1,5 +1,5 @@
 &inputpp
-   prefix='mx2',
+   prefix='mx2-d',
    outdir = 'dout/'
    filplot = 'V_d.dat'
    plot_num= 1

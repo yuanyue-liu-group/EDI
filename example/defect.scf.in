@@ -1,7 +1,7 @@
 
 &control
    calculation = 'scf'
-   prefix='mx2',
+   prefix='mx2-d',
    pseudo_dir = '.',
    outdir='dout/'
 /
