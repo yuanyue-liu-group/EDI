@@ -40,24 +40,57 @@ DFT calculation
 
     $ mpirun -np $N $BIN/pp.x <defect.pp.in     >defect.pp.out
 
-EDI calculation
-----------------
+EDI preprocessing
+-----------------
 
-3. Generate the needed k points for e-d interaction matrix elements with triangular integral method
+3. Calculate the band structure for full k grid
+
+   Use the input files ``unitcell.scf.in``, ``unitcell.w90.in`` to generate a coarse grid band structure.
+
+.. code-block:: console
+
+    $ mpirun -np $N $BIN/pw.x <unitcell.scf.in  >unitcell.scf.out
+
+    $ mpirun -np $N $BIN/pw.x <unitcell.w90.in  >unitcell.w90.out
+
+..
+
+   Use the input files  ``w90_mos2.win``, ``pw2w90.in``  to generate a fine grid band structure.  This example is using ``wannier90.x``, assuming under the same directory ``$BIN``.
+
+.. code-block:: console
+
+    $ mpirun -np $N $BIN/wannier90.x -pp w90_mos2
+
+    $ mpirun -np $N $BIN/pw2wannier90.x <pw2w90.in >pw2w90.out 
+
+    $ mpirun -np $N $BIN/wannier90.x     w90_mos2
+
+    $ mpirun -np $N $BIN/postw90.x     w90_mos2
+
+
+..
+
+   The generated velocity file ``w90_mos2_geninterp.dat`` is needed for next step.
+
+4. Generate the needed k points for e-d interaction matrix elements with triangular integral method
 
    Use the script ``wmat_mos2.py`` to obtain a list of k points in file ``kpt.dat``, and a list of k point pairs to calculate the e-d interaction matrix element together with the weight ``wt.dat``.
 
-   Prepare the input files for nscf calculation with the data from ``kpt.dat`` file.
-   This resulted file is provided as ``unitcell.nscf.in``.
 
 .. code-block:: console
 
     $ python wmat_mos2.py
 
+..
+
+    Prepare the input files for nscf calculation with the data from ``kpt.dat`` file.
+    This resulted file is provided as ``unitcell.nscf.in``.
 
 
+EDI calculation
+----------------
 
-4. Generate the wavefunctions for the needed k points
+5. Generate the wavefunctions for the needed k points
 
    Use the input files ``unitcell.scf.in`` and ``unitcell.nscf.in`` to generate wavefunctions with proper k points.
 
@@ -67,7 +100,8 @@ EDI calculation
 
     $ mpirun -np $N $BIN/pw.x -nk $NK <unitcell.nscf.in  >unitcell.nscf.out
 
-5. Calculate e-d interaction matrix element
+
+6. Calculate e-d interaction matrix element
 
    Use the input files ``calcmdefect.dat`` and prepared weight file ``wt.dat`` to perform matrix element calculation with ``edi.x``.
 
@@ -80,7 +114,7 @@ EDI calculation
 Mobility calculation
 --------------------
 
-6. Use MRTA model to calcualted the carrier mobility
+7. Use MRTA model to calcualted the carrier mobility
 
    Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
 

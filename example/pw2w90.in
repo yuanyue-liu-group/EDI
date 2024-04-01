@@ -1,0 +1,9 @@
+
+&inputpp
+   outdir = './dout'
+   prefix = "mx2"
+   seedname = "w90_mos2"
+   write_mmn = .true.
+   write_amn = .true.
+   write_unk = .false.
+/
