@@ -1,30 +1,18 @@
-
 &calcmcontrol
-   prefix='mos2',
+   prefix='mx2',
    outdir='dout/'
-   wt_filename='wt.dat'
-   noncolin =.true.
-   lspinorb =.true.
 
-   !lvacalign=.true.
-   !vac_idx=0
-   !lcorealign=.false.
-   !core_v_d=0.0
-   !core_v_p=0.0
-   !calcmlocal = .true.
-   !calcmnonlocal = .true.
-   !V_d_filename='./V_d.dat'
-   !Bxc_1_d_filename='./Bxc_1_d.dat'
-   !Bxc_2_d_filename='./Bxc_2_d.dat'
-   !Bxc_3_d_filename='./Bxc_3_d.dat'
-   !V_p_filename='./V_p.dat'
-   !Bxc_1_p_filename='./Bxc_1_p.dat'
-   !Bxc_2_p_filename='./Bxc_2_p.dat'
-   !Bxc_3_p_filename='./Bxc_3_p.dat'
+   lvacalign=.true.
+   vac_idx=0
+   lcorealign=.false.
+   core_v_d=0.0
+   core_v_p=0.0
    
-   calcmcharge=.true.
-   qeh_eps_filename='./eps.dat'
-   eps_type='qeh'
-   doqeh=.true.
-   k0screen_read=0.27
+   wt_filename='scfwt.dat'
+   V_d_filename='V_d.dat'
+   V_p_filename='V_p.dat'
+
+   calcmlocal = .true.
+   calcmnonlocal = .true.
+
 /

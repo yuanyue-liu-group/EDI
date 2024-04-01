@@ -1,0 +1,8 @@
+&inputpp
+   prefix='mx2',
+   outdir = 'dout/'
+   filplot = 'V_p.dat'
+   plot_num= 1
+/
+&plot
+/

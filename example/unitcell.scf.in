@@ -1,0 +1,39 @@
+&control
+   calculation = 'scf'
+   prefix='mx2',
+   pseudo_dir = '.',
+   outdir='dout/'
+/
+&system
+   ibrav=  0,
+   A=3.186
+   nat=  3, ntyp= 5,
+   ecutwfc=40.0,
+   occupations='smearing'
+   smearing='gaussian'
+   degauss=0.01
+   assume_isolated='2D'
+/
+&electrons
+   diagonalization='david'
+   mixing_mode = 'plain'
+   mixing_beta = 0.1
+   conv_thr =  1.0d-6
+/
+
+ATOMIC_SPECIES
+Mo  95.96 Mo.upf
+S   32.06  S.upf
+
+CELL_PARAMETERS alat
+ 1.0000000000 0.0000000000 0.0000000000
+-0.5000000000 0.8660254038 0.0000000000
+ 0.0000000000 0.0000000000 8.0000000000
+
+ATOMIC_POSITIONS crystal
+Mo             0.6666666666        0.3333333333        0.5000000000
+S              0.0000000000        0.0000000000        0.5613878842
+S              0.0000000000        0.0000000000        0.4386121158
+
+K_POINTS automatic
+36 36 1 0 0 0
