@@ -38,7 +38,7 @@ EDICSRC = edic.f90\
   
 OBJ = $(EDICMODS:.f90=.o) $(EDICSRC:.f90=.o)
 
-EXE = edic.x
+EXE = edi.x
 
 default: $(OBJ)
 	$(LD) $(LDFLAGS) -o $(EXE) $(OBJ) $(MODULES) $(LIBOBJS) $(QELIBS)
