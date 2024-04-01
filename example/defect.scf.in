@@ -8,7 +8,7 @@
 &system
    ibrav=  0, 
    A=3.186000
-   nat=  107, ntyp= 5,
+   nat=  107, ntyp= 2,
    ecutwfc=40.0,
    occupations='smearing'
    smearing='gaussian'

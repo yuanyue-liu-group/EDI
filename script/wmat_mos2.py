@@ -53,8 +53,8 @@ if __name__ == '__main__':
 
     ## here we write the wmat in readable format
     fo = open(out_folder+"readable_wmat.dat", "w")
-    fo1 = open(out_folder+"scfwt.dat", "w")
-    fo2 = open(out_folder+"scfkidx.dat", "w")
+    fo1 = open(out_folder+"wt.dat", "w")
+    fo2 = open(out_folder+"kpt.dat", "w")
     print("start to write wmat:")
     nbnd = len(bande[0])
     
