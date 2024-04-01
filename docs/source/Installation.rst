@@ -1,7 +1,5 @@
 Installation
-=====
-
-.. _installation:
+===============
 
 Download
 --------
@@ -25,7 +23,7 @@ The following packages are required to install EDI:
 * Quantum Espresso
 
 Compile Quantum Espresso
--------------
+---------------------------
 
 Currently, Quantum Espresso package is required to run EDI.
 Additional required library hdf5 should be compiled with QE.
@@ -112,7 +110,7 @@ Note that paths to the HDF5 library may need to be updated.
 Tested on Ubuntu 20.04.
 
 Lonestar 6
-^^^^^
+^^^^^^^^^^
 
 Under QE root folder::
 

@@ -2,7 +2,7 @@
 
 ## Main page
 
-[https://zhongcanxiao.github.io/EDI](https://zhongcanxiao.github.io/EDI)
+[https://yuanyue-liu-group.github.io/EDI](https://yuanyue-liu-group.github.io/EDI)
 
 ## Documentation
 

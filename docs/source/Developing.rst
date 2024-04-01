@@ -1,10 +1,8 @@
 Development
-=====
-
-.. _installation:
+=============
 
 Future functionality
-------------
+---------------------
 
 More supported calculation methods and models to come in the future.
 
