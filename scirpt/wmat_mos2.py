@@ -12,22 +12,19 @@ if __name__ == '__main__':
     plot_mode = True
     ecut = 0.100 # energy cutoff for k points in eV unit
     ef=-0.05
-    nbnd_valence=26
-    nbnd_valence_w90=14
+    nbnd_valence=14
+    nbnd_valence_w90=8
     ibndlist=[1,2]
-    nqf = 30 # fine q grid
-    nkf = 30 # fine k grid
     nqf = 144 # fine q grid
     nkf = 144 # fine k grid
-    out_folder = "./kq30/" # output files folder 
-    velocity_fn="v30.dat"
     out_folder = "./kq144/" # output files folder 
-    velocity_fn="v.dat"
+    velocity_fn="w90_mos2_geninterp.dat"
     ncore=4
     
 
    #read E, V 
     _, bande, velocity = io_files.reader_velocity(out_folder+velocity_fn , nbnd_valence_w90,ibndlist) 
+
 
    #kp set up 
     fermi_level = np.min(bande)+ef
@@ -42,7 +39,7 @@ if __name__ == '__main__':
 
    #calculate wt 
     pseudo_freq = np.zeros((nqf*nqf, 1))
-    wmat = qirr_sym.get_kq_weight_mat_mp(kf_ibz, pseudo_freq, bande, nqf,efermi=fermi_level, stdout=True, cores=ncore, interp_w=False, za_qcut=0,     reci_vec=RECI_VEC) # obtain weight matrix
+    wmat = qirr_sym.get_kq_weight_mat_mp(kf_ibz, pseudo_freq, bande, nqf,efermi=fermi_level, stdout=True, cores=ncore, interp_w=False, za_qcut=0,     reci_vec=RECI_VEC,triangular_wt=True) # obtain weight matrix
     np.savez(out_folder+"weights.npz", wmat)
 
 

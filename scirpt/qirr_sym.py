@@ -209,7 +209,7 @@ def kindex_add(ik, iq, nqf1, nqf2=None):
 
 #     return kq_wmat 
 
-def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, za_qcut=0, reci_vec=None):
+def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, za_qcut=0, reci_vec=None,triangular_wt=True):
     nmode = len(freq[0])
     nbnd = len(bande[0])
     nk = len(ikbz_list)
@@ -223,7 +223,7 @@ def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, 
     for i in range(nk):
         ik = ikbz_list[i]
         for ibnd in range(nbnd):
-            weight_iq = get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi, interp_w, za_qcut, reci_vec)
+            weight_iq = get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi, interp_w, za_qcut, reci_vec,triangular_wt)
             for jbnd in range(nbnd):
                 for im in range(nmode):
                     kq_wmat[ibnd, jbnd, im][ik] = np.copy( weight_iq[:, im, jbnd] )
@@ -236,7 +236,7 @@ def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, 
     return kq_wmat 
 
 
-def get_kq_weight_mat_mp(ikbz_list, freq, bande, nqf, efermi=-0.1, stdout=False, cores=1, interp_w=False, za_qcut=0, reci_vec=None):
+def get_kq_weight_mat_mp(ikbz_list, freq, bande, nqf, efermi=-0.1, stdout=False, cores=1, interp_w=False, za_qcut=0, reci_vec=None,triangular_wt=True):
     import multiprocessing as mp 
     from functools import partial 
 
@@ -292,7 +292,7 @@ def get_kq_weight_mat_mp(ikbz_list, freq, bande, nqf, efermi=-0.1, stdout=False,
     return kq_wmat 
 
 
-def get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi=0.0, interp_w=False, za_qcut=0, reci_vec=None):
+def get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi=0.0, interp_w=False, za_qcut=0, reci_vec=None,triangular_wt=True):
     # if efermi < 0.0:
     #     bande = bande - np.min(bande) - efermi 
     # else:
@@ -332,6 +332,7 @@ def get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi=0.0, interp_w=False, za_
                 wgq = 0.0 
                 # print("cutoff at iq, im:", iq, im)
             for jbnd in range(nbnd):
+              if triangular_wt:
                 if abs(_bande[ikq,jbnd]-ikibe)>freq_cut:
                     continue 
 
@@ -339,7 +340,9 @@ def get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi=0.0, interp_w=False, za_
                 F1 = 1.0 - wgkq + wgq 
                 F2 = wgkq + wgq 
                 weight_iq[iq][im][jbnd] = get_qweight(iq, ik, ibnd, jbnd, im, freq, _bande, nqf, F1, F2) 
-                # weight_iq[im,jbnd][iq,0] = get_qweight(iq, ik, ibnd, jbnd, im, freq, _bande, nqf, F1, F2) 
+              else:
+                dE=bande[ik, ibnd] - bande[ikq, jbnd] 
+                weight_iq[iq][im][jbnd] = exp(-(dE/degauss)**2/2)/((2*pi)**0.5*degauss)
 
     return weight_iq 
 

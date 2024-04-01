@@ -15,3 +15,5 @@ inv_s2ev = 1./ev2inv_s
 evinv_a2cminv_s = 1.519267582e7
 
 A2cm = 1e-8
+
+degauss=0.01
