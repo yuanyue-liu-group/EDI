@@ -1,7 +1,7 @@
 Tutorial
 ========
 
-In the example, we provide the instructions and files needed to calcualte carrier mobility limited by S-vacancy of MoS\ :sub:`2`\ .
+In the example, we provide the instructions and files needed to calculate carrier mobility limited by S-vacancy of MoS\ :sub:`2`\ .
 After downloading the package, the files could be found in ``example`` folder.
 
 Setup
