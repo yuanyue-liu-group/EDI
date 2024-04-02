@@ -24,7 +24,7 @@ subroutine get_wt_data()
     10 CLOSE (1)
 
 
-    write(*,*) wt_filename, 'lines',nlines
+    !write(*,*) wt_filename, 'lines',nlines
     bndkp_pair%npairs=nlines-1
 
     REwind (iunpot_perturb)

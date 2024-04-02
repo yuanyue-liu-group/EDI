@@ -35,14 +35,14 @@ Program edic
   real(dp):: m_tmp1,m_tmp2,m_tmp3,m_tmp4
 
   CALL mp_startup( start_images=.TRUE. )
-  IF ( ionode )  THEN
-      write(*,"(///A56)")'----------------------------'
-      write (*,"(/A55/)") 'Start EDIC program '
-      write(*,"(A56//)")'----------------------------'
-  ENDIF
+!  IF ( ionode )  THEN
+!      write(*,"(///A56)")'----------------------------'
+!      write (*,"(/A55/)") 'Start EDIC program '
+!      write(*,"(A56//)")'----------------------------'
+!  ENDIF
   
 
-  CALL environment_start ( 'EDIC' )
+  CALL environment_start ( 'EDI' )
 
   call  mpi_comm_rank(mpi_comm_world,p_rank,ik)
   call  mpi_comm_size(mpi_comm_world,p_size,ik)
@@ -161,11 +161,17 @@ Program edic
   allocate(psic3(dfftp%nnr))
   allocate(psic4(dfftp%nnr))
 
-      call flush(6)
   write(*,"(///A56)")'----------------------------'
   write (*,"(/A55/)") 'Start M calculation k loop'
   write(*,"(A56//)")'----------------------------'
-      call flush(6)
+  if (calcmcharge ) then
+     write (*,"(/A55/)") '    Point charge defect'
+  else
+     write (*,"(/A55/)") '    Neutral defect'
+  endif
+  write (*,"(/A55/)") '                          '
+  write (*,"(/A55/)") 'The matrix elements are in the following format:'
+  write (*,*) ' Mif, band and k point index of |phi_i>,  band and k point index of |phi_j>,  value of <phi_i|M|phi_f>'
 
   call  mpi_barrier(mpi_comm_world,ierr)
   ! k pair parralellization
@@ -215,16 +221,13 @@ Program edic
       bndkp_pair%m(ig)=mlocal+mnonlocal0-mnonlocal1
    
 
-      write (*,*)  'Mif',  bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1),&
-                   bndkp_pair%k_coord(ig,1,1),bndkp_pair%k_coord(ig,2,1),bndkp_pair%k_coord(ig,3,1),&
-                   bndkp_pair%e_pair(ig,1),&
-                   bndkp_pair%v_pair(ig,1,1),bndkp_pair%v_pair(ig,2,1),bndkp_pair%v_pair(ig,3,1),&
-                   bndkp_pair%bnd_idx(ig,2),bndkp_pair%kp_idx(ig,2),&
-                   bndkp_pair%k_coord(ig,1,2),bndkp_pair%k_coord(ig,2,2),bndkp_pair%k_coord(ig,3,2),&
-                   bndkp_pair%e_pair(ig,2),&
-                   bndkp_pair%v_pair(ig,1,2),bndkp_pair%v_pair(ig,2,2),bndkp_pair%v_pair(ig,3,2), &
-                   bndkp_pair%wt(ig),bndkp_pair%m(ig),bndkp_pair%mc(ig),mlocal,mnonlocal0,mnonlocal1
- 
+      if (calcmcharge ) then
+           write (*,*)  'Mif',  bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1), ' -> ',&
+                   bndkp_pair%bnd_idx(ig,2),bndkp_pair%kp_idx(ig,2), bndkp_pair%mc(ig)
+      else
+           write (*,*)  'Mif',  bndkp_pair%bnd_idx(ig,1),bndkp_pair%kp_idx(ig,1), ' -> ',&
+                   bndkp_pair%bnd_idx(ig,2),bndkp_pair%kp_idx(ig,2), bndkp_pair%m(ig)
+      endif
     endif
   enddo
 

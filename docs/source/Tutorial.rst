@@ -111,17 +111,104 @@ EDI calculation
 
     $ mpirun -np $N $BIN/edi.x -ni $N  >output
 
+..
+
+   This step will generate an output files containing the caluclation setup information and matrix element, and a postprocessing file ``pp.dat``.
+
+   Following is an example of the output file:
+
+.. code-block:: console
+
+     Program EDI v.1.1 starts on  1Apr2024 at 17: 7:33 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+
+     Parallel version (MPI), running on    16 processors
+
+     MPI processes distributed on     1 nodes
+     path-images division:  nimage    =      16
+     242322 MiB available memory on the printing compute node when the environment starts
+
+
+     Reading xml data from directory:
+
+     dout/mx2.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+
+     G-vector sticks info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Sum         397     397    151                51529    51529   12137
+
+     Using Slab Decomposition
+
+     ----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D
+      The code is running with the 2D cutoff
+      Please refer to:
+      Sohier, T., Calandra, M., & Mauri, F. (2017), 
+      Density functional perturbation theory for gated two-dimensional heterostructures:
+      Theoretical developments and application to flexural phonons in graphene.
+      Physical Review B, 96(7), 75448. https://doi.org/10.1103/PhysRevB.96.075448
+     ----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D
+     WT files:scfwt.dat  MD5 sum:1912e3e22fde8d136b8032730343bf21
+     Potential files:V_d.dat  MD5 sum:d83e0171d8167d2cee7ac12b11a4ba15
+     Potential files:V_p.dat  MD5 sum:f6e9538660ee2e3a792a297b12eb2aad
+     V_d_shift,V_p_shift   1.5199210366590288        1.5232846408985841     
+    
+                                ----------------------------
+    
+                                 Start M calculation k loop
+    
+                                ----------------------------
+                                    Neutral defect
+    
+                           The matrix elements are in the following format:
+     Mif, band and k point index of |phi_i>,  band and k point index of |phi_j>,  value of <phi_i|M|phi_f>
+    
+     Mif          14           1  ->              14           1                     (0.246589541,0.00000000)  
+     Mif          14           1  ->              14           2                   (0.123558328,-0.213141322)  
+     Mif          14           1  ->              14           3              (-4.693769291E-02,-0.240326583)  
+     Mif          14           1  ->              14           4               (0.237022981,-4.940619692E-02)  
+     Mif          14           1  ->              14           5                (0.223071113,8.340778202E-02)  
+     Mif          14           1  ->              14           6               (8.643350005E-02,-0.216425717)  
+     Mif          14           1  ->              14           7               (0.234236583,-6.557287276E-02)  
+     Mif          14           1  ->              14           8              (-0.227120012,-9.330487996E-02)  
+     Mif          14           1  ->              14           9                   (-0.126966208,0.209361851)  
+     Mif          14           1  ->              14          10                (0.231537133,6.921063364E-02)  
+     Mif          14           1  ->              14          11                    (0.104719497,0.212930799)  
+     Mif          14           1  ->              14          12                  (-0.162798613,-0.165025607)  
+     Mif          14           1  ->              14          13               (-4.728108644E-03,0.225269243)  
+     Mif          14           1  ->              14          14              (-0.234879598,-3.820278868E-02)  
+     Mif          14           1  ->              14          15              (-0.224445209,-9.087809175E-02)  
+     Mif          14           1  ->              14          16                   (0.187783465,-0.157618567)  
+
+..
+
+   The first part is header information. Followed by the run time information, including parallelization, DFT system setup, functional, FFT grid size, and other optional DFT parameters.
+   The hash value of the EDI required files are also printed. 
+   The main components of the output file consists of matrix element calculation .
+
+
 
 Mobility calculation
 --------------------
 
-7. Use MRTA model to calcualted the carrier mobility
+7. Calcualte the carrier mobility
 
    Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
+   Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
 
 
 .. code-block:: console
 
     $ python mu.py 
+..
 
-This step will generate an output file containing the mobility, as well as the scattering rate which is ready to be plot.
+
+   This step will generate an output file containing the mobility, as well as the scattering rate which is ready to be plotted.
