@@ -7,41 +7,28 @@ layout: default
  ![toc](./figs/edi2.png){:height="487px" width="900px"}
   {: refdef}
 
-Electron-defect interaction is crucial to many processes and applications.
-This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure. 
-**EDI** (**e**lectron-**d**efect **i**nteraction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials. 
-It uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics. 
-
-The current distribution of EDI is able to efficiently calculate electron-defect (e-d) interactions and focuses transport applications, including electrical conductivity, scattering rate, and mobility. 
-It also includes routines for computing spin-related information. 
-The transport module enables accurate calculations of charge transport in a wide range of functional materials. 
-The code is efficient with MPI parallelization, and scales linearly with the supercell size, thus only limited by the DFT code.
+Electron-defect interaction is crucial to many processes and applications such as charge transport and light absoprtion/emssion. **EDI** (**e**lectron-**d**efect **i**nteraction) is a software package to calculate the electron-defect interaction and the associated properties from first principles. 
 
 # Capabilities
 
-Currently, the following functions are supported by EDI:
+Currently, EDI can calculate the following quantities for charge-neutral point defect:
 
-- Calculate matrix element of electrons scattered by point defect
+- EDI matrix
+- scattering rate/relaxation time
+- carrier mobility/conductivity 
 
-- Calculate transport property such as carrier mobility 
+We are also implementing or will implement methods for calculating:
 
-Planed functions to be supported in the future by EDI:
+- charged defects
+- surfaces
+- grain boundaries
 
-- Calculate line defect scattering process
-
-- Calculate plane defect scattering process
 
   {:refdef: style="text-align: center;"}
    ![fig1](./figs/fig1.png){:height="394px" width="429px"}
   {: refdef}
 
-# Performance 
 
-EDI uses optimized algorithm to calculate different part of scattering matrix element, giving the optimal performance of accuracy and effeciency.
-The scalability of EDI is very good for system size. 
-The calcualtion cost scales linearly with the volume of super cell, making it capable of calculating large systems easily.
-Calculation of matrix element is parallelizede over k point pairs. 
-EDI could easily run on large HPCs and utilize the full capacity.
 
 
 # Reference
