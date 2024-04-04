@@ -17,16 +17,21 @@ Currently, EDI can calculate the following quantities for charge-neutral point d
 - scattering rate/relaxation time
 - carrier mobility/conductivity 
 
+  {:refdef: style="text-align: center;"}
+   ![fig2](./figs/fig1.png){:height="552px" width="830px"}
+  {: refdef}
+
+  {:refdef: style="text-align: center;"}
+   ![fig3](./figs/fig1.png){:height="314px" width="859px"}
+  {: refdef}
+
+
 We are also implementing or will implement methods for calculating:
 
 - charged defects
 - surfaces
 - grain boundaries
 
-
-  {:refdef: style="text-align: center;"}
-   ![fig1](./figs/fig1.png){:height="394px" width="429px"}
-  {: refdef}
 
 
 
