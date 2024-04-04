@@ -18,11 +18,11 @@ Currently, EDI can calculate the following quantities for charge-neutral point d
 - carrier mobility/conductivity 
 
   {:refdef: style="text-align: center;"}
-   ![fig2](./figs/fig1.png){:height="552px" width="830px"}
+   ![fig2](./figs/fig2.png){:height="552px" width="830px"}
   {: refdef}
 
   {:refdef: style="text-align: center;"}
-   ![fig3](./figs/fig1.png){:height="314px" width="859px"}
+   ![fig3](./figs/fig3.png){:height="314px" width="859px"}
   {: refdef}
 
 
