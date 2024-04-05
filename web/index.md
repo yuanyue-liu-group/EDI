@@ -17,22 +17,28 @@ Currently, EDI can calculate the following quantities for charge-neutral point d
 - scattering rate/relaxation time
 - carrier mobility/conductivity 
 
-  {:refdef: style="text-align: center;"}
-   ![fig2](./figs/fig2.png){:height="552px" width="830px"}
-  {: refdef}
-
-  {:refdef: style="text-align: center;"}
-   ![fig3](./figs/fig3.png){:height="314px" width="859px"}
-  {: refdef}
-
-
 We are also implementing or will implement methods for calculating:
 
 - charged defects
 - surfaces
 - grain boundaries
 
+# Example
 
+Here is the point-defect-limited mobility in transition metal dichalcogenides calculated with EDI.
+
+  {:refdef: style="text-align: center;"}
+   ![fig2](./figs/fig2.png){:height="552px" width="830px"}
+  {: refdef}
+
+Here is the matrix element of carrier scattering by the defect in above systems.
+
+
+  {:refdef: style="text-align: center;"}
+   ![fig3](./figs/fig3.png){:height="314px" width="858px"}
+  {: refdef}
+
+For details of the above figures, see the [publication](https://pubs.acs.org/doi/10.1021/acsnano.4c01033).
 
 
 
