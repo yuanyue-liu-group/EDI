@@ -4,25 +4,55 @@ Tutorial
 In the example, we provide the instructions and files needed to calculate carrier mobility limited by S-vacancy of MoS\ :sub:`2`\ .
 After downloading the package, the files could be found in ``example`` folder.
 
-Setup
-------------
+A general step-by-step workflow of using EDI is given below: 
 
-This example consists of the input files for QE to generate the wavefunction and the perturbation potential modelling a S-vacancy of MoS\ :sub:`2`\  in a 6-by-6 supercell.
-The obtained files could then be used to calculate the e-d interaction matrix elements with EDI.
-Further instructions are then provided to obtain the carrier mobility limited defect. 
+.. .. graphviz::
+
+   digraph {
+      "From" -> "To";
+   }
+
+
+
+-     Create the supercell structures
+
+-     Calculate the perturbation potential from supercell structures
+
+-     Generate needed k points
+
+-     Calculate wavefunctions from unitcell structures
+
+-     Calculate EDI matrix element
+
+-     Postprocessing to get transport properties
 
 When running the example, first follow the instructions in the Installation section and compile ``pw.x``, ``pp.x``, and ``edi.x``.
 Assume they are located in ``$BIN`` folder,
 then copy the files in the example to a working directory to perform the calculation.
 
 
+
+Create the supercell structures
+------------------------------------
+
+The first step of studying a defect in a material is setting up the supercell models for both the defect and pristine structure. 
+In this example, we provide the input files modelling a S-vacancy of MoS\ :sub:`2`\  in a 6-by-6 supercell.
+
+
+.. note::
+   For higher accuracy, the defect should be located in the center region of the supercell. 
+   And in the relaxation of the defect system, it is advisable to fix some atoms in the region far away from the defect.
+
+Calculate the perturbation potential from supercell structures
+------------------------------------------------------------------------
+
  
-DFT calculation
-----------------
+After we obtain the relaxed structures, we can calculate the potential files.
+The structures provided in the example are relaxed.
+Below are command lines one could use for the calculations.
 
-1. Scf calculation to obtain the perturbation potential:
-
-   Use the input files ``pristine.scf.in`` and ``defect.scf.in`` to perform scf calculations for the pristine and defect structures.
+The first step is scf calculation.
+   Use the input files ``pristine.scf.in`` and ``defect.scf.in`` to perform scf calculations for the pristine and relaxed defect structures.
 
 .. code-block:: console
 
@@ -31,8 +61,7 @@ DFT calculation
     $ mpirun -np $N $BIN/pw.x <defect.scf.in     >defect.scf.out
 
 
-2. Postprocessing to generate the files of the perturbation potential:
-
+The following step is postprocessing.
    Use the input files ``pristine.pp.in`` and ``defect.pp.in`` to generate potential data files for the pristine and defect structures.
 
 .. code-block:: console
@@ -41,11 +70,13 @@ DFT calculation
 
     $ mpirun -np $N $BIN/pp.x <defect.pp.in     >defect.pp.out
 
-EDI preprocessing
------------------
 
-3. Calculate the band structure for full k grid
+Generate the needed k points  
+----------------------------------
 
+
+
+To generate the needed k points, one needs to first calculate the band structure for full k grid.
    Use the input files ``unitcell.scf.in``, ``unitcell.w90.in`` to generate a coarse grid band structure.
 
 .. code-block:: console
@@ -56,7 +87,7 @@ EDI preprocessing
 
 ..
 
-   Use the input files  ``w90_mos2.win``, ``pw2w90.in``  to generate a fine grid band structure.  This example is using ``wannier90.x``, assuming under the same directory ``$BIN``.
+Then use the input files  ``w90_mos2.win``, ``pw2w90.in``  to generate a fine grid band structure.  This example is using ``wannier90.x``, assuming under the same directory ``$BIN``.
 
 .. code-block:: console
 
@@ -73,27 +104,34 @@ EDI preprocessing
 
    The generated velocity file ``w90_mos2_geninterp.dat`` is needed for next step.
 
-4. Generate the needed k points for e-d interaction matrix elements with triangular integral method
-
-   Use the script ``wmat_mos2.py`` to obtain a list of k points in file ``kpt.dat``, and a list of k point pairs to calculate the e-d interaction matrix element together with the weight ``wt.dat``.
+With the data, we can continue to generate the needed k points for e-d interaction matrix elements with triangular integral method.
+   Use the script ``wmat.py`` to obtain a list of k points in file ``kpt.dat``, and a list of k point pairs to calculate the e-d interaction matrix element together with the weight ``wt.dat``.
 
 
 .. code-block:: console
 
-    $ python wmat_mos2.py
+    $ python wmat.py
 
 ..
 
-    Prepare the input files for nscf calculation with the data from ``kpt.dat`` file.
+    Prepare the input files for nscf calculation with the data from ``kpt.dat`` file, by inserting the k point lists from ``kpt.dat`` file..
     This resulted file is provided as ``unitcell.nscf.in``.
 
+.. note::
+   The wmat.py script is provided in the package. Here are a few important paramters in the file. 
+   ``velocity_fn``: the interpolated band structure file name;
+   ``triangular_wt``: True to use triangular integral for 2D systems, false to use Gaussian smearing.
+   ``nkf``: the fine grid number;
+   ``nbnd_valence``: valence band number in scf code;
+   ``nbnd_valence_w90``: valence band number in Wannier results.
+   The parameters should be set correctly to generate the 
 
-EDI calculation
-----------------
 
-5. Generate the wavefunctions for the needed k points
 
-   Use the input files ``unitcell.scf.in`` and ``unitcell.nscf.in`` to generate wavefunctions with proper k points.
+Calculate wavefunctions from unitcell structures
+------------------------------------------------
+
+To generate the wavefunctions for the needed k points, one may use the input files ``unitcell.scf.in`` and ``unitcell.nscf.in`` to generate wavefunctions with proper k points.
 
 .. code-block:: console
 
@@ -102,8 +140,10 @@ EDI calculation
     $ mpirun -np $N $BIN/pw.x -nk $NK <unitcell.nscf.in  >unitcell.nscf.out
 
 
-6. Calculate e-d interaction matrix element
+Calculate EDI matrix element
+--------------------------------
 
+After all the above data are prepared, we may calculate e-d interaction matrix element.
    Use the input files ``calcmdefect.dat`` and prepared weight file ``wt.dat`` to perform matrix element calculation with ``edi.x``.
 
 
@@ -196,16 +236,16 @@ EDI calculation
 
 
 
-Mobility calculation
---------------------
 
-7. Calcualte the carrier mobility
+Postprocessing to get transport properties
+------------------------------------------------
 
-   Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
-   Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
+Finally, we  can calcualte the carrier mobility.
+Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
+Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
 
 
-.. code-block:: console
+code-block:: console
 
     $ python mu.py 
 ..
@@ -248,4 +288,8 @@ Mobility calculation
    The first two lines shows the information of the initial k point, which is the same as the overall data.
    The third line indicates the conten stored in the following: the index and coordinates of the final k points, the weight used in calculation of scattering rate, and the matrix element of scattering between the initial and final states.
 
-
+.. note::
+   The mu.py script is provided in the package. To use the script, the following parameters needs proper setting. 
+   ``Ngrid``: the k point mesh grid size;
+   ``Nbnd``: the number of band in the wannier results;
+   ``withangle``: True to use the MRTA model. False to use the RTA model.

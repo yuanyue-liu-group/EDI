@@ -35,10 +35,6 @@ Methodology
 For neutral defects, we employ a supercell method. The perturbation potential is calculated from DFT.  
 The scattering matrix element is calculated by integrating the pertubration potential in supercell and the wavefunctions,
 which consists of local component integrated in real space and non-local component integrated in reciprocal space.
-
-For charged defects, they are treated as a point charge and its perturbation potential as screened Coulomb potential. 
-The dielectric function is obtained from first-principles calculations.
-Several types of model are supported in the code, including dielectric constant, scalar dielectric function, and dielectric matrix.
 The details of the methods could be found `here <https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
 The e-d interaction matrix element :math:`M_{ij}=<\phi_i|V|\phi_j>` could be calculated with the main engine of edi, which facilitates calculation of scattering rate based on Fermi's golden rule under the momentum relaxation time approximation (MRTA).
@@ -68,11 +64,8 @@ Currently, the following functions are supported by EDI:
 
    * Atomic neutral defect: vacancy, substitution, interstitial, etc
 
-   * Point-charge charged defect: various screening model
-
 - Calculate transport property such as carrier mobility 
 
-- Calculate spin relaxation time
 
 Functions currently under development:
 
@@ -81,15 +74,6 @@ Functions currently under development:
 - Calculate line defect scattering process
 
 - Calculate plane defect scattering process
-
-Performance 
--------------
-
-EDI uses optimal algorithm to calculate different part of scattering matrix element, giving the optimal performance of accuracy and effeciency.
-The scalability of EDI is very good for system size. 
-The calcualtion cost scales linearly with the volum of super cell, making it capable of calculating large systems easily.
-Calculation of matrix element is parallelized over k point pairs. 
-EDI could easily run on large HPCs and utilize the full capacity.
 
 
 Reference

@@ -12,6 +12,7 @@ version = '1.0'
 # -- General configuration
 
 extensions = [
+    'sphinx.ext.graphviz',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',

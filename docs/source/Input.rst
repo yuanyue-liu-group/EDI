@@ -110,16 +110,16 @@ EDI provides 2 types of energy alignment algorithms:
 * vacuum alignment
 * core alignment
 
-Vacuum alignment is suitable for 2D materials, a 2D plane chosen from input file will be used to calculate an averaged energy to represent the vacuum energy.
+Vacuum alignment could be used for materials confined along at least one direction, where a 2D plane in vacuum with location set in the input file will be used to calculate an averaged energy as a reference point.
 Currently, only plane perpendicular to z direction is supported.
 To use vacuum alignment, set ``lvacalign`` to ``.true.``.
 ``vac_idx`` also needs to be set.
 This parameter sets the location of the vacuum plane, in the form of the FFT grid number index from the DFT calculation.
 
 
-Core alignment is suitable for 3D bulk materials, the value should be the core level energies of proper element. 
+Core alignment could be used for all materials, the value should be the core level energies of proper element. 
 To use core alignment, set ``lcorealign`` to ``.true.``.
-``core_v_d`` and ``core_v_p`` needs to be set for this option.
+``core_v_d`` and ``core_v_p`` needs to be set for the core level corrections in this option.
 The represent the core level energy of defect and pristine structures respectively.
 
 
@@ -159,7 +159,7 @@ Additionally, the following parameters should be set to determine the files for 
   Bxc_3_p_filename      
 
 .. note::
-  The Bxc file is needed only for SOC calculations.
+  The Bxc files are needed for spin-orbital coupling (SOC) calculations, and could be obtained with QE postprocessing tool.
 
 
 

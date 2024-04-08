@@ -15,14 +15,15 @@ if __name__ == '__main__':
     nbnd_valence=14
     nbnd_valence_w90=8
     ibndlist=[1,2]
-    nqf = 144 # fine q grid
     nkf = 144 # fine k grid
     out_folder = "./kq144/" # output files folder 
     velocity_fn="w90_mos2_geninterp.dat"
     ncore=4
+    triangular_wt=True
     
 
    #read E, V 
+    nqf = nkf # fine q grid
     _, bande, velocity = io_files.reader_velocity(out_folder+velocity_fn , nbnd_valence_w90,ibndlist) 
 
 
@@ -39,7 +40,7 @@ if __name__ == '__main__':
 
    #calculate wt 
     pseudo_freq = np.zeros((nqf*nqf, 1))
-    wmat = qirr_sym.get_kq_weight_mat_mp(kf_ibz, pseudo_freq, bande, nqf,efermi=fermi_level, stdout=True, cores=ncore, interp_w=False, za_qcut=0,     reci_vec=RECI_VEC,triangular_wt=True) # obtain weight matrix
+    wmat = qirr_sym.get_kq_weight_mat_mp(kf_ibz, pseudo_freq, bande, nqf,efermi=fermi_level, stdout=True, cores=ncore, interp_w=False, za_qcut=0,     reci_vec=RECI_VEC,triangular_wt) # obtain weight matrix
     np.savez(out_folder+"weights.npz", wmat)
 
 
