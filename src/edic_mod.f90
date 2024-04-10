@@ -146,7 +146,7 @@ Module edic_mod
             eps_type,doqeh,dogwfull,dogwdiag,do2d,do3d,&
             V_d_filename, Bxc_1_d_filename, Bxc_2_d_filename, Bxc_3_d_filename,&
             V_p_filename, Bxc_1_p_filename, Bxc_2_p_filename, Bxc_3_p_filename,&
-            noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p
+            noncolin , lspinorb  ,nspin,lvacalign,lcorealign,vac_idx,core_v_d,core_v_p,lconstalign,Eshift_d,Eshift_p
 
   Complex(dp) :: m_loc, m_nloc
 

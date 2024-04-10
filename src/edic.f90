@@ -57,6 +57,9 @@ Program edic
   OPEN(unit=tmp_unit,file = 'calcmdefect.dat',status='old',err=20)
   20 continue
   READ(tmp_unit,calcmcontrol,iostat=ios)
+  lcorealign=lconstalign
+  core_v_p=Eshift_p
+  core_v_d=Eshift_d
   CLOSE(tmp_unit)
 
   tmp_dir = trimcheck (outdir)

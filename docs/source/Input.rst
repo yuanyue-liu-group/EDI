@@ -58,12 +58,10 @@ An example input file is shown below:
     outdir='dout/'
     lvacalign=.true.
     vac_idx=0
-    lcorealign=.false.
-    core_v_d=0.0
-    core_v_p=0.0 
+    lconstalign=.false.
+    Eshift_d=0.0
+    Eshift_p=0.0 
     wt_filename='wt.dat'
-    klist_filename='scfklist.dat'
-    ev_filename='v.dat'
     noncolin =.true.
     lspinorb =.true.
     calcmlocal = .true.
@@ -78,14 +76,9 @@ An example input file is shown below:
     Bxc_3_p_filename='./Bxc_3_p.dat'
     calcmcharge=.true.
     mcharge_dolfa=.true.
-    qeh_eps_filename='./eps.dat'
     eps_type='gw'
     dogw=.true.
     chidat='./chi.dat'
-    !eps_type='qeh'
-    !eps_type='tf'
-    !doqeh=.true.
-    !k0screen_read=0.27
     gw_epsmat_filename='./epsmat.h5'
     gw_eps0mat_filename='./eps0mat.h5'
     /
@@ -108,7 +101,7 @@ In order to obtain the correct perturbation potential, we need to choose proper 
 EDI provides 2 types of energy alignment algorithms:
 
 * vacuum alignment
-* core alignment
+* constant alignment
 
 Vacuum alignment could be used for materials confined along at least one direction, where a 2D plane in vacuum with location set in the input file will be used to calculate an averaged energy as a reference point.
 Currently, only plane perpendicular to z direction is supported.
@@ -117,10 +110,10 @@ To use vacuum alignment, set ``lvacalign`` to ``.true.``.
 This parameter sets the location of the vacuum plane, in the form of the FFT grid number index from the DFT calculation.
 
 
-Core alignment could be used for all materials, the value should be the core level energies of proper element. 
-To use core alignment, set ``lcorealign`` to ``.true.``.
-``core_v_d`` and ``core_v_p`` needs to be set for the core level corrections in this option.
-The represent the core level energy of defect and pristine structures respectively.
+Constant alignment could be used for all materials, applying a constant shift to the two structures, the value should be the core level energies of proper element, or any other chioces see fit by the users. 
+To use constatn alignment, set ``lconstalign`` to ``.true.``.
+``Eshift_d`` and ``Eshift_p`` needs to be set for the constatn level corrections in this option.
+They represent the reference energy of defect and pristine structures respectively.
 
 
 K point sampling
