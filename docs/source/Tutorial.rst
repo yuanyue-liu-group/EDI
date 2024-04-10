@@ -7,7 +7,6 @@ After downloading the package, the files could be found in ``example`` folder.
 A general step-by-step workflow of using EDI is given below: 
 
 .. .. graphviz::
-
    digraph {
       "From" -> "To";
    }
@@ -62,7 +61,7 @@ The first step is scf calculation.
 
 
 The following step is postprocessing.
-   Use the input files ``pristine.pp.in`` and ``defect.pp.in`` to generate potential data files for the pristine and defect structures.
+   Use the input files ``pristine.pp.in`` and ``defect.pp.in`` to generate potential data files for the pristine and defect structures, which are ``V_p.dat`` and ``V_d.dat`` respectively.
 
 .. code-block:: console
 
@@ -70,6 +69,10 @@ The following step is postprocessing.
 
     $ mpirun -np $N $BIN/pp.x <defect.pp.in     >defect.pp.out
 
+.. note::
+   For SOC calculations, one also need to generate the exchange-correlation magnetic field files.
+   The needed input file could be adapted from the above files by changing the ``plot_num`` to 13.
+   Note there are 3 directions so 3 data files would be generated.
 
 Generate the needed k points  
 ----------------------------------
@@ -105,7 +108,7 @@ Then use the input files  ``w90_mos2.win``, ``pw2w90.in``  to generate a fine gr
    The generated velocity file ``w90_mos2_geninterp.dat`` is needed for next step.
 
 With the data, we can continue to generate the needed k points for e-d interaction matrix elements with triangular integral method.
-   Use the script ``wmat.py`` to obtain a list of k points in file ``kpt.dat``, and a list of k point pairs to calculate the e-d interaction matrix element together with the weight ``wt.dat``.
+   Use the script ``wmat.py`` to obtain a list of k points in file ``kpt.dat``. This file contains the k points of all the initial and final wavefunctions combined. Another file containing the list of k point pairs between initial and final k points, that are needed to calculate the e-d interaction matrix element together with the weight is generated named ``wt.dat``.
 
 
 .. code-block:: console
@@ -240,7 +243,7 @@ After all the above data are prepared, we may calculate e-d interaction matrix e
 Postprocessing to get transport properties
 ------------------------------------------------
 
-Finally, we  can calcualte the carrier mobility.
+Finally, we  can calcualte the carrier mobility and conductivity.
 Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
 Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
 
@@ -251,7 +254,7 @@ code-block:: console
 ..
 
 
-   This step will generate an output file containing the mobility, as well as the scattering rate, velocity, matrix element etc, which is ready to be plotted.
+   This step will generate an output file containing the mobility, conductivity, as well as the scattering rate, velocity, matrix element etc, which is ready to be plotted.
 
    An example of the data file showing the final result is shown below:
 
@@ -268,7 +271,7 @@ code-block:: console
 ..
 
 
-   The first line of the file shows the mobility and carrier concentration at the current Fermi level.
+   The first line of the file shows the mobility, conductivity, and carrier concentration at the current Fermi level.
    The second line indicates what data are stored in the following data: from left to right, they represent the index and coordinates of the initial k points, the scattering rate calculated from MRTA, band structure information including energy and velocity, Fermi velocity, summation of the matrix element over final k points, and total number of final k points.
 
    Another example of the data file for each individual initial k point is given beblow:

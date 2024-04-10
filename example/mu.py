@@ -230,7 +230,7 @@ for l in ml[1:]:
 ###    debug:           print ki property: 
 ###########################################################################################################
 
-pl= '#mu: %f, nc: %e\n'%(mu,Nc)
+pl= '#mu: %f, sigma: %f, nc: %e\n'%(mu,mu*Nc,Nc)
 pl= pl+'#ni ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf\n'
 for ki in M.keys():
    lp=tuple([ki[0],ki[1],Kxyz[ki][0],Kxyz[ki][1],gamma[ki],E[ki],V[ki][0]*evinv_a2cminv_s,V[ki][1]*evinv_a2cminv_s,V[ki][0],V[ki][1],f[ki],df[ki],dos[ki],summ[ki],summa[ki],Nkf[ki],dosspin[ki]])

@@ -19,11 +19,11 @@ variable                     meaning
 ====================      ======================================
 prefix                       qe prefix
 outdir                       qe outdir
-lvacalign                    vacuum aligment
-vac_idx                     vacuum alignment location
-lcorealign                   core alignment
-core_v_d                    core alignment value for defect
-core_v_p                    core alignment value for pristine
+lvacalign                    vacuum Energy aligment
+vac_idx                     vacuum  location for  Energy aligment
+lconstalign                   constant Energy alignment
+Eshift_d                    energy shift for defect
+Eshift_p                    energy shift for pristine
 wt_filename                  weight file for mobility calculation
 degauss                     gaussian smearing in delta function
 noncolin                     non-colinear calculation
@@ -160,6 +160,7 @@ Additionally, the following parameters should be set to determine the files for 
 
 .. note::
   The Bxc files are needed for spin-orbital coupling (SOC) calculations, and could be obtained with QE postprocessing tool.
+
 
 
 
