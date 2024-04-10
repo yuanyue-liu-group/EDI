@@ -186,29 +186,6 @@ def kindex_add(ik, iq, nqf1, nqf2=None):
 
     return ikqx*nqf2 + ikqy 
 
-# def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, stdout=False):
-#     nmode = len(freq[0])
-#     nbnd = len(bande[0])
-#     nk = len(ikbz_list)
-
-#     kq_wmat = np.zeros((nbnd, nbnd, nmode), dtype=object)
-#     for ibnd in range(nbnd):
-#         for jbnd in range(nbnd):
-#             for im in range(nmode):
-#                 kq_wmat[ibnd,jbnd,im] = sp.lil_matrix((nqf*nqf, nqf*nqf))
-                
-#     for i in range(nk):
-#         ik = ikbz_list[i]
-#         if stdout is True:
-#             print(i, ik)
-#         for ibnd in range(nbnd):
-#             weight_iq = get_qweight_wrap(ik, ibnd, freq, bande, nqf, efermi)
-#             for jbnd in range(nbnd):
-#                 for im in range(nmode):
-#                     kq_wmat[ibnd, jbnd, im][ik] = np.copy( weight_iq[:, im, jbnd] )
-
-#     return kq_wmat 
-
 def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, za_qcut=0, reci_vec=None,triangular_wt=True):
     nmode = len(freq[0])
     nbnd = len(bande[0])
@@ -227,7 +204,6 @@ def get_kq_weight_mat(ikbz_list, freq, bande, nqf, efermi=-0.1, interp_w=False, 
             for jbnd in range(nbnd):
                 for im in range(nmode):
                     kq_wmat[ibnd, jbnd, im][ik] = np.copy( weight_iq[:, im, jbnd] )
-                    # kq_wmat[ibnd,jbnd,im][ik,:] = weight_iq[im,jbnd][0,:]
         fw = open("stdout", 'a+')
         fw.write("%i done!: %i / %i \n" %(ik, i, nk))
         fw.close() 

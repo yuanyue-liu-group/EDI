@@ -272,6 +272,7 @@ Current supported model is MRTA and SERTA. Other models such as iterative BTE me
 
 
    The first line of the file shows the mobility, conductivity, and carrier concentration at the current Fermi level.
+   The user can tune the Fermi level and calculate different conductivities.
    The second line indicates what data are stored in the following data: from left to right, they represent the index and coordinates of the initial k points, the scattering rate calculated from MRTA, band structure information including energy and velocity, Fermi velocity, summation of the matrix element over final k points, and total number of final k points.
 
    Another example of the data file for each individual initial k point is given beblow:
@@ -294,8 +295,8 @@ Current supported model is MRTA and SERTA. Other models such as iterative BTE me
 .. note::
    The mu.py script is provided in the package. To use the script, the following parameters needs proper setting. 
    ``Ngrid``: the k point mesh grid size;
-   ``Nbnd``: the number of band in the wannier results;
-   ``withangle``: True to use the MRTA model. False to use the SERTA model.
-   ``Ef``, ``Eb``: The Fermi level and CBM level
+   ``withangle``: True to use the MRTA model. False to use the SERTA model;
+   ``Efermi``: The Fermi level;
+   ``Eb``: The  band edge level;
    ``Cd``: the relative defect concentration;
-   ``alatCd``: the relative defect concentration;
+   ``eh``: type of carrrier, ``e`` for electron, ``h`` for hole;
