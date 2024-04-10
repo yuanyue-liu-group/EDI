@@ -67,7 +67,7 @@ def calc_gamma(M,Wt,V,withangle):
             summ[ki]=summ[ki]+abs(M[ki][kf])**2
             dos[ki]=dos[ki]+Wt[ki][kf]
 
-        gamma[ki]=gamma[ki]*2/hbar*nat*Cd
+        gamma[ki]=gamma[ki]*2/hbar*Cd
     return [gamma, angleterm,theta,summ,summa,Nkf,dos]
    
 def calc_mu(gamma,V,f,df,Emin,Emax):
@@ -89,7 +89,6 @@ def calc_mu(gamma,V,f,df,Emin,Emax):
 ##################################
 
 eps=1e-16
-
 kbt=0.0256
 hbar=6.5821e-16
 pi=3.1415926
@@ -99,26 +98,19 @@ evinv_a2cminv_s = 1.519267582e7
 A2cm = 1e-8
 bohr2A=0.529177
 
-nat=3
 Cd=1e-3
-
 Ngrid=180
 Nbnd=11
-iEc=8  #### iband of CBM
-
-Egap=(2.4004-1.5389)
-Ef=0.578
 Ef=-0.150
-Ef=-Egap/2
-Ec=0.6779762221
-
-alat=3.0095 ## wannier V file
+Eb=0.677
+alat=3.1895 
+cba=1.13
 
 
 withangle=True
 restart=True
-#restart=False
 
+iEb=8
 datajsonfilename='data.json'
 
 wt_filename='kq%d.dat'%Ngrid
@@ -204,7 +196,7 @@ if not restart:
         for kf in Wt[ki].keys():
           allkikf.add(kf)
     for ki in allkikf:
-        idx=(eval(ki))*Nbnd+3+iEc -1   #### tt_interp file and wt file index of k is different by 1 index_wt=index_v-1
+        idx=(eval(ki))*Nbnd+3+iEb -1   #### tt_interp file and wt file index of k is different by 1 index_wt=index_v-1
         v=Ev_lines[idx]
         vn=v.split()
         kx_onebyA=eval(vn[1])
@@ -246,7 +238,7 @@ if not restart:
     f={}
     df={}
     for ki in E.keys():
-        f[ki]=1/(1+np.exp((E[ki]-Ec-Ef)/kbt))
+        f[ki]=1/(1+np.exp((E[ki]-Eb-Ef)/kbt))
         df[ki]=f[ki]*(1-f[ki])/kbt
 
 #################################################################################################
@@ -303,12 +295,12 @@ mul=[0]*6
 
 for i  in range(len(Elimit)):
     Emin=-10
-    Emax=Elimit[i]+Ec
+    Emax=Elimit[i]+Eb
     [mu,Nc,Ncounter]=calc_mu(gamma,V,f,df,Emin,Emax)
     mul[i]=mu
     Ncl[i]=Nc
     Ncounterl[i]=Ncounter
-    Emin=Elimit[i]+Ec
+    Emin=Elimit[i]+Eb
     Emax=10
     [mu,Nc,Ncounter]=calc_mu(gamma,V,f,df,Emin,Emax)
     muh[i]=mu

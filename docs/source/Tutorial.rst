@@ -230,12 +230,12 @@ After all the above data are prepared, we may calculate e-d interaction matrix e
      Mif          14           1  ->              14          14              (-0.234879598,-3.820278868E-02)  
      Mif          14           1  ->              14          15              (-0.224445209,-9.087809175E-02)  
      Mif          14           1  ->              14          16                   (0.187783465,-0.157618567)  
-
 ..
 
-   The first part is header information. Followed by the run time information, including parallelization, DFT system setup, functional, FFT grid size, and other optional DFT parameters.
-   The hash value of the EDI required files are also printed. 
-   The main components of the output file consists of matrix element calculation .
+
+The first part is header information. Followed by the run time information, including parallelization, DFT system setup, functional, FFT grid size, and other optional DFT parameters.
+The hash value of the EDI required files are also printed. 
+The main components of the output file consists of matrix element calculation .
 
 
 
@@ -244,8 +244,8 @@ Postprocessing to get transport properties
 ------------------------------------------------
 
 Finally, we  can calcualte the carrier mobility and conductivity.
-Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier mobility.
-Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
+Previous calculation gives ``pp.dat`` file, use this file and the postprocessing script ``mu.py`` to calculate the carrier transport property.
+Current supported model is MRTA and SERTA. Other models such as iterative BTE methods are under development. 
 
 
 .. code-block:: console
@@ -260,7 +260,7 @@ Current supported model is MRTA. Other models such as iterative BTE methods are 
 
 .. code-block:: console
 
-     mu: 38.039856, sigma: nc: 1.829376e+11
+     mu: 38.039856, sigma: 2.50257e6, nc: 1.829376e+11
      ni ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf
     14 274 3.05555552000000e-01 3.12500000000000e-01  7.36583698498118e+13 -2.30667785000000e-01 -3.76223686598431e+06 -5.62481368991860e+06 -8.84246469000000e-01 -1.32201183000000e+00  8.89812147616810e-03   3.44490035561073e-01  1.21347127229965e+00     9.21033388684503e+03   8.35614505146145e+03   350  5.73365571094954e-01   
     14 17 2.77777791000000e-01 3.40277791000000e-01  7.43338596702315e+13 -2.07558706000000e-01 -5.70217550230501e+06 -3.12028566625926e+06 -1.34019434000000e+00 -7.33367324000000e-01  3.62714556241616e-03   1.41171460058016e-01  1.26777099679015e+00     9.92550586468186e+03   8.52836643272525e+03   407  6.71131911250348e-01   
@@ -279,9 +279,9 @@ Current supported model is MRTA. Other models such as iterative BTE methods are 
 
 .. code-block:: console
 
-    \# ni, ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf
-    \# 14 217 : 2.77777791000000e-01 3.47222209000000e-01  7.55370034990726e+13 -2.17326492000000e-01 -5.75554761388175e+06 -2.12220390635853e+06 -1.35273850000000e+00 -4.98786062000000e-01  5.30323243605497e-03   2.06058912569693e-01  1.24619904485609e+00     9.53615703575223e+03   8.25602260716569e+03   383 
-    \# nf kf: kfx, kfy(crystal), Wt, M1 M2, |M|, arg(M),vf1,vf2, E(eV), angleterm(1-cos(theta)), thetai, thetaf
+    # ni, ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf
+    # 14 217 : 2.77777791000000e-01 3.47222209000000e-01  7.55370034990726e+13 -2.17326492000000e-01 -5.75554761388175e+06 -2.12220390635853e+06 -1.35273850000000e+00 -4.98786062000000e-01  5.30323243605497e-03   2.06058912569693e-01  1.24619904485609e+00     9.53615703575223e+03   8.25602260716569e+03   383 
+    # nf kf: kfx, kfy(crystal), Wt, M1 M2, |M|, arg(M),vf1,vf2, E(eV), angleterm(1-cos(theta)), thetai, thetaf
     14 132 6.25000000000000e-01 6.52777791000000e-01     4.37359465000000e-03    2.66175210440000e-02 -2.35831102736000e-01  2.37328467412162e-01 -1.45840508330738e+00     -1.23103797000000e+00 -1.03775382000000e+00     -2.09001586000000e-01   5.96553526372161e-02 3.49484899460205e+00  3.84200342668222e+00 
     14 46 3.33333343000000e-01 3.88888896000000e-01     4.28812673000000e-05    -4.23372957200000e+00 8.69354682240000e+00  9.66965472196854e+00 2.02398737565657e+00     -1.61909744000000e-01 1.62098110000000e+00     -1.94189295000000e-01   1.25098994182196e+00 3.49484899460205e+00  1.67034986998397e+00 
     14 285 3.81944448000000e-01 3.12500000000000e-01     2.88865599000000e-03    -6.79999668160000e-02 8.10520752576000e-04  6.80047971165818e-02 3.12967378936845e+00     1.58664262000000e+00 1.04926139000000e-01     -2.30619013000000e-01   1.95903465875036e+00 3.49484899460205e+00  6.60347705282734e-02 
@@ -296,3 +296,6 @@ Current supported model is MRTA. Other models such as iterative BTE methods are 
    ``Ngrid``: the k point mesh grid size;
    ``Nbnd``: the number of band in the wannier results;
    ``withangle``: True to use the MRTA model. False to use the SERTA model.
+   ``Ef``, ``Eb``: The Fermi level and CBM level
+   ``Cd``: the relative defect concentration;
+   ``alatCd``: the relative defect concentration;
