@@ -248,7 +248,7 @@ Previous calculation gives ``pp.dat`` file, use this file and the postprocessing
 Current supported model is MRTA. Other models such as iterative BTE methods are under development. 
 
 
-code-block:: console
+.. code-block:: console
 
     $ python mu.py 
 ..
@@ -295,4 +295,4 @@ code-block:: console
    The mu.py script is provided in the package. To use the script, the following parameters needs proper setting. 
    ``Ngrid``: the k point mesh grid size;
    ``Nbnd``: the number of band in the wannier results;
-   ``withangle``: True to use the MRTA model. False to use the RTA model.
+   ``withangle``: True to use the MRTA model. False to use the SERTA model.
