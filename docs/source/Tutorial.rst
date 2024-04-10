@@ -70,7 +70,7 @@ The following step is postprocessing.
     $ mpirun -np $N $BIN/pp.x <defect.pp.in     >defect.pp.out
 
 .. note::
-   For SOC calculations, one also need to generate the exchange-correlation magnetic field files.
+   For SOC calculations, one also need to generate the exchange-correlation magnetization files.
    The needed input file could be adapted from the above files by changing the ``plot_num`` to 13.
    Note there are 3 directions so 3 data files would be generated.
 
