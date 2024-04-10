@@ -58,3 +58,7 @@ To calcualted the transport mobility, the postprocessing script mu.py could be u
 
 
 Out put data containing the transport properties, including scattering rate and mobility, will be written automatically.
+
+.. note::
+   Currently, the hexangonal lattice 2D materials are tested, support for other types of lattice or 3D structures are unstable.
+
