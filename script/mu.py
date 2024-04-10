@@ -1,4 +1,3 @@
-#from numpy import *
 import json
 import numpy as np
 import pickle
@@ -29,6 +28,7 @@ def calc_gamma(M,Wt,V,withangle):
     summa={}
     Nkf={}
     dos={}
+    dosspin={}
 
     for ki in M.keys():
         vix=V[ki][0]
@@ -42,6 +42,7 @@ def calc_gamma(M,Wt,V,withangle):
         summ[ki]=0
         summa[ki]=0
         dos[ki]=0
+        dosspin[ki]=0
         angleterm[ki]={}
 
         for kf in M[ki].keys():
@@ -66,9 +67,11 @@ def calc_gamma(M,Wt,V,withangle):
             summa[ki]=summa[ki]+abs(M[ki][kf])**2*angleterm[ki][kf] 
             summ[ki]=summ[ki]+abs(M[ki][kf])**2
             dos[ki]=dos[ki]+Wt[ki][kf]
+            if ki[0]==kf[0]:
+                dosspin[ki]=dosspin[ki]+Wt[ki][kf]
 
         gamma[ki]=gamma[ki]*2/hbar*Cd
-    return [gamma, angleterm,theta,summ,summa,Nkf,dos]
+    return [gamma, angleterm,theta,summ,summa,Nkf,dos,dosspin]
    
 def calc_mu(gamma,V,f,df,Emin,Emax):
     mu=0
@@ -76,257 +79,119 @@ def calc_mu(gamma,V,f,df,Emin,Emax):
     Ncounter=0
     for ki in gamma.keys():
       if E[ki]>Emin and E[ki]<Emax:
-        mu=mu+np.linalg.norm(V[ki], ord=2)/gamma[ki]*df[ki]
-        Nc=Nc+f[ki]
+        if gamma[ki] >1e6:
+          mu=mu+0.5*np.linalg.norm(V[ki], ord=2)**2/gamma[ki]*df[ki]
+        if eh=='e':
+          Nc=Nc+f[ki]
+        if eh=='h':
+          Nc=Nc+1-f[ki]
         Ncounter=Ncounter+1
     if Nc>0:
       mu=mu/Nc
-      Nc=Nc/Ncounter
+      Nc=Nc/Ngrid**2
+    mu=mu*2.3081873e+14 
+    Nc=Nc/(alat**2*0.866*1e-16)
     return [mu,Nc,Ncounter]
 
 ##################################
 ##  constant
 ##################################
+kbt=0.0256 #eV
+Ngrid=144
+alat=3.18 #A
+Cd=1e12*(alat**2*0.866*1e-16) # relative concentration of defect
+Eb=-0.31 #band edge energy level
+Efermi=0.04 #eV
+withangle=True
+eh='e'
 
+
+alatc=3.6e-8 #cm
 eps=1e-16
-kbt=0.0256
-hbar=6.5821e-16
+hbar=6.5821e-16 #eV s
 pi=3.1415926
 RytoeV=13.6
-persec2perpicosec=1e-12
+Ha2eV=27.2
 evinv_a2cminv_s = 1.519267582e7
-A2cm = 1e-8
-bohr2A=0.529177
+evinv_a2cminv_s = 4.25473778848e6 
 
-Cd=1e-3
-Ngrid=180
-Nbnd=11
-Ef=-0.150
-Eb=0.677
-alat=3.1895 
-cba=1.13
+fppn='pp.dat'
+fppnl=open(fppn,'r')
+ml=fppnl.readlines()
+Ef=Eb-Efermi
 
+E={} #eV
+V={} #eV/A
+f={}
+df={}#eV^-1
+Kxyz={}
+M={} #eV
+Wt={}
+nkil=set(())
+kil=set(())
+nfl=set(())
+kfl=set(())
 
-withangle=True
-restart=True
+for l in ml[1:]:
+    data=['']+l.split()
+    ni=int(data[1])
+    ki=int(data[2])
+    nkil.add((ni,ki))
 
-iEb=8
-datajsonfilename='data.json'
+for i in nkil:
+    M[i]={}
+    Wt[i]={}
 
-wt_filename='kq%d.dat'%Ngrid
-Evfilename='tt_geninterp.dat'
-if not restart:
-    ##################################
-    ##  read files
-    ##################################
+for l in ml[1:]:
+    data=['']+l.split()
+    ni=int(data[1])
+    ki=int(data[2])
+    kxyzi=np.array([float(data[3]),float(data[4]),float(data[5])])
+    ei=float(data[6])
+    vxyzi=np.array([float(data[7]),float(data[8]),float(data[9])])
+
+    nf=int(data[10])
+    kf=int(data[11])
+    kxyzf=np.array([float(data[12]),float(data[13]),float(data[14])])
+    ef=float(data[15])
+    vxyzf=np.array([float(data[16]),float(data[17]),float(data[18])])
+
+    wt=float(data[19])
+
+    mt=data[20][1:-1].split(',')
+    m= float(mt[0])+1j*float(mt[1])
+
     
-    wt_flhndl=open(wt_filename,'r')
-    wt_lines=wt_flhndl.readlines()
-    
-    ki_old=0
-    kcounter=0
-    #Ninput=0
-    Wt={}
-    M={}
-    Mnl={}
-    Mcharge={}
-    Kxyz={}
-    
-    print 'read wt M start'
-    for l in wt_lines[2:]:
-        kdatl=l.split()
-        ki=kdatl[0]
-        kixyz=kdatl[2:4]
-        kf=kdatl[6]
-        kfxyz=kdatl[8:10]
-        wt=kdatl[11]
+    M[(ni,ki)][(nf,kf)]=m*Ha2eV
+    M[(ni,ki)][(nf,kf)]=m*RytoeV
+    Wt[(ni,ki)][(nf,kf)]=wt
 
-        fmln='out/'+'k'+ki+'.ml'
-        fml=open(fmln,'r')
-        mllists=fml.readlines()
+    E[(ni,ki)]=ei
+    E[(nf,kf)]=ef
 
-        fmnln='out/'+'k'+ki+'.mnl'
-        fmnl=open(fmnln,'r')
-        mnllists=fmnl.readlines()
+    V[(ni,ki)]=vxyzi
+    V[(nf,kf)]=vxyzf
 
-        if ki!=ki_old:
-            kcounter=1
-            Wt[ki]={}
-            Ml[ki]={}
-            Mnl[ki]={}
-            M[ki]={}
-        mll=mllists[kcounter]
-        mnll=mnllists[kcounter]
-        kcounter=kcounter+1
-        ki_old=ki
+    Kxyz[(ni,ki)]=kxyzi
+    Kxyz[(nf,kf)]=kxyzf
 
-        mt1=mll.split()[4]
-        mt2=mt1[1:-1].split(',')
-        ml=float(mt2[0])+float(mt2[1])*1j
-        Ml[ki][kf]=complex(ml)
+    f[(ni,ki)]=1/(1+np.exp((ei-Ef)/kbt))
+    df[(ni,ki)]=(1-f[(ni,ki)])*f[(ni,ki)]/kbt
 
-        mt1=mnll.split()[4]
-        mt2=mt1[1:-1].split(',')
-        mnl=float(mt2[0])+float(mt2[1])*1j
-        Mnl[ki][kf]=complex(mnl)
- 
-        M[ki][kf]=complex(ml+mnl)
+    f[(nf,kf)]=1/(1+np.exp((ef-Ef)/kbt))
+    df[(nf,kf)]=(1-f[(nf,kf)])*f[(nf,kf)]/kbt
 
-        Wt[ki][kf]=float(wt)
+[gamma, angleterm,theta,summ,summa,Nkf,dos,dosspin]=calc_gamma(M,Wt,V,withangle)
+[mu,Nc,Ncounter]=calc_mu(gamma,V,f,df,Emin=-10,Emax=10)
+###########################################################################################################
+###    debug:           print ki property: 
+###########################################################################################################
 
-        if Kxyz.get(ki)!=None:
-            if Kxyz[ki]!=[float (i) for  i in kixyz]:
-                 print 'kxyz inconsistence:',ki, Kxyz[ki],[float (i) for  i in kixyz]
-        if Kxyz.get(kf)!=None:
-            if Kxyz[kf]!=[float (i) for  i in kfxyz]:
-                 print 'kxyz inconsistence:',kf, Kxyz[kf],[float (i) for  i in kfxyz]
-
-        Kxyz[ki]=[float (i) for  i in kixyz]
-        Kxyz[kf]=[float (i) for  i in kfxyz]
-    print 'read wt M done'
-
-    print 'read E v start'
-    V={}
-    E={}
-    Ev_filehandle=open(Evfilename,'r')
-    Ev_lines=Ev_filehandle.readlines()
-    allkikf=set()
-    for ki in Wt.keys():
-        allkikf.add(ki)
-        for kf in Wt[ki].keys():
-          allkikf.add(kf)
-    for ki in allkikf:
-        idx=(eval(ki))*Nbnd+3+iEb -1   #### tt_interp file and wt file index of k is different by 1 index_wt=index_v-1
-        v=Ev_lines[idx]
-        vn=v.split()
-        kx_onebyA=eval(vn[1])
-        ky_onebyA=eval(vn[2])
-        kz_onebyA=eval(vn[2])
-        energy=eval(vn[4])
-        vix=eval(vn[5])*evinv_a2cminv_s
-        viy=eval(vn[6])*evinv_a2cminv_s
-        viz=eval(vn[7])*evinv_a2cminv_s
-        V[ki]=np.array([vix,viy])
-        E[ki]=energy
-        
-
-        ####################debug v distortion####################
-        [ki1,ki2]=Kxyz[ki]
-        if abs(eval(vn[1])/eval(vn[2])-(ki1*3**.5/2)/(ki2+ki1/2))>1e-4:
-            print 'ki vi distort'
-            print ki, ki1,ki2
-            #print ki, ki1-ki2/2,ki2*3**.5/2
-            print ki,ki1*3**.5/2, ki2+ki1/2
-            print ki,ki1*3**.5/2*3.9454, (ki2+ki1/2)*3.9454
-            print v
-        ####################debug v distortion####################
-
-        ####################debug k point inconsistency####################
-        k12_to_kxy=2*pi/alat/bohr2A/3**.5
-        if abs((ki1*3**.5/2)-kx_onebyA/k12_to_kxy)>1e-4 or abs((ki2+ki1/2)-ky_onebyA/k12_to_kxy)>1e-4:
-            print 'ki mismatch from V Wt files', ki
-            print (ki1*3**.5/2),ki2+ki1/2, kx_onebyA/k12_to_kxy,ky_onebyA/k12_to_kxy
-            print ki1,ki2, kx_onebyA,ky_onebyA
-        ####################debug k point inconsistency####################
-    print 'read v, E, done'
-
-    print 'calculate gamma start'
-    [gamma, angleterm,theta,summ,summa,Nkf,dos]=calc_gamma(M,Wt,V,withangle)
-    
-    print 'calculate gamma done'
-
-    f={}
-    df={}
-    for ki in E.keys():
-        f[ki]=1/(1+np.exp((E[ki]-Eb-Ef)/kbt))
-        df[ki]=f[ki]*(1-f[ki])/kbt
-
-#################################################################################################
-#data:      ki-kf                                 ki
-#      M[ki][kf], Wt[ki][kf],      |          V,E,f,df,Kxyz, 
-#      angleterm[ki][kf],          |          gamma,theta,summ,summa,Nkf,dos
-#################################################################################################
-    
-    ##################################
-    ##   save data
-    ##################################
-    data=[M,Ml,Mnl,Wt,angleterm,V,E,f,df,Kxyz,gamma,theta,summ,summa,Nkf,dos]
-   
-    #datajson=json.dumps(data)
-    #with open(datajsonfilename,'w') as fp:
-    #    fp.write(datajson)
-    #fp.close()
-    ####pickle bug
-    datapicklefilename='data.pickle'
-    datapicklefilehanle=open(datapicklefilename,'w')
-    pickle.dump(data,datapicklefilehanle)
-    datapicklefilehanle.close()
-    print 'save data done'
-else:
-    ####################################
-    ##    load data
-    ####################################
-    datapicklefilename='data.pickle'
-    with open(datapicklefilename,'r') as fp:
-        data=pickle.load(fp)
-    [M,Ml,Mnl,Wt,angleterm,V,E,f,df,Kxyz,gamma,theta,summ,summa,Nkf,dos]=data
-    print 'load data done'
-
-
-#################################################################################################
-#data:      ki-kf                                 ki
-#      M[ki][kf], Wt[ki][kf],      |          V,E,f,df,Kxyz, 
-#      angleterm[ki][kf],          |          gamma,theta,summ,summa,Nkf,dos
-#################################################################################################
-    
-
-##########################################################################################################
-##    calculate energy limited mu,
-##########################################################################################################
-print 'calculate mu start'
-Elimit=np.arange(6)*0.01
-Ncounterh=[0]*6
-Ncounterl=[0]*6
-Nch=[0]*6
-Ncl=[0]*6
-muh=[0]*6
-mul=[0]*6
-
-
-for i  in range(len(Elimit)):
-    Emin=-10
-    Emax=Elimit[i]+Eb
-    [mu,Nc,Ncounter]=calc_mu(gamma,V,f,df,Emin,Emax)
-    mul[i]=mu
-    Ncl[i]=Nc
-    Ncounterl[i]=Ncounter
-    Emin=Elimit[i]+Eb
-    Emax=10
-    [mu,Nc,Ncounter]=calc_mu(gamma,V,f,df,Emin,Emax)
-    muh[i]=mu
-    Nch[i]=Nc
-    Ncounterh[i]=Ncounter
-
-mupl='#Elimit: muh Nch Ncounterh; mul Ncl Ncounterl \n'
-for i  in range(len(Elimit)):
-    mupl=mupl+'%f:  %f    %e %d;  %f %e  %d \n'%(Elimit[i],muh[i],  Nch[i], Ncounterh[i],  mul[i],Ncl[i],Ncounterl[i])
-
-
-mufilename='muvsElimit.plt'
-with open(mufilename,'w') as fp:
-   fp.write(mupl)
-
-print 'calculate mu done'
-
-##########################################################################################################
-##    debug:           print ki property: 
-##########################################################################################################
-
-
-pl= '#ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf\n'
+pl= '#mu: %f, sigma: %e, nc: %e\n'%(mu,mu*Nc*alatc*1e2,Nc)
+pl= pl+'#ni ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf\n'
 for ki in M.keys():
-   lp=tuple([ki,Kxyz[ki][0],Kxyz[ki][1],gamma[ki],E[ki],V[ki][0]*evinv_a2cminv_s,V[ki][1]*evinv_a2cminv_s,V[ki][0],V[ki][1],f[ki],df[ki],dos[ki],summ[ki],summa[ki],Nkf[ki]])
-   pl=pl+'%s  %10.14e %10.14e  %10.14e %10.14e %10.14e %10.14e %10.14e %10.14e  %10.14e   %10.14e  %10.14e     %10.14e   %10.14e   %d \n'%lp
+   lp=tuple([ki[0],ki[1],Kxyz[ki][0],Kxyz[ki][1],gamma[ki],E[ki],V[ki][0]*evinv_a2cminv_s,V[ki][1]*evinv_a2cminv_s,V[ki][0],V[ki][1],f[ki],df[ki],dos[ki],summ[ki],summa[ki],Nkf[ki],dosspin[ki]])
+   pl=pl+'%d %d %10.14e %10.14e  %10.14e %10.14e %10.14e %10.14e %10.14e %10.14e  %10.14e   %10.14e  %10.14e     %10.14e   %10.14e   %d  %10.14e   \n'%lp
 
 
 file_plotki_name='ki.plt'
@@ -334,23 +199,27 @@ file_plotki_handle=open(file_plotki_name,'w')
 file_plotki_handle.write(pl)
 
 
-##########################################################################################################
-##    debug:           print ki-kf property: 
-##########################################################################################################
 
+###########################################################################################################
+###    debug:           print ki-kf property: 
+###########################################################################################################
 kfdir='kf-kis/'
 if not os.path.exists(kfdir):
    os.mkdir(kfdir)
 
 for ki in M.keys():
-    pl= '#ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf\n'
-    lp=tuple([ki,Kxyz[ki][0],Kxyz[ki][1],gamma[ki],E[ki],V[ki][0]*evinv_a2cminv_s,V[ki][1]*evinv_a2cminv_s,V[ki][0],V[ki][1],f[ki],df[ki],dos[ki],summ[ki],summa[ki],Nkf[ki]])
-    pl=pl+'# %s: %10.14e %10.14e  %10.14e %10.14e %10.14e %10.14e %10.14e %10.14e  %10.14e   %10.14e  %10.14e     %10.14e   %10.14e   %d \n'%lp
-    pl=pl+'#kf: kfx, kfy(crystal), Wt, M1 M2, |M|, arg(M),vf1,vf2, E(eV), angleterm(1-cos(theta)), thetai, thetaf\n'
+    pl= '#ni, ki: kxyz(crystal), gamma (s^-1), E(eV) ,  vx vy(cm/s),vx vy(au), f, df(eV^-1), dos, sum m, sum m*angleterm,   Nkf\n'
+    lp=tuple([ki[0],ki[1],Kxyz[ki][0],Kxyz[ki][1],gamma[ki],E[ki],V[ki][0]*evinv_a2cminv_s,V[ki][1]*evinv_a2cminv_s,V[ki][0],V[ki][1],f[ki],df[ki],dos[ki],summ[ki],summa[ki],Nkf[ki]])
+    pl=pl+'# %d %d : %10.14e %10.14e  %10.14e %10.14e %10.14e %10.14e %10.14e %10.14e  %10.14e   %10.14e  %10.14e     %10.14e   %10.14e   %d \n'%lp
+    pl=pl+'#nf kf: kfx, kfy(crystal), Wt, M1 M2, |M|, arg(M),vf1,vf2, E(eV), angleterm(1-cos(theta)), thetai, thetaf\n'
     for kf in M[ki].keys():
-       lp=tuple([ kf, Kxyz[kf][0],Kxyz[kf][1],Wt[ki][kf],M[ki][kf].real,M[ki][kf].imag,abs(M[ki][kf]),cmath.phase(M[ki][kf]), V[kf][0],V[kf][1],E[kf],angleterm[ki][kf],theta[ki],theta[kf]])
-       pl=pl+'%s %10.14e %10.14e     %10.14e    %10.14e %10.14e  %10.14e %10.14e     %10.14e %10.14e     %10.14e   %10.14e %10.14e  %10.14e \n'%lp
+       lp=tuple([ kf[0],kf[1], Kxyz[kf][0],Kxyz[kf][1],Wt[ki][kf],M[ki][kf].real,M[ki][kf].imag,abs(M[ki][kf]),cmath.phase(M[ki][kf]), V[kf][0],V[kf][1],E[kf],angleterm[ki][kf],theta[ki],theta[kf]])
+       pl=pl+'%d %d %10.14e %10.14e     %10.14e    %10.14e %10.14e  %10.14e %10.14e     %10.14e %10.14e     %10.14e   %10.14e %10.14e  %10.14e \n'%lp
        
-    file_plotkf_name=kfdir+'/k%s.plt'%ki
+    file_plotkf_name=kfdir+'/n-%d-k-%d.plt'%ki
     file_plotkf_handle=open(file_plotkf_name,'w')
     file_plotkf_handle.write(pl)
+
+##########################################################################################################
+##   END
+##########################################################################################################
