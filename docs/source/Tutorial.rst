@@ -293,10 +293,4 @@ Current supported model is MRTA and SERTA. Other models such as iterative BTE me
    The third line indicates the conten stored in the following: the index and coordinates of the final k points, the weight used in calculation of scattering rate, and the matrix element of scattering between the initial and final states.
 
 .. note::
-   The mu.py script is provided in the package. To use the script, the following parameters needs proper setting. 
-   ``Ngrid``: the k point mesh grid size;
-   ``withangle``: True to use the MRTA model. False to use the SERTA model;
-   ``Efermi``: The Fermi level;
-   ``Eb``: The  band edge level;
-   ``Cd``: the relative defect concentration;
-   ``eh``: type of carrrier, ``e`` for electron, ``h`` for hole;
+   For details on the input parameters of the ``mu.py`` script, see the Input section.
