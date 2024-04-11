@@ -38,14 +38,6 @@ V_p_filename                 pristine system local potential
 Bxc_1_p_filename             pristine system magnetic field along x
 Bxc_2_p_filename             pristine system magnetic field along y
 Bxc_3_p_filename             pristine system magnetic field along z
-calcmcharge                 calculate charged defect
-mcharge_dolfa               use LFA approximation in charged calculation
-qeh_eps_filename            dielectric function file from QEH
-doqeh                       use QEH dielectric function 
-dogw                        use BGW dielectric function
-k0screen_read               Lindhard model carrier screening
-gw_epsmat_filename          BGW dielectric function file for grid q
-gw_eps0mat_filename          BGW dielectric function file for small q
 ====================      ======================================
 
 
@@ -74,13 +66,6 @@ An example input file is shown below:
     Bxc_1_p_filename='./Bxc_1_p.dat'
     Bxc_2_p_filename='./Bxc_2_p.dat'
     Bxc_3_p_filename='./Bxc_3_p.dat'
-    calcmcharge=.true.
-    mcharge_dolfa=.true.
-    eps_type='gw'
-    dogw=.true.
-    chidat='./chi.dat'
-    gw_epsmat_filename='./epsmat.h5'
-    gw_eps0mat_filename='./eps0mat.h5'
     /
 
 Input parameters
@@ -158,34 +143,28 @@ Additionally, the following parameters should be set to determine the files for 
 
 
 
-Charged defect perturbtation potential
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Transport module input parameters
+-------------------------------------------
 
-If defect is charged, the perturbation potential is represented with a different model from neutral ones.
-Currently, supported model is Coulomb potential of a point charge, screened by the material. 
-Various screening model is supported by EDI.
 
-To perform this calculation, set the parameter ``calcmcharge`` to ``.true.``.
+The transport calculation is performed by python script ``mu.py``. 
+In the script file, one can modify the parameters for respective materials.
+Here is a list of the important parameters. 
 
-Local Fielad Approximation (LFA) is supported for the charged defect systems.
-To turn on, set the parameter ``mcharge_dolfa`` to ``.true.``.
+====================      ======================================
+variable                     meaning                            
+====================      ======================================
+   Ngrid                    k point mesh grid size
+   withangle                Option of angle term in RTA model
+   Efermi                   Fermi level
+   Eb                       Band edge level
+   Cd                       Relative defect concentration
+   eh                       Type of carrrier
+====================      ======================================
 
-Currently, the supported screening models include:
-
-* Thomas-Fermi model with dielectric constant
-
-    Set ``k0screen_read`` to use dielectric constant
-
-* Quantum Electrostatic Hetereostructure model (scalar dielectric function)
-
-    Set ``doqeh`` to use QEH dielectric function.
-
-    Set ``qeh_eps_filename`` for the dielectric function obtainedfrom QEH model
-
-* Lindhard model (matrix dielectric function)
-
-    Set ``dogw`` to use BGW dielectric function
-
-    Set ``gw_epsmat_filename`` for the full dielectric matrix for q grid obtained from BGW
-
-    Set ``gw_eps0mat_filename`` for the full dielectric matrix for small q obtained from BGW
+More details of the meaning are given in the following.
+``Ngrid`` needs to be the same as the k point mesh grid size used in the wannier interpolation.
+If the option ``withangle`` is true, then the MRTA model is used, otherwise the SERTA model is used;
+``Efermi`` is the absolute location relative to the band edge, which is set by ``Eb``.
+The relative defect concentration is set by ``Cd``.
+The option ``eh`` determines the type of carrrier, ``e`` for electron, ``h`` for hole.
