@@ -32,7 +32,7 @@ The defect concentration is 1e12 per square centimeter.
    ![fig2](./figs/fig2.png){:height="552px" width="830px"}
   {: refdef}
 
-Here is the matrix element of carrier scattering by the defect in above systems of EDI with chalcogen vacancy.
+Below are matrix elements of EDI for chalcogen vacancy.
 
 
   {:refdef: style="text-align: center;"}
