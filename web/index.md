@@ -26,7 +26,7 @@ We are also implementing or will implement methods for calculating:
 # Example
 
 Here is the point-defect-limited mobility in monolayer transition metal dichalcogenides calculated with EDI.
-The defect concentration is $10^{12}$ per square centimeter.
+The defect concentration is $10^{12} cm^{-2}$.
 
   {:refdef: style="text-align: center;"}
    ![fig2](./figs/fig2.png){:height="552px" width="830px"}
