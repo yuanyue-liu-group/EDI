@@ -4,3 +4,7 @@ show_downloads: true
 github.is_project_page: true
 google_analytics:
 theme: jekyll-theme-cayman
+plugins:
+  - jekyll-redirect-from
+redirect_from:
+  - /edi
