@@ -6,41 +6,64 @@ Background
 
 In recent years, there has been an increasing demand for the development of software tools that can perform electron defect interaction calculations.
 Such tools are essential in materials science and engineering as they help in understanding the properties and behavior of materials at the atomic and molecular levels.
-We develop a software tool that can perform electron defect interaction calculations and further study its potential applications.
-
-Electron defect interaction is a fundamental concept in materials science and engineering that describes the interaction between electrons and defects in a material.
-Defects are any irregularities or imperfections in the structure of a material, including but not limited to cases such as vacancies, interstitials, dislocations, and grain boundaries.
 The interaction between electrons and defects can have a significant impact on the properties of materials, including their mechanical, electrical, and optical properties.
 To develop advanced materials and devices, it is crucial to understand the processes involving electrons and atomic defects in the solid state.
-This requires computational tools that can predict the physical properties of materials by taking into account their atomic and electronic structure.
+We develop a software tool that can perform electron defect interaction calculations and further study its potential applications.
+
 
 Softare
 ------------
 
-EDI(electron-defect interaction) is a validated code that provides a unified platform for computing electron interactions, transport, and ultrafast dynamics in materials.
-It uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics.
+EDI(electron-defect interaction) uses established first-principles methods such as density functional theory (DFT) as starting points for computing electron dynamics.
 The current distribution of EDI focuses on electron-defect (e-d) interactions and related transport properties, including electrical conductivity, scattering rate, and mobility.
 It also includes routines for computing spin-related information.
 The transport module enables accurate calculations of charge transport in a wide range of functional materials.
 EDI is computationally efficient with good scalabilities.
-
 It is suitable for use on both high-performance supercomputers and smaller computer clusters.
-Target users include experts in first-principles calculations and materials theory, as well as experimental researchers investigating charge transport, advanced functional materials, and semiconductor or solid-state devices.
-The code is efficient with MPI parallelization, and scales linearly with the supercell size, thus only limited by the DFT code.
 
 
 Methodology
 -------------
 
+The e-d interaction matrix element :math:`M_{ij}=<\phi_i|V|\phi_j>` could be calculated with the main engine of edi.
 For neutral defects, we employ a supercell method. The perturbation potential is calculated from DFT.  
 The scattering matrix element is calculated by integrating the pertubration potential in supercell and the wavefunctions,
 which consists of local component integrated in real space and non-local component integrated in reciprocal space.
+
+.. math::
+  M_{ij}= M_{ij}^L+ M_{ij}^NL
+
+The local part is integrated in real space:
+
+.. math::
+  M_{ij}^L= \int d^3r \phi_i(r)^* \phi_j(r) \Delta H(r) 
+
+And the non-local part comes from the pseudo-potential, in separable Kleinman-Bylander form, the non-local pseudo-potential is:
+
+.. math::
+  V^NL= \Sigma_{mn} | \beta_m> D_mn < \beta_n |
+
+The corresponding matrix element is:
+
+.. math::
+  M_{ij}^NL= \Sigma_{mn} <\phi_i | \beta_m^P> D_mn < \beta_n^P | \phi_j>- \Sigma_{mn} <\phi_i | \beta_m^D> D_mn < \beta_n^D | \phi_j>
+
+Here the superscript `P` and `D` denotes pristine and defect structures respectively.
+Here the overlap integral between wavefunction and projector :math:`<\phi | \beta>` is calculated in reciprocal space.
 The details of the methods could be found `here <https://pubs.acs.org/doi/10.1021/acsnano.4c01033>`_.
 
-The e-d interaction matrix element :math:`M_{ij}=<\phi_i|V|\phi_j>` could be calculated with the main engine of edi, which facilitates calculation of scattering rate based on Fermi's golden rule under the momentum relaxation time approximation (MRTA).
+
+
+The scattering rate is calculated from matrix element based on Fermi's golden rule.
+The equation of the momentum relaxation time approximation (MRTA) is as follows.
 
 .. math::
   \gamma_i= \frac{2\pi n_d}{ \hbar } \Sigma_j|M_{ij}|^2 (1-cos(\theta_{ij})) \delta(E_i-E_j)
+
+The self-energy relaxation time approximation (SERTA) is similar, without angle term:
+
+.. math::
+  \gamma_i= \frac{2\pi n_d}{ \hbar } \Sigma_j|M_{ij}|^2  \delta(E_i-E_j)
 
 The mobility is calculated using Boltzmann transport theory.
 
@@ -58,23 +81,19 @@ In the sampling of k point to calculate mobility, 2 methods are implemented:
 Capabilities
 -------------
 
-Currently, the following functions are supported by EDI:
+Currently, the following properties are calculated by EDI:
 
-- Calculate matrix element of electrons scattered by point defect
-
-   * Atomic neutral defect: vacancy, substitution, interstitial, etc
-
-- Calculate transport property such as carrier mobility 
+- EDI matrix
+- scattering rate/relaxation time
+- carrier mobility/conductivity 
 
 
-Functions currently under development:
+Calculation or following situations currently under development:
 
-- Calculate atomic charged defect
 
-- Calculate line defect scattering process
-
-- Calculate plane defect scattering process
-
+- charged defects
+- surfaces
+- grain boundaries
 
 Reference
 ----------
