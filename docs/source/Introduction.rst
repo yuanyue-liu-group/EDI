@@ -31,7 +31,7 @@ The scattering matrix element is calculated by integrating the pertubration pote
 which consists of local component integrated in real space and non-local component integrated in reciprocal space.
 
 .. math::
-  M_{ij}= M_{ij}^L+ M_{ij}^NL
+  M_{ij}= M_{ij}^L+ M_{ij}^{NL}
 
 The local part is integrated in real space:
 
@@ -41,12 +41,12 @@ The local part is integrated in real space:
 And the non-local part comes from the pseudo-potential, in separable Kleinman-Bylander form, the non-local pseudo-potential is:
 
 .. math::
-  V^NL= \Sigma_{mn} | \beta_m> D_mn < \beta_n |
+  V^{NL}= \Sigma_{mn} | \beta_m> D_{mn} < \beta_n |
 
 The corresponding matrix element is:
 
 .. math::
-  M_{ij}^NL= \Sigma_{mn} <\phi_i | \beta_m^P> D_mn < \beta_n^P | \phi_j>- \Sigma_{mn} <\phi_i | \beta_m^D> D_mn < \beta_n^D | \phi_j>
+  M_{ij}^{NL}= \Sigma_{mn} <\phi_i | \beta_m^P> D_{mn} < \beta_n^P | \phi_j>- \Sigma_{mn} <\phi_i | \beta_m^D> D_{mn} < \beta_n^D | \phi_j>
 
 Here the superscript `P` and `D` denotes pristine and defect structures respectively.
 Here the overlap integral between wavefunction and projector :math:`<\phi | \beta>` is calculated in reciprocal space.
