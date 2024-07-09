@@ -214,7 +214,7 @@ Program edic
           call calcmdefect_mnl_ks_soc(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_p,mnonlocal1)
       endif
       if ( .not. noncolin .and. calcmlocal)then
-          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,V_colin,mlocal)
+          call calcmdefect_ml_rs(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,mlocal)
       endif
       if ( .not. noncolin .and. calcmnonlocal)then
           call calcmdefect_mnl_ks(bnd_idx_f,bnd_idx_i,kp_idx_f,kp_idx_i,v_d,mnonlocal0)
