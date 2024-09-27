@@ -43,7 +43,7 @@ For details of the above figures, see the [publication](https://pubs.acs.org/doi
 
 
 
-# Reference
+# References
 
  Zhongcan Xiao, Rongjing Guo, Chenmu Zhang, and Yuanyue Liu. Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides.  ACS Nano.  [DOI: 10.1021/acsnano.4c01033](https://pubs.acs.org/doi/10.1021/acsnano.4c01033)
 
