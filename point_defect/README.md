@@ -6,6 +6,6 @@ Electron-point-defect interaction plays a significant role in electron transport
 Documentation website: https://edi-doc.readthedocs.io
 
 ## References
-More details can be found at: https://https://pubs.acs.org/doi/full/10.1021/acsnano.4c01033
+More details can be found at: https://pubs.acs.org/doi/full/10.1021/acsnano.4c01033
 
 
