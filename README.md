@@ -1,5 +1,16 @@
 # Electron-Defect Interaction
 
-<img src="/fig/edi2.png" alt="Electron-Defect Interation" height="400">
+<p align="center">
+  <img src="/fig/edi.png" alt="Electron-Defect Interation" height="300">
+</p>
 
-Electron-defect interaction is crucial to many processes and applications such as charge transport and light absoprtion/emssion. EDI (electron-defect interaction) is a software package to calculate the electron-defect interaction and the associated properties from first principles.
+
+EDI is a software package to calculate electron-defect interaction and the associated properties from first principles.
+
+Currently, EDI can calculate the following quantities:
+
+(1) for charge-neutral point defects:
+EDI matrix, carrier scattering rate/relaxation time, carrier mobility, electrical conductivity
+
+(2) for surfaces:
+carrier mobility and electrical conductivity of a slab
