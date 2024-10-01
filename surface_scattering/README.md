@@ -1,6 +1,8 @@
 # surface_scattering
 
-<img src="es2.jpg" alt="Surface Scattering Illustration" height="180">
+<p align="center">
+  <img src="es2.jpg" alt="Surface Scattering Illustration" height="180">
+</p>
 
 Predict carrier transport under surface scattering
 
