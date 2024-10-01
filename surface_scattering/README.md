@@ -2,7 +2,7 @@
 
 <img src="es2.jpg" alt="Surface Scattering Illustration" height="180">
 
-Solves the spatial Boltzmann Transport Equation (BTE) to evaluate finite-size resistivity in films, accounting for electron-surface and electron-phonon scattering.
+Predict carrier transport under surface scattering
 
 ## Description
 Electron-surface (e-s) scattering plays a significant role in electron transport in materials. Existing theories usually require phenomenological parameters that need to be fitted to experimental data or are based on assumptions. Other theories calculate e-s scattering from first principles but often neglect its complex interaction with other scattering mechanisms (e.g., electron-phonon (e-ph) scattering), which collectively determine electron transport. This code provides a method to accurately capture the intricate interactions between e-s scattering and e-ph scattering from first principles and demonstrates their collective effect on electron transport in thin films by solving the 1D spatially dependent Boltzmann Transport Equation (BTE).
