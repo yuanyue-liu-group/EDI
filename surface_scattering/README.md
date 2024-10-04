@@ -71,6 +71,8 @@ cond = np.mean(condz, axis=0)
 print(f'Conductivity, x: {cond[0,0]:10.4e} y: {cond[1,1]:10.4e} S/m')
 plt.show()
 ```
+Below are the calculated resistivities (relative to the bulk Cu) of Cu films with different surfaces versus thickness.
+
 <p align="center">
   <img src="resistivity.jpg" alt="resistivity" height="300">
 </p>
