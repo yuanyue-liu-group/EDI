@@ -1,9 +1,9 @@
 # Point Defect scattering
 
 ## Description
-Electron-point-defect interaction plays a significant role in electron transport in materials. Point defects are the localized disruptions in the atomic structure, such as vacancies, interstitial atoms, or substitutional impurities, which affect the carrier transport. This code provides a method to accurately capture the electron-point-defect interations from first principle. By calculating electron-point-defect scattering matrix elements, we can obtain the carrier mobility limited by specific point-defects.
+Point defects (PDs) are the localized disruptions in the atomic structure, such as vacancies, interstitial atoms, or substitutional impurities. This code can calculate the matrix of electron-PD interaction, and the resulting scattering rate/relaxation time, as well as the transport properties (conductivity, mobility etc).
 
-Documentation for neutral defect: https://point-defect.readthedocs.io
+Detailed documentation: https://point-defect.readthedocs.io
 
 ## Example outputs
 Below are the calculated room-temperature charge carrier mobilities for 2D (monolayer) MX2 with different defect types.
@@ -13,6 +13,6 @@ Below are the calculated room-temperature charge carrier mobilities for 2D (mono
 </p>
 
 ## References
-More details can be found at: https://pubs.acs.org/doi/full/10.1021/acsnano.4c01033
+Please cite the paper for using this code: https://pubs.acs.org/doi/full/10.1021/acsnano.4c01033
 
 
