@@ -14,3 +14,8 @@ EDI matrix, carrier scattering rate/relaxation time, carrier mobility, electrica
 
 (2) for surfaces:
 carrier mobility and electrical conductivity of a slab
+
+Underdevelopment:
+(1) charged point defects
+(2) grain boundaries
+...
