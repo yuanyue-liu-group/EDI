@@ -71,6 +71,9 @@ cond = np.mean(condz, axis=0)
 print(f'Conductivity, x: {cond[0,0]:10.4e} y: {cond[1,1]:10.4e} S/m')
 plt.show()
 ```
+<p align="center">
+  <img src="resistivity.jpg" alt="resistivity" height="180">
+</p>
 
 ## References
 More details can be found at: https://pubs.acs.org/doi/full/10.1021/acsnano.4c07698
