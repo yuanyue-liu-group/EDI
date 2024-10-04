@@ -3,6 +3,8 @@
 ## Description
 Point defects (PDs) are the localized disruptions in the atomic structure, such as vacancies, interstitial atoms, or substitutional impurities. This code can calculate the matrix of electron-PD interaction, and the resulting scattering rate/relaxation time, as well as the transport properties (conductivity, mobility etc).
 
+Currently it works only for neutral PD. The charged PD will be implemented soon
+
 Detailed documentation: https://point-defect.readthedocs.io
 
 ## Example outputs
