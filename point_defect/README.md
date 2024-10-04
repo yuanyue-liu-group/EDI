@@ -6,7 +6,7 @@ Electron-point-defect interaction plays a significant role in electron transport
 Documentation for neutral defect: https://point-defect.readthedocs.io
 
 ## Example outputs
-Here are the calculated results of the room-temperature charge carrier mobilities for different materials with different defect types.
+Below are the calculated room-temperature charge carrier mobilities for 2D (monolayer) MX2 with different defect types.
 
 <p align="center">
   <img src="pd.jpeg" alt="point defect" height="350">
