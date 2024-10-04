@@ -72,7 +72,7 @@ print(f'Conductivity, x: {cond[0,0]:10.4e} y: {cond[1,1]:10.4e} S/m')
 plt.show()
 ```
 <p align="center">
-  <img src="resistivity.jpg" alt="resistivity" height="180">
+  <img src="resistivity.jpg" alt="resistivity" height="300">
 </p>
 
 ## References
