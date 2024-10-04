@@ -5,7 +5,7 @@ Electron-point-defect interaction plays a significant role in electron transport
 
 Documentation for neutral defect: https://point-defect.readthedocs.io
 
-## example outputs
+## Example outputs
 Here are the calculated results of the room-temperature charge carrier mobilities for different materials with different defect types.
 
 <p align="center">
