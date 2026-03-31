@@ -50,7 +50,7 @@ EDI is built as a plugin inside the QE source tree. Place this repository at `<Q
 
 ```bash
 cd <QE-root>
-git clone git@github.com:rjguo1208/edi-dev.git edi-code
+git clone git@github.com:yuanyue-liu-group/EDI.git edi-code
 cd edi-code
 make
 ```
