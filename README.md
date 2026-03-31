@@ -21,6 +21,8 @@ EDI uses the supercell approach to extract defect perturbation potentials, Wanni
 - **Automated setup**: Python scripts generate all supercell and primitive cell inputs from a single `scf.in`
 - **One-shot potential extraction** by extract_pot.x
 
+Previous version: [EDI-1.0](https://github.com/yuanyue-liu-group/EDI_old)
+
 ## Workflow
 <p align="center">
   <img src="figs/workflow.png" alt="EDI workflow" width="800">
