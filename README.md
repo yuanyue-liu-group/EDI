@@ -449,7 +449,10 @@ where `g_s = 2` (collinear, spin-degenerate) or `g_s = 1` (SOC), and the Fermi l
 
 ## References
 
-- X. XX et al., "EDI: Electron-defect interaction and defect-limited transport from first principle," (in preparation)
+- X. XX et al., "EDI: Electron-defect interaction and defect-limited transport from first principles," (in preparation)
+- Z. Xiao et al., "Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides," [ACS Nano 18 (11), 8511-8516 (2024)](https://doi.org/10.1021/acsnano.4c01033)
+- I. Lu et al., "Efficient ab initio calculations of electron-defect scattering and defect-limited carrier mobility," [Phys. Rev. Materials 3, 033804 (2019)](https://doi.org/10.1103/PhysRevMaterials.3.033804)
+- I. Lu et al., "Ab initio electron-defect interactions using Wannier functions," [npj Comput Mater 6, 17 (2020)](https://doi.org/10.1038/s41524-020-0284-y)
 - A. A. Mostofi et al., "An updated version of wannier90: A tool for obtaining maximally-localised Wannier functions," [Comput. Phys. Commun. 185, 2309 (2014)](https://doi.org/10.1016/j.cpc.2014.05.003)
 - P. Giannozzi et al., "Quantum ESPRESSO toward the exascale," [J. Chem. Phys. 152, 154105 (2020)](https://doi.org/10.1063/5.0005082)
 
