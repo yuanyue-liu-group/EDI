@@ -468,7 +468,7 @@ where $v_{n\mathbf{k},\alpha} = \hbar^{-1} \partial \varepsilon_{n\mathbf{k}}/\p
 
 EDI also implements the momentum relaxation time approximation (MRTA), which incorporates the scattering-angle dependence through a $(1 - \cos\theta)$ factor in the scattering rate:
 
-$$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k}}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'}) \Bigl(1 - cos(\theta)\Bigr)$$
+$$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k}}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'}) \Bigl(1 - cos\theta\Bigr)$$
 
 The MRTA provides an improved approximation to the full iterative BTE solution for elastic scattering processes, as forward-scattering events (small momentum transfer) contribute less to resistivity [[3]](#ref3).
 
