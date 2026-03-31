@@ -391,7 +391,7 @@ All Fortran source files are in `src/` (26 files):
 
 ## Theory
 
-EDI implements the *ab initio* electron-defect scattering framework introduced by Lu *et al.* [[3]](#ref3)[[4]](#ref4) and extended to 2D systems by Xiao *et al.* [[2]](#ref2). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
+EDI implements the <em>ab initio</em> electron-defect scattering framework introduced by Lu <em>et al.</em> [[3]](#ref3)[[4]](#ref4) and extended to 2D systems by Xiao <em>et al.</em> [[2]](#ref2). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
 
 
 ### Electron-Defect Matrix Element
@@ -406,36 +406,40 @@ The total Kohn-Sham potential includes local and nonlocal parts. Accordingly, th
 
 $$M_{n\mathbf{k},m\mathbf{k}'} = M^{\mathrm{loc}} + M^{\mathrm{NL,defect}} - M^{\mathrm{NL,pristine}}$$
 
-**Local contribution.** The local part involves the real-space integral of $\Delta V_{\mathrm{loc}}(\mathbf{r})$, which contains the local ionic pseudopotential, Hartree, and exchange-correlation potentials. For calculations with spin-orbit coupling (SOC), the wavefunctions are two-component spinors, and the local contribution sums over spinor components $\sigma \in \{\uparrow,\downarrow\}$:
+<b>Local contribution.</b> The local part involves the real-space integral of $\Delta V_{\mathrm{loc}}(\mathbf{r})$, which contains the local ionic pseudopotential, Hartree, and exchange-correlation potentials. For calculations with spin-orbit coupling (SOC), the wavefunctions are two-component spinors, and the local contribution sums over spinor components $\sigma \in \{\uparrow,\downarrow\}$:
 
-$$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^*_{n\mathbf{k},\sigma}(\mathbf{r})\, \Delta V_{\mathrm{loc}}(\mathbf{r})\, \psi_{m\mathbf{k}',\sigma}(\mathbf{r})\, d\mathbf{r}$$
+$$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^{\ast}_{n\mathbf{k},\sigma}(\mathbf{r})\, \Delta V_{\mathrm{loc}}(\mathbf{r})\, \psi_{m\mathbf{k}',\sigma}(\mathbf{r})\, d\mathbf{r}$$
 
 In practice, the wavefunctions are expressed in a plane-wave basis and the integral is efficiently computed via FFT by folding the supercell $\Delta V$ onto the primitive-cell reciprocal grid [[3]](#ref3).
 
-**Nonlocal contribution.** The nonlocal part arises from the Kleinman-Bylander (KB) separable pseudopotentials. For each atom $I$ with projectors $|\beta^I_i\rangle$ and coupling coefficients $D^I_{ij}$, the nonlocal matrix element takes the form:
+<b>Nonlocal contribution.</b> The nonlocal part arises from the Kleinman-Bylander (KB) separable pseudopotentials. For each atom $I$ with projectors $|\beta^I_i\rangle$ and coupling coefficients $D^I_{ij}$, the nonlocal matrix element takes the form:
 
 $$M^{\mathrm{NL}} = \sum_{I,i,j} \langle \psi_{n\mathbf{k}} | \beta^I_i \rangle\, D^I_{ij}\, \langle \beta^I_j | \psi_{m\mathbf{k}'} \rangle$$
 
 The defect perturbation to the nonlocal potential is obtained by subtracting the pristine-supercell contribution from the defect-supercell contribution. Under SOC, the coupling coefficients become spin-dependent matrices $D^{I,\sigma\sigma'}_{ij}$ acting on the spinor indices.
 
-**Potential alignment.** Because the supercell DFT calculations for the pristine and defect systems are performed independently, an arbitrary constant offset between the two electrostatic potentials must be removed. EDI supports vacuum-level alignment (for 2D systems, where the potential plateaus in the vacuum region) and core-level alignment (averaging the potential on a sphere far from the defect center) [[2]](#ref2)[[3]](#ref3).
+<b>Potential alignment.</b> Because the supercell DFT calculations for the pristine and defect systems are performed independently, an arbitrary constant offset between the two electrostatic potentials must be removed. EDI supports vacuum-level alignment (for 2D systems, where the potential plateaus in the vacuum region) and core-level alignment (averaging the potential on a sphere far from the defect center) [[2]](#ref2)[[3]](#ref3).
 
 
 ### Wannier Interpolation
 
 Direct evaluation of $M_{n\mathbf{k},m\mathbf{k}'}$ on the dense k-grids required for converged transport calculations is computationally prohibitive, since each matrix element involves plane-wave wavefunctions and FFTs. EDI overcomes this bottleneck by Wannier interpolation [[4]](#ref4), leveraging maximally localized Wannier functions (MLWFs) constructed using Wannier90 [[5]](#ref5).
 
-**Bloch-to-Wannier transformation.** The matrix elements are first computed on a coarse $N_{\mathbf{k}}$-point grid commensurate with the supercell and then transformed to the Wannier gauge:
+<b>Bloch-to-Wannier transformation.</b> The matrix elements are first computed on a coarse $N_{\mathbf{k}}$-point grid commensurate with the supercell and then transformed to the Wannier gauge:
 
-$$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}}\, e^{-i\mathbf{k}'\cdot\mathbf{R}'}\; \bigl[U^{\dagger}(\mathbf{k})\, M^{(\mathrm{B})}(\mathbf{k},\mathbf{k}')\, U(\mathbf{k}')\bigr]_{ij}$$
+$$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}}\, e^{-i\mathbf{k}'\cdot\mathbf{R}'}\; \sum_{n,m} U^{\ast}_{ni}(\mathbf{k})\, M^{(\mathrm{B})}_{nm}(\mathbf{k},\mathbf{k}')\, U_{mj}(\mathbf{k}')$$
 
-where $U(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations), and $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation [[4]](#ref4).
+where $n, m$ are band indices, $i, j$ are Wannier function indices, and $U_{ni}(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations). $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation [[4]](#ref4).
 
-**Wannier-to-Bloch interpolation.** From the Wannier-basis matrix elements, one reconstructs $M$ at arbitrary fine k-points $(\mathbf{k}, \mathbf{k}')$ via the inverse Fourier transform:
+<b>Wannier-to-Bloch interpolation.</b> From the Wannier-basis matrix elements, one reconstructs $M$ at arbitrary fine k-points $(\mathbf{k}, \mathbf{k}')$ in two steps. First, a Fourier transform back to reciprocal space yields the matrix in the Wannier gauge:
 
-$$\tilde{M}_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{\mathbf{R},\mathbf{R}'} \frac{e^{-i\mathbf{k}\cdot\mathbf{R}}\, e^{+i\mathbf{k}'\cdot\mathbf{R}'}}{d_{\mathbf{R}}\, d_{\mathbf{R}'}}\; M(\mathbf{R}, \mathbf{R}')$$
+$$\tilde{M}_{ij}(\mathbf{k}, \mathbf{k}') = \sum_{\mathbf{R},\mathbf{R}'} \frac{e^{-i\mathbf{k}\cdot\mathbf{R}}\, e^{+i\mathbf{k}'\cdot\mathbf{R}'}}{d_{\mathbf{R}}\, d_{\mathbf{R}'}}\; M_{ij}(\mathbf{R}, \mathbf{R}')$$
 
-where $d_{\mathbf{R}}$ are Wigner-Seitz degeneracy factors that account for lattice vectors shared between neighboring supercells. The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure [[5]](#ref5). This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost [[4]](#ref4).
+where $d_{\mathbf{R}}$ are Wigner-Seitz degeneracy factors that account for lattice vectors shared between neighboring supercells. Then, a unitary rotation transforms back to the Bloch band basis:
+
+$$M_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{i,j} U_{ni}(\mathbf{k})\, \tilde{M}_{ij}(\mathbf{k}, \mathbf{k}')\, U^{\ast}_{mj}(\mathbf{k}')$$
+
+The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure [[5]](#ref5). This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost [[4]](#ref4).
 
 <p align="center">
   <img src="figs/wannier_interp.png" alt="Wannier interpolation validation" width="500">
@@ -451,7 +455,7 @@ $$\frac{1}{\tau_{n\mathbf{k}}} = \frac{2\pi}{\hbar}\, n_{\mathrm{d}} \frac{1}{N_
 
 where $n_{\mathrm{d}}$ is the defect concentration per unit cell and the energy-conserving delta function enforces elastic scattering. The factor $n_{\mathrm{d}}$ reflects the dilute-defect limit, where scattering events from different defect sites are treated as independent and incoherent.
 
-For numerical evaluation of the delta function, EDI provides three methods: (i) a **triangular** (linear tetrahedron-like) method optimized for 2D Brillouin zones, (ii) a **fixed Gaussian** broadening with user-specified width $\sigma$, and (iii) an **adaptive Gaussian** scheme where $\sigma$ is set proportional to the energy variation $|\nabla_\mathbf{k}\varepsilon \cdot \Delta\mathbf{k}|$ across each k-mesh cell, following the approach used in EPW for electron-phonon problems.
+For numerical evaluation of the delta function, EDI provides three methods: (i) a <b>triangular</b> (linear tetrahedron-like) method optimized for 2D Brillouin zones, (ii) a <b>fixed Gaussian</b> broadening with user-specified width $\sigma$, and (iii) an <b>adaptive Gaussian</b> scheme where $\sigma$ is set proportional to the energy variation $|\nabla_\mathbf{k}\varepsilon \cdot \Delta\mathbf{k}|$ across each k-mesh cell, following the approach used in EPW for electron-phonon problems.
 
 
 ### Carrier Mobility
