@@ -408,13 +408,13 @@ $$M_{n\mathbf{k},m\mathbf{k}'} = M^{\mathrm{loc}} + M^{\mathrm{NL,defect}} - M^{
 
 The local part involves the real-space integral of $\Delta V_{\mathrm{loc}}(\mathbf{r})$, which contains the local ionic pseudopotential, Hartree, and exchange-correlation potentials. For calculations with spin-orbit coupling (SOC), the wavefunctions are two-component spinors, and the local contribution sums over spinor components $\sigma \in \lbrace\uparrow,\downarrow\rbrace$:
 
-$$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^{\ast}_{n\mathbf{k},\sigma}(\mathbf{r})\, \Delta V_{\mathrm{loc}}(\mathbf{r})\, \psi_{m\mathbf{k}',\sigma}(\mathbf{r})\, d\mathbf{r}$$
+$$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^{\ast}_{n\mathbf{k},\sigma}(\mathbf{r}) \Delta V_{\mathrm{loc}}(\mathbf{r}) \psi_{m\mathbf{k}',\sigma}(\mathbf{r}) d\mathbf{r}$$
 
 In practice, the wavefunctions are expressed in a plane-wave basis and the integral is efficiently computed via FFT by folding the supercell $\Delta V$ onto the primitive-cell reciprocal grid [[3]](#ref3).
 
 The nonlocal part arises from the Kleinman-Bylander (KB) separable pseudopotentials. For each atom $I$ with projectors $|\beta^I_i\rangle$ and coupling coefficients $D^I_{ij}$, the nonlocal matrix element takes the form:
 
-$$M^{\mathrm{NL}} = \sum_{I,i,j} \langle \psi_{n\mathbf{k}} | \beta^I_i \rangle\, D^I_{ij}\, \langle \beta^I_j | \psi_{m\mathbf{k}'} \rangle$$
+$$M^{\mathrm{NL}} = \sum_{I,i,j} \langle \psi_{n\mathbf{k}} | \beta^I_i \rangle D^I_{ij} \langle \beta^I_j | \psi_{m\mathbf{k}'} \rangle$$
 
 The defect perturbation to the nonlocal potential is obtained by subtracting the pristine-supercell contribution from the defect-supercell contribution. Under SOC, the coupling coefficients become spin-dependent matrices $D^{I,\sigma\sigma'\!}_{ij}$ acting on the spinor indices.
 
@@ -427,17 +427,17 @@ Direct evaluation of $M_{n\mathbf{k},m\mathbf{k}'}$ on the dense k-grids require
 
 The matrix elements are first computed on a coarse $N_{\mathbf{k}}$-point grid commensurate with the supercell and then transformed to the Wannier gauge:
 
-$$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}}\, e^{-i\mathbf{k}'\cdot\mathbf{R}'}\; \sum_{n,m} U^{\ast}_{ni}(\mathbf{k})\, M^{(\mathrm{B})}_{nm}(\mathbf{k},\mathbf{k}')\, U_{mj}(\mathbf{k}')$$
+$$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}} e^{-i\mathbf{k}'\cdot\mathbf{R}'} \sum_{n,m} U^{\ast}_{ni}(\mathbf{k}) M^{(\mathrm{B})}_{nm}(\mathbf{k},\mathbf{k}') U_{mj}(\mathbf{k}')$$
 
 where $n, m$ are band indices, $i, j$ are Wannier function indices, and $U_{ni}(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations). $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation [[4]](#ref4).
 
 From the Wannier-basis matrix elements, one reconstructs $M$ at arbitrary fine k-points $(\mathbf{k}, \mathbf{k}')$ in two steps. First, a Fourier transform back to reciprocal space yields the matrix in the Wannier gauge:
 
-$$\tilde{M}_{ij}(\mathbf{k}, \mathbf{k}') = \sum_{\mathbf{R},\mathbf{R}'} e^{-i\mathbf{k}\cdot\mathbf{R}}\, e^{+i\mathbf{k}'\cdot\mathbf{R}'}\; M_{ij}(\mathbf{R}, \mathbf{R}')$$
+$$\tilde{M}_{ij}(\mathbf{k}, \mathbf{k}') = \sum_{\mathbf{R},\mathbf{R}'} e^{-i\mathbf{k}\cdot\mathbf{R}} e^{+i\mathbf{k}'\cdot\mathbf{R}'} M_{ij}(\mathbf{R}, \mathbf{R}')$$
 
 Then, a unitary rotation transforms back to the Bloch band basis:
 
-$$M_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{i,j} U_{ni}(\mathbf{k})\, \tilde{M}_{ij}(\mathbf{k}, \mathbf{k}')\, U^{\ast}_{mj}(\mathbf{k}')$$
+$$M_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{i,j} U_{ni}(\mathbf{k}) \tilde{M}_{ij}(\mathbf{k}, \mathbf{k}') U^{\ast}_{mj}(\mathbf{k}')$$
 
 The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure [[5]](#ref5). This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost [[4]](#ref4).
 
@@ -451,7 +451,7 @@ The band structure (eigenvalues and group velocities) is simultaneously interpol
 
 Given the matrix elements, the defect-limited scattering rate for a Bloch state $|n\mathbf{k}\rangle$ is obtained from Fermi's golden rule [[3]](#ref3):
 
-$$\frac{1}{\tau_{n\mathbf{k}}} = \frac{2\pi}{\hbar}\, n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2\; \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})$$
+$$\frac{1}{\tau_{n\mathbf{k}}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})$$
 
 where $n_{\mathrm{d}}$ is the defect concentration per unit cell and the energy-conserving delta function enforces elastic scattering. The factor $n_{\mathrm{d}}$ reflects the dilute-defect limit, where scattering events from different defect sites are treated as independent and incoherent.
 
@@ -462,13 +462,13 @@ For numerical evaluation of the delta function, EDI provides three methods: (i) 
 
 The defect-limited carrier mobility tensor is computed from the linearized Boltzmann transport equation. Under the self-energy relaxation time approximation (SERTA), the mobility reads [[2]](#ref2)[[3]](#ref3):
 
-$$\mu_{\alpha\beta} = \frac{g_s\, e}{n_c}\, \frac{1}{N_{\mathbf{k}}} \sum_{n\mathbf{k}} v_{n\mathbf{k},\alpha}\, v_{n\mathbf{k},\beta}\, \tau_{n\mathbf{k}}\; \Bigl(-\frac{\partial f}{\partial \varepsilon}\Bigr)_{\varepsilon_{n\mathbf{k}}}$$
+$$\mu_{\alpha\beta} = \frac{g_s e}{n_c} \frac{1}{N_{\mathbf{k}}} \sum_{n\mathbf{k}} v_{n\mathbf{k},\alpha} v_{n\mathbf{k},\beta} \tau_{n\mathbf{k}} \Bigl(-\frac{\partial f}{\partial \varepsilon}\Bigr)_{\varepsilon_{n\mathbf{k}}}$$
 
-where $v_{n\mathbf{k},\alpha} = \hbar^{-1}\, \partial \varepsilon_{n\mathbf{k}}/\partial k_\alpha$ is the band velocity (obtained from the Wannier-interpolated Hamiltonian), $f(\varepsilon)$ is the Fermi-Dirac distribution, $n_c$ is the carrier concentration, and $g_s$ is the spin degeneracy factor ($g_s = 2$ for collinear spin-degenerate calculations, $g_s = 1$ when SOC is included). The Fermi level $\varepsilon_F$ at each temperature is determined self-consistently by bisection so that the integral of $f(\varepsilon)$ over the band structure reproduces the specified carrier concentration.
+where $v_{n\mathbf{k},\alpha} = \hbar^{-1} \partial \varepsilon_{n\mathbf{k}}/\partial k_\alpha$ is the band velocity (obtained from the Wannier-interpolated Hamiltonian), $f(\varepsilon)$ is the Fermi-Dirac distribution, $n_c$ is the carrier concentration, and $g_s$ is the spin degeneracy factor ($g_s = 2$ for collinear spin-degenerate calculations, $g_s = 1$ when SOC is included). The Fermi level $\varepsilon_F$ at each temperature is determined self-consistently by bisection so that the integral of $f(\varepsilon)$ over the band structure reproduces the specified carrier concentration.
 
 EDI also implements the momentum relaxation time approximation (MRTA), which incorporates the scattering-angle dependence through a $(1 - \cos\theta)$ factor in the scattering rate:
 
-$$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k},\alpha}} = \frac{2\pi}{\hbar}\, n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2\; \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})\; \Bigl(1 - \frac{v_{m\mathbf{k}',\alpha}}{v_{n\mathbf{k},\alpha}}\Bigr)$$
+$$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k},\alpha}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'}) \Bigl(1 - \frac{v_{m\mathbf{k}',\alpha}}{v_{n\mathbf{k},\alpha}}\Bigr)$$
 
 The MRTA provides an improved approximation to the full iterative BTE solution for elastic scattering processes, as forward-scattering events (small momentum transfer) contribute less to resistivity [[3]](#ref3).
 
