@@ -400,7 +400,7 @@ The electron-defect matrix element between Bloch states $|\psi_{n\mathbf{k}}\ran
 
 $$M_{n \mathbf{k}, m \mathbf{k'}} = \langle \psi_{n\mathbf{k}} | \Delta V | \psi_{m\mathbf{k'}} \rangle$$
 
-where $ \Delta V = V^{\mathrm{KS}}_{\mathrm{defect}} - V^{\mathrm{KS}}_{\mathrm{pristine}} $ is the defect perturbation potential, i.e., the difference between the Kohn-Sham potentials of the defect-containing and pristine supercells. Because the defect is spatially localized, $\Delta V(\mathbf{r})$ decays to zero far from the defect site, and a sufficiently large supercell captures the full perturbation [[3]](#ref3).
+where $\Delta V$ is the defect perturbation potential, i.e., the difference between the Kohn-Sham potentials of the defect-containing and pristine supercells. Because the defect is spatially localized, $\Delta V(\mathbf{r})$ decays to zero far from the defect site, and a sufficiently large supercell captures the full perturbation [[3]](#ref3).
 
 The total Kohn-Sham potential includes local and nonlocal parts. Accordingly, the matrix element decomposes as:
 
