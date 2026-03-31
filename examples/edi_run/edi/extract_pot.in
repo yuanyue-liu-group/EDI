@@ -1,0 +1,9 @@
+  &extract_pot_nml
+    defect_prefix   = 'mos2_defect'
+    defect_outdir   = '../defect_super/dout/'
+    pristine_prefix = 'mos2_pristine'
+    pristine_outdir = '../pristine_super/dout/'
+    potfile_d = 'V_d.cube'
+    potfile_p = 'V_p.cube'
+  /
+

@@ -1,0 +1,27 @@
+MODULE ep_constants
+  USE kinds, ONLY : DP
+  USE constants, ONLY : pi, rytoev, autoev, BOHR_RADIUS_ANGS, ry_to_cmm1
+  IMPLICIT NONE
+  SAVE
+
+  REAL(KIND=DP), PARAMETER :: twopi = 2.0_DP * pi
+  REAL(KIND=DP), PARAMETER :: fpi = 4.0_DP * pi
+  REAL(KIND=DP), PARAMETER :: pibytwo = pi / 2.0_DP
+  REAL(KIND=DP), PARAMETER :: one = 1.0_DP
+  REAL(KIND=DP), PARAMETER :: two = 2.0_DP
+  REAL(KIND=DP), PARAMETER :: half = 0.5_DP
+  REAL(KIND=DP), PARAMETER :: zero = 0.0_DP
+  REAL(KIND=DP), PARAMETER :: e2 = 2.0_DP
+  COMPLEX(KIND=DP), PARAMETER :: ci = (0.0_DP, 1.0_DP)
+  COMPLEX(KIND=DP), PARAMETER :: cone = (1.0_DP, 0.0_DP)
+  COMPLEX(KIND=DP), PARAMETER :: czero = (0.0_DP, 0.0_DP)
+  REAL(KIND=DP), PARAMETER :: bohr = BOHR_RADIUS_ANGS
+  REAL(KIND=DP), PARAMETER :: ryd2ev = rytoev
+  REAL(KIND=DP), PARAMETER :: bohr2ang = BOHR_RADIUS_ANGS
+  REAL(KIND=DP), PARAMETER :: eps5 = 1.0d-5
+  REAL(KIND=DP), PARAMETER :: eps6 = 1.0d-6
+  REAL(KIND=DP), PARAMETER :: eps8 = 1.0d-8
+  REAL(KIND=DP), PARAMETER :: eps12 = 1.0d-12
+  REAL(KIND=DP), PARAMETER :: eps16 = 1.0d-16
+
+END MODULE ep_constants

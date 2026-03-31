@@ -1,0 +1,83 @@
+&edinput_nml
+  edi_prefix = 'mos2'
+  edi_outdir = '../primitive/dout/'
+
+  do_edmat = .true.
+!  pristine_prefix = 'mos2_pristine'
+!  pristine_outdir = '../pristine_super/dout/'
+!  defect_prefix = 'mos2_defect'
+!  defect_outdir = '../defect_super/dout/'
+
+  potfile_d = 'V_d.cube'
+  potfile_p = 'V_p.cube'
+
+
+  pot_align = 'vacuum'
+!  defect_center =  0.5000000000, 0.5000000000, 0.8781590376! 0.5, 0.5, 0.5
+!  core_align_radius = 1.0
+  
+
+
+  edwread = .false.
+
+  wannierize = .true.
+  nbndsub = 5
+
+  coarse_nk1 = 12
+  coarse_nk2 = 12
+  coarse_nk3 = 1
+
+  fine_nk1 = 300
+  fine_nk2 = 300
+  fine_nk3 = 1
+
+
+
+  dis_win_min = -7.0
+  dis_win_max = -0.8
+  dis_froz_max = -3.4
+  dis_froz_min = -7.0
+  num_iter = 1000
+  iprint_w90 = 2
+
+  auto_projections = .false.
+  proj(1) = 'Mo:d'
+!  proj(2) = 'S:p'
+
+  bands_skipped = 'exclude_bands = 1-12'
+
+  wdata(1) = 'bands_plot = .true.'
+  wdata(2) = 'begin kpoint_path'
+  wdata(3) = 'G 0.00 0.00 0.00 M 0.50 0.00 0.00'
+  wdata(4) = 'M 0.50 0.00 0.00 K 0.333333333333 0.333333333333 0.00'
+  wdata(5) = 'K 0.333333333333 0.333333333333 0.00 G 0.0 0.0 0.00'
+  wdata(6) = 'end kpoint_path'
+  wdata(7) = 'bands_plot_format = gnuplot'
+  wdata(8) = 'dis_num_iter = 2000'
+  wdata(9) = 'num_print_cycles = 10'
+  wdata(10) = 'dis_mix_ratio = 1.0'
+  wdata(11) = 'conv_tol = 1E-8'
+  wdata(12) = 'conv_window = 4'
+  wdata(13) = 'guiding_centres = .true.'
+
+  edmat_interp_from_file = .true.
+  filki_interp = 'ki.dat'
+  filkf_interp = 'kf.dat'
+ 
+
+    do_transport = .false.
+    delta_method = 'gaussian'
+    delta_sigma = 0.01
+    
+    transport_win_max = -4.05       ! Fermi energy in eV (check from NSCF output)
+    transport_win_min = -4.25
+    carrier_conc =  1e11        
+    defect_conc = 1.0e12       ! defect concentration: 10^12 cm^-2 (for 2D)
+    nstemp = 3                 ! number of temperatures
+    temps(1) = 100.0
+    temps(2) = 200.0
+    temps(3) = 300.0
+
+
+/
+

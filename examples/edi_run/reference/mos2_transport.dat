@@ -1,0 +1,7 @@
+# EDI Transport with IBZ symmetry
+# Grid:  300 300   1  full=   90000  IBZ=   15151
+# Window=   -4.2500 to    -4.1000 eV
+# T(K)  mu_SERTA_xx  mu_MRTA_xx  mu_SERTA_yy  mu_MRTA_yy  (cm^2/Vs)
+    100.00    5.571443E+03    5.983559E+03    5.571443E+03    5.983559E+03
+    200.00    2.919076E+03    3.194334E+03    2.919076E+03    3.194334E+03
+    300.00    2.102696E+03    2.346664E+03    2.102696E+03    2.346664E+03

@@ -1,0 +1,43 @@
+&control
+   calculation = 'scf'
+   verbosity='high'
+   restart_mode='from_scratch',
+   prefix='mos2',
+   pseudo_dir = '/home/x-rg47749/pseudo_dojo_nc_pbe_sr/nc-sr-05_pbe_stringent_upf/',
+   outdir='./dout/'
+/
+&system
+   ibrav=  0,
+   A=1.0
+   nat=  3, ntyp= 2,
+   ecutwfc =100.0,
+   nbnd=20
+   assume_isolated = '2D'
+/
+
+&electrons
+   diagonalization='david'
+   mixing_mode = 'plain'
+   mixing_beta = 0.5
+   conv_thr =  1.0e-10
+/
+
+
+ATOMIC_SPECIES
+Mo 95.96 Mo.upf
+S 32.06 S.upf
+
+
+CELL_PARAMETERS alat
+       3.18517668      -0.00000000       0.00000000
+      -1.59258834       2.75844392       0.00000000
+       0.00000000       0.00000000      24.00000000
+
+ATOMIC_POSITIONS crystal
+Mo                   0.6666666666       0.3333333333       0.5000000000
+S                    0.0000000000       0.0000000000       0.5651240739
+S                    0.0000000000       0.0000000000       0.4348759261
+
+
+K_POINTS automatic
+24 24 1 0 0 0

@@ -1,0 +1,224 @@
+
+     Program EDI v.7.5 starts on 30Mar2026 at  0:32:38 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on    72 processors
+
+     MPI processes distributed on     1 nodes
+     K-points division:     npool     =      72
+     1011037 MiB available memory on the printing compute node when the environment starts
+ 
+
+     ============================================================
+     EDI — Electron-Defect Interaction
+     Wannierization mode
+     ============================================================
+     prefix  = mos2
+     outdir  = ../primitive_12x12/dout/
+     nbndsub =      5
+     k-grid  =   12  12   1
+     npool   =   72
+     Reading NSCF save data...
+
+     Reading xml data from directory:
+
+     ../primitive_12x12/dout/mos2.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+ 
+     G-vector sticks info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Sum        1003    1003    361               192259   192259   40779
+ 
+     Using Slab Decomposition
+ 
+ ----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D
+  The code is running with the 2D cutoff
+  Please refer to:
+  Sohier, T., Calandra, M., & Mauri, F. (2017), 
+  Density functional perturbation theory for gated two-dimensional heterostructures:
+  Theoretical developments and application to flexural phonons in graphene.
+  Physical Review B, 96(7), 75448. https://doi.org/10.1103/PhysRevB.96.075448
+ ----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D----2D
+     Reading collected, re-writing distributed wavefunctions
+     nkstot =    144
+     nks    =      2
+     nbnd   =     17
+     wannierize = .FALSE., reading Wannier data from filukk
+     Read Wannier data from filukk
+     nbndep=   5 n_wannier=   5 nkstot= 144
+     Read H(R) from mos2_hr.dat
+     nwann =    5, nrpts =    149
+
+     Validating: Wannier interpolation vs NSCF eigenvalues
+     --------------------------------------------------------
+       ik   ib      E_nscf(eV)       E_w90(eV)       Error(eV)
+        1    1       -5.936517       -5.936519        0.000003
+        1    2       -3.184300       -3.184293        0.000007
+        1    3       -3.184300       -3.184293        0.000007
+        1    4       -2.939153       -2.939158        0.000004
+        1    5       -2.939153       -2.939147        0.000006
+        2    1       -5.988836       -5.988839        0.000003
+        2    2       -3.317203       -3.317204        0.000000
+        2    3       -3.213731       -3.213735        0.000003
+        2    4       -3.053963       -3.053961        0.000003
+        2    5       -3.006092       -3.006095        0.000003
+        3    1       -6.223415       -6.223414        0.000002
+        3    2       -3.641357       -3.641361        0.000004
+        3    3       -3.370291       -3.370292        0.000001
+        3    4       -3.321315       -3.321325        0.000010
+        3    5       -2.597369       -2.597371        0.000002
+      144    1       -6.133129       -6.133126        0.000003
+      144    2       -3.545040       -3.545034        0.000006
+      144    3       -3.456708       -3.456708        0.000001
+      144    4       -3.257221       -3.257217        0.000004
+      144    5       -2.672568       -2.672572        0.000004
+
+     Max error:   1.0466E-05 eV
+     PASSED: Wannier interpolation < 1e-4 eV
+     ============================================================
+
+
+     ------------------------------------------------------------
+     edwread = .TRUE. : reading M(R_e, R_p) from binary file
+     ------------------------------------------------------------
+     M(R_e,R_p) binary read from mos2_edmatw_2d.bin
+       nbndsub=   5  nrr=   149
+
+     ============================================================
+     DOS validation: triangular vs Gaussian vs adaptive
+     Fixed Gaussian sigma:   0.0100 eV
+     ============================================================
+     Adaptive sigma range:     1.00 -     4.36 meV
+       ki:     9000 /    90000
+       ki:    18000 /    90000
+       ki:    27000 /    90000
+       ki:    36000 /    90000
+       ki:    45000 /    90000
+       ki:    54000 /    90000
+       ki:    63000 /    90000
+       ki:    72000 /    90000
+       ki:    81000 /    90000
+       ki:    90000 /    90000
+     DOS validation written to mos2_dos_validation.dat
+     ============================================================
+
+     ------------------------------------------------------------
+     Transport mode: skipping Part B file output
+       Computing scattering rates with Fermi filtering
+     ------------------------------------------------------------
+
+     ============================================================
+     Phase 4: Transport (SERTA/MRTA) with IBZ symmetry
+     ============================================================
+     Fine k-grid:  300 300   1  total:    90000
+     Energy window:    -4.2500 to    -4.1000 eV
+     Carrier conc:   1.000E+10 cm^-2
+     n_d per cell: 8.7861E-04
+     nsym =   12  npool =   72
+     Spin degeneracy (sfac): 2.0
+     Delta method: gaussian
+     IBZ k-points:    15151 /    90000
+     Symmetry speedup:    5.9x
+     Band energy ranges (eV):
+       Band  1:  min=   -6.8994  max=   -5.9365
+       Band  2:  min=   -4.2795  max=   -3.1843
+       Band  3:  min=   -3.6965  max=   -2.7001
+       Band  4:  min=   -3.4559  max=   -1.9924
+       Band  5:  min=   -3.0354  max=   -1.0941
+     Transport window: [   -4.2500,    -4.1000] eV
+     Active kf (full BZ):     2748 /    90000
+     Active ki (IBZ):          457 /    15151
+     Total (ki,kf) pairs:    1255836
+     Pairs per pool:       17442.2
+
+     T =    100.0 K  E_F =    -4.3005 eV
+       pairs:     3488 /    17443  (total:  1255836)
+       pairs:     6976 /    17443  (total:  1255836)
+       pairs:    10464 /    17443  (total:  1255836)
+       pairs:    13952 /    17443  (total:  1255836)
+       pairs:    17440 /    17443  (total:  1255836)
+       States with nonzero inv_tau:   2742
+       avg inv_tau: SERTA=  1.7430E-04  MRTA=  1.4611E-04
+       inv_tau range:   9.7511E-05 -   1.9158E-04
+       avg |v|^2 =   5.0577E-02 (Ry*bohr)^2
+       avg tau SERTA =   2.7757E+02 fs
+     T =    100.0 K  (   1255836 ki-kf pairs computed)
+       mu_SERTA_xx =   5.5714E+03 cm^2/Vs
+       mu_SERTA_yy =   5.5714E+03 cm^2/Vs
+       mu_MRTA_xx  =   5.9836E+03 cm^2/Vs
+       mu_MRTA_yy  =   5.9836E+03 cm^2/Vs
+
+     T =    200.0 K  E_F =    -4.3632 eV
+       pairs:     3488 /    17443  (total:  1255836)
+       pairs:     6976 /    17443  (total:  1255836)
+       pairs:    10464 /    17443  (total:  1255836)
+       pairs:    13952 /    17443  (total:  1255836)
+       pairs:    17440 /    17443  (total:  1255836)
+       States with nonzero inv_tau:   2742
+       avg inv_tau: SERTA=  1.7430E-04  MRTA=  1.4611E-04
+       inv_tau range:   9.7511E-05 -   1.9158E-04
+       avg |v|^2 =   5.0577E-02 (Ry*bohr)^2
+       avg tau SERTA =   2.7757E+02 fs
+     T =    200.0 K  (   1255836 ki-kf pairs computed)
+       mu_SERTA_xx =   2.9191E+03 cm^2/Vs
+       mu_SERTA_yy =   2.9191E+03 cm^2/Vs
+       mu_MRTA_xx  =   3.1943E+03 cm^2/Vs
+       mu_MRTA_yy  =   3.1943E+03 cm^2/Vs
+
+     T =    300.0 K  E_F =    -4.4306 eV
+       pairs:     3488 /    17443  (total:  1255836)
+       pairs:     6976 /    17443  (total:  1255836)
+       pairs:    10464 /    17443  (total:  1255836)
+       pairs:    13952 /    17443  (total:  1255836)
+       pairs:    17440 /    17443  (total:  1255836)
+       States with nonzero inv_tau:   2742
+       avg inv_tau: SERTA=  1.7430E-04  MRTA=  1.4611E-04
+       inv_tau range:   9.7511E-05 -   1.9158E-04
+       avg |v|^2 =   5.0577E-02 (Ry*bohr)^2
+       avg tau SERTA =   2.7757E+02 fs
+     T =    300.0 K  (   1255836 ki-kf pairs computed)
+       mu_SERTA_xx =   2.1027E+03 cm^2/Vs
+       mu_SERTA_yy =   2.1027E+03 cm^2/Vs
+       mu_MRTA_xx  =   2.3467E+03 cm^2/Vs
+       mu_MRTA_yy  =   2.3467E+03 cm^2/Vs
+
+     Mobility written to mos2_transport.dat
+     Scattering rates written to mos2_inv_tau.dat
+     ============================================================
+     M(R_e,R_p) binary read from mos2_edmatw_2d.bin
+       nbndsub=   5  nrr=   149
+     Read ki.dat:      1 k-points
+     Read kf.dat:    300 k-points
+
+     ============================================================
+     Wannier interpolation from k-point files [double-FT]
+       Using M(R_e, R_p) with edmatwan2bloch_2d
+     ============================================================
+     nki=     1 nkf=   300 pairs=       300
+       k_i      1 /      1
+     Written to mos2_edmat_interp.dat
+     ============================================================
+ 
+     EDI          :   1m 2.27s CPU   1m 3.12s WALL
+
+ 
+   This run was terminated on:   0:33:41  30Mar2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
