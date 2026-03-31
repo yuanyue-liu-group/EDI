@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="figs/edi.png" alt="EDI workflow" width="600">
 </p>
@@ -392,71 +391,98 @@ All Fortran source files are in `src/` (26 files):
 
 ## Theory
 
-### Scattering Rate
+EDI implements the *ab initio* electron-defect scattering framework introduced by Lu *et al.* [[3]](#ref3)[[4]](#ref4) and extended to 2D systems by Xiao *et al.* [[2]](#ref2). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
 
-EDI computes the defect-limited scattering rate from Fermi's golden rule:
 
-```
-1/tau_{nk} = (2pi/hbar) * n_d * (1/N_k) * sum_{m,k'} |M_{nk,mk'}|^2 * delta(E_nk - E_mk')
-```
+### Electron-Defect Matrix Element
 
-where `n_d` is the number of defects per unit cell and `M` is the electron-defect matrix element.
+The electron-defect matrix element between Bloch states $|\psi_{n\mathbf{k}}\rangle$ and $|\psi_{m\mathbf{k}'}\rangle$ of the pristine crystal is defined as [[3]](#ref3):
 
-### Matrix Element
+$$M_{n\mathbf{k},m\mathbf{k}'} = \langle \psi_{n\mathbf{k}} | \Delta V | \psi_{m\mathbf{k}'} \rangle$$
 
-The electron-defect matrix element is computed using the supercell difference-potential method:
+where $\Delta V = V^{\mathrm{KS}}_{\mathrm{defect}} - V^{\mathrm{KS}}_{\mathrm{pristine}}$ is the defect perturbation potential, i.e., the difference between the Kohn-Sham potentials of the defect-containing and pristine supercells. Because the defect is spatially localized, $\Delta V(\mathbf{r})$ decays to zero far from the defect site, and a sufficiently large supercell captures the full perturbation [[3]](#ref3).
 
-```
-M_{nk,mk'} = <psi_nk| Delta_V |psi_mk'>
-            = M_local + M_nonlocal(defect) - M_nonlocal(pristine)
-```
+The total Kohn-Sham potential includes local and nonlocal parts. Accordingly, the matrix element decomposes as:
 
-where `Delta_V = V_defect - V_pristine`. The local contribution sums over spinor components (sigma = up, down for SOC):
+$$M_{n\mathbf{k},m\mathbf{k}'} = M^{\mathrm{loc}} + M^{\mathrm{NL,defect}} - M^{\mathrm{NL,pristine}}$$
 
-```
-M_local = sum_sigma integral psi*_{nk,sigma}(r) * Delta_V(r) * psi_{mk',sigma}(r) dr
-```
+**Local contribution.** The local part involves the real-space integral of $\Delta V_{\mathrm{loc}}(\mathbf{r})$, which contains the local ionic pseudopotential, Hartree, and exchange-correlation potentials. For calculations with spin-orbit coupling (SOC), the wavefunctions are two-component spinors, and the local contribution sums over spinor components $\sigma \in \{\uparrow,\downarrow\}$:
 
-The nonlocal contribution uses scalar-relativistic `D_{ij}` or fully-relativistic `D^{sigma,sigma'}_{ij}` (SOC) Kleinman-Bylander projectors.
+$$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^*_{n\mathbf{k},\sigma}(\mathbf{r})\, \Delta V_{\mathrm{loc}}(\mathbf{r})\, \psi_{m\mathbf{k}',\sigma}(\mathbf{r})\, d\mathbf{r}$$
+
+In practice, the wavefunctions are expressed in a plane-wave basis and the integral is efficiently computed via FFT by folding the supercell $\Delta V$ onto the primitive-cell reciprocal grid [[3]](#ref3).
+
+**Nonlocal contribution.** The nonlocal part arises from the Kleinman-Bylander (KB) separable pseudopotentials. For each atom $I$ with projectors $|\beta^I_i\rangle$ and coupling coefficients $D^I_{ij}$, the nonlocal matrix element takes the form:
+
+$$M^{\mathrm{NL}} = \sum_{I,i,j} \langle \psi_{n\mathbf{k}} | \beta^I_i \rangle\, D^I_{ij}\, \langle \beta^I_j | \psi_{m\mathbf{k}'} \rangle$$
+
+The defect perturbation to the nonlocal potential is obtained by subtracting the pristine-supercell contribution from the defect-supercell contribution. Under SOC, the coupling coefficients become spin-dependent matrices $D^{I,\sigma\sigma'}_{ij}$ acting on the spinor indices.
+
+**Potential alignment.** Because the supercell DFT calculations for the pristine and defect systems are performed independently, an arbitrary constant offset between the two electrostatic potentials must be removed. EDI supports vacuum-level alignment (for 2D systems, where the potential plateaus in the vacuum region) and core-level alignment (averaging the potential on a sphere far from the defect center) [[2]](#ref2)[[3]](#ref3).
 
 
 ### Wannier Interpolation
 
-Matrix elements are transformed from Bloch to Wannier representation:
+Direct evaluation of $M_{n\mathbf{k},m\mathbf{k}'}$ on the dense k-grids required for converged transport calculations is computationally prohibitive, since each matrix element involves plane-wave wavefunctions and FFTs. EDI overcomes this bottleneck by Wannier interpolation [[4]](#ref4), leveraging maximally localized Wannier functions (MLWFs) constructed using Wannier90 [[5]](#ref5).
 
-```
-M(R, R') = (1/N_k^2) * sum_{k,k'} exp(+ik*R) * exp(-ik'*R') * U_dag(k) * M_B(k,k') * U(k')
-```
+**Bloch-to-Wannier transformation.** The matrix elements are first computed on a coarse $N_{\mathbf{k}}$-point grid commensurate with the supercell and then transformed to the Wannier gauge:
 
-The inverse transform interpolates M to arbitrary fine k-grids:
+$$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}}\, e^{-i\mathbf{k}'\cdot\mathbf{R}'}\; \bigl[U^{\dagger}(\mathbf{k})\, M^{(\mathrm{B})}(\mathbf{k},\mathbf{k}')\, U(\mathbf{k}')\bigr]_{ij}$$
 
-```
-M_W(k,k') = sum_{R,R'} exp(-ik*R) * exp(+ik'*R') * M(R, R') / (deg_R* deg_R')
-```
+where $U(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations), and $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation [[4]](#ref4).
+
+**Wannier-to-Bloch interpolation.** From the Wannier-basis matrix elements, one reconstructs $M$ at arbitrary fine k-points $(\mathbf{k}, \mathbf{k}')$ via the inverse Fourier transform:
+
+$$\tilde{M}_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{\mathbf{R},\mathbf{R}'} \frac{e^{-i\mathbf{k}\cdot\mathbf{R}}\, e^{+i\mathbf{k}'\cdot\mathbf{R}'}}{d_{\mathbf{R}}\, d_{\mathbf{R}'}}\; M(\mathbf{R}, \mathbf{R}')$$
+
+where $d_{\mathbf{R}}$ are Wigner-Seitz degeneracy factors that account for lattice vectors shared between neighboring supercells. The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure [[5]](#ref5). This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost [[4]](#ref4).
 
 <p align="center">
   <img src="figs/wannier_interp.png" alt="Wannier interpolation validation" width="500">
 </p>
-<p align="center"><em>Validation of Wannier-interpolated matrix elements (lines) against direct DFT calculation (dots) along the high-symmetry path Gamma-K-M-Gamma in MoS2.</em></p>
+<p align="center"><em>Validation of Wannier-interpolated matrix elements (lines) against direct DFT calculation (dots) along the high-symmetry path Γ–K–M–Γ in monolayer MoS₂.</em></p>
 
-### Mobility
 
-The Boltzmann transport mobility (SERTA) is:
+### Scattering Rate
 
-```
-mu_{alpha,beta} = (g_s * e) / n * (1/N_k) * sum_{nk} v_alpha * v_beta * tau_{nk} * (-df/dE)
-```
+Given the matrix elements, the defect-limited scattering rate for a Bloch state $|n\mathbf{k}\rangle$ is obtained from Fermi's golden rule [[3]](#ref3):
 
-where `g_s = 2` (collinear, spin-degenerate) or `g_s = 1` (SOC), and the Fermi level is determined self-consistently from the carrier concentration via bisection at each temperature.
+$$\frac{1}{\tau_{n\mathbf{k}}} = \frac{2\pi}{\hbar}\, n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2\; \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})$$
+
+where $n_{\mathrm{d}}$ is the defect concentration per unit cell and the energy-conserving delta function enforces elastic scattering. The factor $n_{\mathrm{d}}$ reflects the dilute-defect limit, where scattering events from different defect sites are treated as independent and incoherent.
+
+For numerical evaluation of the delta function, EDI provides three methods: (i) a **triangular** (linear tetrahedron-like) method optimized for 2D Brillouin zones, (ii) a **fixed Gaussian** broadening with user-specified width $\sigma$, and (iii) an **adaptive Gaussian** scheme where $\sigma$ is set proportional to the energy variation $|\nabla_\mathbf{k}\varepsilon \cdot \Delta\mathbf{k}|$ across each k-mesh cell, following the approach used in EPW for electron-phonon problems.
+
+
+### Carrier Mobility
+
+The defect-limited carrier mobility tensor is computed from the linearized Boltzmann transport equation. Under the self-energy relaxation time approximation (SERTA), the mobility reads [[2]](#ref2)[[3]](#ref3):
+
+$$\mu_{\alpha\beta} = \frac{g_s\, e}{n_c}\, \frac{1}{N_{\mathbf{k}}} \sum_{n\mathbf{k}} v_{n\mathbf{k},\alpha}\, v_{n\mathbf{k},\beta}\, \tau_{n\mathbf{k}}\; \Bigl(-\frac{\partial f}{\partial \varepsilon}\Bigr)_{\varepsilon_{n\mathbf{k}}}$$
+
+where $v_{n\mathbf{k},\alpha} = \hbar^{-1}\, \partial \varepsilon_{n\mathbf{k}}/\partial k_\alpha$ is the band velocity (obtained from the Wannier-interpolated Hamiltonian), $f(\varepsilon)$ is the Fermi-Dirac distribution, $n_c$ is the carrier concentration, and $g_s$ is the spin degeneracy factor ($g_s = 2$ for collinear spin-degenerate calculations, $g_s = 1$ when SOC is included). The Fermi level $\varepsilon_F$ at each temperature is determined self-consistently by bisection so that the integral of $f(\varepsilon)$ over the band structure reproduces the specified carrier concentration.
+
+EDI also implements the momentum relaxation time approximation (MRTA), which incorporates the scattering-angle dependence through a $(1 - \cos\theta)$ factor in the scattering rate:
+
+$$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k},\alpha}} = \frac{2\pi}{\hbar}\, n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2\; \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})\; \Bigl(1 - \frac{v_{m\mathbf{k}',\alpha}}{v_{n\mathbf{k},\alpha}}\Bigr)$$
+
+The MRTA provides an improved approximation to the full iterative BTE solution for elastic scattering processes, as forward-scattering events (small momentum transfer) contribute less to resistivity [[3]](#ref3).
+
+All transport quantities are computed on the irreducible Brillouin zone (IBZ) and symmetry-expanded, which reduces the computational cost by a factor equal to the order of the point group.
 
 ## References
 
-- X. XX et al., "EDI: Electron-defect interaction and defect-limited transport from first principles," (in preparation)
-- Z. Xiao et al., "Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides," [ACS Nano 18 (11), 8511-8516 (2024)](https://doi.org/10.1021/acsnano.4c01033)
-- I. Lu et al., "Efficient ab initio calculations of electron-defect scattering and defect-limited carrier mobility," [Phys. Rev. Materials 3, 033804 (2019)](https://doi.org/10.1103/PhysRevMaterials.3.033804)
-- I. Lu et al., "Ab initio electron-defect interactions using Wannier functions," [npj Comput Mater 6, 17 (2020)](https://doi.org/10.1038/s41524-020-0284-y)
-- A. A. Mostofi et al., "An updated version of wannier90: A tool for obtaining maximally-localised Wannier functions," [Comput. Phys. Commun. 185, 2309 (2014)](https://doi.org/10.1016/j.cpc.2014.05.003)
-- P. Giannozzi et al., "Quantum ESPRESSO toward the exascale," [J. Chem. Phys. 152, 154105 (2020)](https://doi.org/10.1063/5.0005082)
+<a id="ref1"></a> [1] X. XX et al., "EDI: Electron-defect interaction and defect-limited transport from first principles," (in preparation)
+
+<a id="ref2"></a> [2] Z. Xiao et al., "Point Defect Limited Carrier Mobility in 2D Transition Metal Dichalcogenides," [ACS Nano 18 (11), 8511-8516 (2024)](https://doi.org/10.1021/acsnano.4c01033)
+
+<a id="ref3"></a> [3] I. Lu et al., "Efficient ab initio calculations of electron-defect scattering and defect-limited carrier mobility," [Phys. Rev. Materials 3, 033804 (2019)](https://doi.org/10.1103/PhysRevMaterials.3.033804)
+
+<a id="ref4"></a> [4] I. Lu et al., "Ab initio electron-defect interactions using Wannier functions," [npj Comput Mater 6, 17 (2020)](https://doi.org/10.1038/s41524-020-0284-y)
+
+<a id="ref5"></a> [5] A. A. Mostofi et al., "An updated version of wannier90: A tool for obtaining maximally-localised Wannier functions," [Comput. Phys. Commun. 185, 2309 (2014)](https://doi.org/10.1016/j.cpc.2014.05.003)
+
+<a id="ref6"></a> [6] P. Giannozzi et al., "Quantum ESPRESSO toward the exascale," [J. Chem. Phys. 152, 154105 (2020)](https://doi.org/10.1063/5.0005082)
 
 ## License
 
