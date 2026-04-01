@@ -396,7 +396,7 @@ EDI implements the ab initio electron-defect scattering framework [[2]](#ref2)[[
 
 ### Electron-Defect Matrix Element
 
-The electron-defect matrix element between Bloch states $|\psi_{n\mathbf{k}}\rangle$ and $|\psi_{m\mathbf{k}'}\rangle$ of the pristine crystal is defined as [[3]](#ref3):
+The electron-defect matrix element between Bloch states $|\psi_{n\mathbf{k}}\rangle$ and $|\psi_{m\mathbf{k}'}\rangle$ of the pristine crystal is defined as:
 
 $$M_{n \mathbf{k}, m \mathbf{k'}} = \langle \psi_{n\mathbf{k}} | \Delta V | \psi_{m\mathbf{k'}} \rangle$$
 
