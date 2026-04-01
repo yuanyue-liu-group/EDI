@@ -6,7 +6,7 @@
 
 A Quantum ESPRESSO plugin for computing electron-defect scattering matrix elements and related quantities (e.g. carrier mobility) from first principles.
 
-EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to evaluate matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility in both 2D and 3D materials.
+EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to obtain matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility in both 2D and 3D materials.
 
 ## Features of EDI version 2.0
 
