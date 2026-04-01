@@ -391,7 +391,7 @@ All Fortran source files are in `src/` (26 files):
 
 ## Theory
 
-EDI implements the ab initio electron-defect scattering framework [[2]](#ref2)[[3]](#ref3)[[4]](#ref4). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
+EDI implements the ab initio electron-defect scattering framework [[2]](#ref2)[[3]](#ref3)[[4]](#ref4) with modifications. The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
 
 
 ### Electron-Defect Matrix Element
@@ -400,7 +400,7 @@ The electron-defect matrix element between Bloch states $|\psi_{n\mathbf{k}}\ran
 
 $$M_{n \mathbf{k}, m \mathbf{k'}} = \langle \psi_{n\mathbf{k}} | \Delta V | \psi_{m\mathbf{k'}} \rangle$$
 
-where $\Delta V$ is the defect perturbation potential, i.e., the difference between the Kohn-Sham potentials of the defect-containing and pristine supercells. Because the defect is spatially localized, $\Delta V(\mathbf{r})$ decays to zero far from the defect site, and a sufficiently large supercell captures the full perturbation [[3]](#ref3).
+where $\Delta V$ is the defect perturbation potential, i.e., the difference between the Kohn-Sham potentials of the defect-containing and pristine supercells. Because the defect is spatially localized, $\Delta V(\mathbf{r})$ decays to zero far from the defect site, and a sufficiently large supercell captures the full perturbation.
 
 The total Kohn-Sham potential includes local and nonlocal parts. Accordingly, the matrix element decomposes as:
 
@@ -410,7 +410,7 @@ The local part involves the real-space integral of $\Delta V_{\mathrm{loc}}(\mat
 
 $$M^{\mathrm{loc}} = \sum_{\sigma} \int \psi^{\ast}_{n\mathbf{k},\sigma}(\mathbf{r}) \Delta V_{\mathrm{loc}}(\mathbf{r}) \psi_{m\mathbf{k}',\sigma}(\mathbf{r}) d\mathbf{r}$$
 
-In practice, the wavefunctions are expressed in a plane-wave basis and the integral is efficiently computed via FFT by folding the supercell $\Delta V$ onto the primitive-cell reciprocal grid [[3]](#ref3).
+In practice, the wavefunctions are expressed in a plane-wave basis and the integral is efficiently computed via FFT by folding the supercell $\Delta V$ onto the primitive-cell reciprocal grid.
 
 The nonlocal part arises from the Kleinman-Bylander (KB) separable pseudopotentials. For each atom $I$ with projectors $|\beta^I_i\rangle$ and coupling coefficients $D^I_{ij}$, the nonlocal matrix element takes the form:
 
@@ -418,7 +418,7 @@ $$M^{\mathrm{NL}} = \sum_{I,i,j} \langle \psi_{n\mathbf{k}} | \beta^I_i \rangle 
 
 The defect perturbation to the nonlocal potential is obtained by subtracting the pristine-supercell contribution from the defect-supercell contribution. Under SOC, the coupling coefficients become spin-dependent matrices $D^{I,\sigma\sigma'\!}_{ij}$ acting on the spinor indices.
 
-Because the supercell DFT calculations for the pristine and defect systems are performed independently, an arbitrary constant offset between the two electrostatic potentials must be removed. EDI supports vacuum-level alignment (for 2D systems, where the potential plateaus in the vacuum region) and core-level alignment (averaging the potential on a sphere far from the defect center) [[2]](#ref2)[[3]](#ref3).
+Because the supercell DFT calculations for the pristine and defect systems are performed independently, an arbitrary constant offset between the two electrostatic potentials must be removed. EDI supports vacuum-level alignment (for 2D systems, where the potential plateaus in the vacuum region) and core-level alignment (averaging the potential on a sphere far from the defect center) [[2]](#ref2).
 
 
 ### Wannier Interpolation
@@ -429,7 +429,7 @@ The matrix elements are first computed on a coarse $N_{\mathbf{k}}$-point grid c
 
 $$M_{ij}(\mathbf{R}, \mathbf{R}') = \frac{1}{N_{\mathbf{k}}^2} \sum_{\mathbf{k},\mathbf{k}'} e^{+i\mathbf{k}\cdot\mathbf{R}} e^{-i\mathbf{k}'\cdot\mathbf{R}'} \sum_{n,m} U^{\ast}_{ni}(\mathbf{k}) M^{(\mathrm{B})}_{nm}(\mathbf{k},\mathbf{k}') U_{mj}(\mathbf{k}')$$
 
-where $n, m$ are band indices, $i, j$ are Wannier function indices, and $U_{ni}(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations). $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation [[4]](#ref4).
+where $n, m$ are band indices, $i, j$ are Wannier function indices, and $U_{ni}(\mathbf{k})$ are the unitary rotation matrices from Wannier90 (containing both the disentanglement and gauge-optimization transformations). $\mathbf{R}$, $\mathbf{R}'$ are real-space lattice vectors. Because the defect potential and the Wannier functions are both spatially localized, $M_{ij}(\mathbf{R}, \mathbf{R}')$ decays rapidly with $|\mathbf{R}|$ and $|\mathbf{R}'|$, which is the key property enabling accurate interpolation.
 
 From the Wannier-basis matrix elements, one reconstructs $M$ at arbitrary fine k-points $(\mathbf{k}, \mathbf{k}')$ in two steps. First, a Fourier transform back to reciprocal space yields the matrix in the Wannier gauge:
 
@@ -439,7 +439,7 @@ Then, a unitary rotation transforms back to the Bloch band basis:
 
 $$M_{nm}(\mathbf{k}, \mathbf{k}') = \sum_{i,j} U_{ni}(\mathbf{k}) \tilde{M}_{ij}(\mathbf{k}, \mathbf{k}') U^{\ast}_{mj}(\mathbf{k}')$$
 
-The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure [[5]](#ref5). This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost [[4]](#ref4).
+The band structure (eigenvalues and group velocities) is simultaneously interpolated from the Wannier-basis Hamiltonian $H(\mathbf{R})$ read from Wannier90's `_hr.dat` file, following the standard procedure. This two-step approach (coarse-grid calculation + Wannier interpolation) allows EDI to reach fine k-grids of $300\times300$ or denser at negligible additional cost.
 
 <p align="center">
   <img src="figs/wannier_interp.png" alt="Wannier interpolation validation" width="500">
@@ -449,7 +449,7 @@ The band structure (eigenvalues and group velocities) is simultaneously interpol
 
 ### Scattering Rate
 
-Given the matrix elements, the defect-limited scattering rate for a Bloch state $|n\mathbf{k}\rangle$ is obtained from Fermi's golden rule [[3]](#ref3):
+Given the matrix elements, the defect-limited scattering rate for a Bloch state $|n\mathbf{k}\rangle$ is obtained from Fermi's golden rule:
 
 $$\frac{1}{\tau_{n\mathbf{k}}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'})$$
 
@@ -460,7 +460,7 @@ For numerical evaluation of the delta function, EDI provides three methods: (i) 
 
 ### Carrier Mobility
 
-The defect-limited carrier mobility tensor is computed from the linearized Boltzmann transport equation. Under the self-energy relaxation time approximation (SERTA), the mobility reads [[2]](#ref2)[[3]](#ref3):
+The defect-limited carrier mobility tensor is computed from the linearized Boltzmann transport equation. Under the self-energy relaxation time approximation (SERTA), the mobility reads:
 
 $$\mu_{\alpha\beta} = \frac{g_s e}{n_c} \frac{1}{N_{\mathbf{k}}} \sum_{n\mathbf{k}} v_{n\mathbf{k},\alpha} v_{n\mathbf{k},\beta} \tau_{n\mathbf{k}} \Bigl(-\frac{\partial f}{\partial \varepsilon}\Bigr)_{\varepsilon_{n\mathbf{k}}}$$
 
@@ -470,7 +470,7 @@ EDI also implements the momentum relaxation time approximation (MRTA), which inc
 
 $$\frac{1}{\tau^{\mathrm{MRTA}}_{n\mathbf{k}}} = \frac{2\pi}{\hbar} n_{\mathrm{d}} \frac{1}{N_{\mathbf{k}}} \sum_{m,\mathbf{k}'} |M_{n\mathbf{k},m\mathbf{k}'}|^2 \delta(\varepsilon_{n\mathbf{k}} - \varepsilon_{m\mathbf{k}'}) \Bigl(1 - cos\theta\Bigr)$$
 
-The MRTA provides an improved approximation to the full iterative BTE solution for elastic scattering processes, as forward-scattering events (small momentum transfer) contribute less to resistivity [[3]](#ref3).
+The MRTA provides an improved approximation to the full iterative BTE solution for elastic scattering processes, as forward-scattering events (small momentum transfer) contribute less to resistivity.
 
 All transport quantities are computed on the irreducible Brillouin zone (IBZ) and symmetry-expanded, which reduces the computational cost by a factor equal to the order of the point group.
 
