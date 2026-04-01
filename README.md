@@ -391,7 +391,7 @@ All Fortran source files are in `src/` (26 files):
 
 ## Theory
 
-EDI implements the ab initio electron-defect scattering framework introduced by Lu et al. [[3]](#ref3)[[4]](#ref4) and extended to 2D systems by Xiao et al. [[2]](#ref2). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
+EDI implements the ab initio electron-defect scattering framework [[2]](#ref2)[[3]](#ref3)[[4]](#ref4). The central idea is to treat a point defect as a perturbation to the pristine crystal, extract the perturbation potential from supercell DFT calculations, and then evaluate scattering matrix elements between Bloch states of the pristine primitive cell. Below we summarize the key equations.
 
 
 ### Electron-Defect Matrix Element
