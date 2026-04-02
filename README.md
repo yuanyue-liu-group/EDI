@@ -182,7 +182,7 @@ srun -n 72 pw.x < scf.in > scf.out
 After the DFT calculations, user can extract the pristine and defective potentials by `extract_pot.x`
 
 | extract_pot.x | Description |
-|---|---|                                                                                                                                                                                                                                                                                                                                                                                                                                      
+|---|---|                                                                                                                                                                           
 | **Input** | `extract_pot.in`, which references the `outdir` of both supercell SCF calculations |
 | **Functions** | Generate `V_d.cube` and `V_p.cube`: Local potentials on the supercell real-space grid and atomic coordinates |
 
@@ -190,14 +190,14 @@ After the DFT calculations, user can extract the pristine and defective potentia
 
 | edi.x | Description |
 |---|---|
-| **Input** | `edi.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
+| **Input** | `edi.setup.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
 | **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
 
 ### Example commands
 ```bash
 cd edi
 srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
-srun -n 72 edi.x -nk 72 -i edi.in > edi.out
+srun -n 72 edi.setup.x -nk 72 -i edi.setup.in > edi.setup.out
 ```
 
 The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
@@ -208,7 +208,12 @@ The `-nk` flag sets the number of k-point pools for MPI parallelization. For tra
 
 edi.x includes the post-processing part for calculating transport (mobility and scattering rates). 
 
-| Outputs File when `do_transport=.true.` | Description |
+| edi.x with `do_transport=.true.`| Description |
+|---|---|
+| **Input** | `edi.in`, which read prefix_edmatw_2d.bin for postprocessing |
+| **Functions** | interpolation e-d matrix elements to fine k-grid and calculate transport properties  |
+
+| Outputs File of edi.x with `do_transport=.true.` | Description |
 |------|-------------|
 | `prefix_transport.dat` | Mobility vs temperature (SERTA and MRTA, xx and yy components) |
 | `prefix_inv_tau.dat` | State-resolved inverse lifetimes 1/tau(n,k) and tau(n,k) |
