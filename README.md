@@ -75,7 +75,7 @@ A typical EDI workflow proceeds in 4 steps:
 
 ### Step 1: Prepare inputs for DFT calculation by QE 
 
-#### General description
+### General description
 
 Electron-defect matrix elements calculations need unperturbed wavefunctions from primitive cell and Kohn-Sham potentials from pristine and defective supercells. Therefore, user need to prepare the pw.x input files for those calculations.
 
@@ -103,7 +103,7 @@ Users who employ external tools to generate defect supercell input files must en
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. **Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 **
 
-#### Example
+### Example
 Below is an example of using EDI python scripts:
 
 Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
