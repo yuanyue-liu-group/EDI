@@ -77,14 +77,14 @@ Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
 
 ### Step 1: Prepare DFT inputs
 
-EDI provides python scripts for user to generate the input files. **Users are also able to customize their defects by their own tools.**
+EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
 **Important: Structural Consistency for Custom Defect Inputs**
 Users who employ external tools to generate defect supercell input files must ensure full consistency between the supercell and the primitive cell. Specifically, the following conditions must be satisfied:
 
 - **Lattice parameters.** The supercells' lattice vectors must be exact integer multiples of the primitive cell lattice vectors. Any discrepancy will corrupt the difference potential.
 
-- **Atomic coordinates.** The positions of host atoms must correspond precisely to the equivalent crystallographic sites in the pristine primitive cell upon folding back. A different origin convention, coordinate rounding, or independent relaxation of the pristine supercell will introduce spurious contributions to the defect perturbation potential.
+- **Atomic coordinates.** The positions of host atoms **before relaxation** must correspond precisely to the equivalent crystallographic sites in the pristine primitive cell upon folding back. A different origin convention, coordinate rounding, or independent relaxation of the pristine supercell will introduce spurious contributions to the defect perturbation potential.
 
 - **FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercells are constructed with scaling factors $(S_1, S_2, S_3)$, the supercells' FFT grid must be set to $(S_1 N_1, S_2 N_2, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
 
