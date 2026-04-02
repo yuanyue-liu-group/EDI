@@ -185,6 +185,13 @@ mpirun -np 72 pw.x < scf.in > scf.out
 
 ### Step 3: Extract potentials and Run EDI
 
+After the DFT calculations, user can extract the pristine and defective potentials by `extract_pot.x`
+
+| | Description |
+|---|---|
+| **Input** | `extract_pot.in`, which references the `outdir` of both supercell SCF calculations |
+| **Output** | Local potentials on the supercell real-space grid and atomic coordinates|
+
 ```bash
 cd edi
 srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
