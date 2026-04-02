@@ -148,7 +148,7 @@ pristine_super/scf.in ──► pristine_super/scf (pristine supercell potential
  
 defect_super/scf.in   ──► defect_super/scf   (defect supercell potential)
 ```
-Note that the supercell structure need relaxation before the final scf calculation to obtain the reliable Kohn-Sham potential.
+Note that the supercell structures need relaxations before the final scf calculations to obtain the reliable Kohn-Sham potential.
 
 **Input → Output per calculation:**
  
