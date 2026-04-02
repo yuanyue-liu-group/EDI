@@ -64,6 +64,7 @@ To build only `edi.x` (assuming QE libraries are already compiled):
 cd src
 make
 ```
+??? Usage
 
 A typical EDI calculation proceeds in 2 stages:
 
@@ -75,7 +76,9 @@ Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
   Defect supercell SCF              Compute scattering rates & mobility
 ```
 
-### Step 1: Prepare DFT inputs
+### Step 1: Prepare inputs for DFT calculation by QE 
+
+??? describe input files first. Move python script to example
 
 EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
@@ -87,7 +90,7 @@ Users who employ external tools to generate defect supercell input files must en
 
 - **Atomic coordinates.** The positions of host atoms **before relaxation** must correspond precisely to the equivalent crystallographic sites in the pristine primitive cell upon folding back. A different origin convention, coordinate rounding, or independent relaxation of the pristine supercell will introduce spurious contributions to the defect perturbation potential.
 
-- **FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercells are constructed with scaling factors $(S_1, S_2, S_3)$, the supercells' FFT grid must be set to $(S_1 N_1, S_2 N_2, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
+- **FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercells are constructed with scaling factors $(S_1, S_2, S_3)$, the supercells' FFT grid must be set to $(S_1 N_1, S_2 N_2, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials. 
 
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 
