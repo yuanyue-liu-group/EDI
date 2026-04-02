@@ -88,7 +88,7 @@ Users who employ external tools to generate defect supercell input files must en
 
 - **FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercells are constructed with scaling factors $(S_1, S_2, S_3)$, the supercells' FFT grid must be set to $(S_1 N_1, S_2 N_2, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
 
-Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation
+Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 
 Below is the usage of EDI python scripts:
 
