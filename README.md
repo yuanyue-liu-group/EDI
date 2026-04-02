@@ -77,6 +77,8 @@ Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
 
 ### Step 1: Prepare DFT inputs
 
+EDI provides python scripts for user to generate the input files. 
+
 Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
 
 ```bash
@@ -118,6 +120,21 @@ python script/gen_supercell.py --input scf.in --nx 3 --ny 3 --nz 3 \
     --new-species Li --new-mass 6.941 --new-pseudo Li.upf \
     --interstitial-pos 0.5 0.5 0.5
 ```
+**Users are also able to customize their defects by their own tools. **
+
+**Important: Structural Consistency for Custom Defect Inputs**
+Users who employ external tools to generate defect supercell input files must ensure full consistency between the supercell and the primitive cell. Specifically, the following conditions must be satisfied:
+
+**Lattice parameters.** The supercell lattice vectors must be exact integer multiples of the primitive cell lattice vectors. Any discrepancy arising from independent optimization, unit conversion, or numerical truncation will corrupt the difference potential.
+**Atomic coordinates.** The positions of host atoms (i.e., those not associated with the defect) must correspond precisely to the equivalent crystallographic sites in the pristine primitive cell upon folding back. A different origin convention, coordinate rounding, or independent relaxation of the pristine supercell will introduce spurious contributions to the defect perturbation potential.
+**SCF FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of (N1,N2,N3)(N_1, N_2, N_3)
+(N1​,N2​,N3​) and the supercell is constructed with scaling factors (S1,S2,S3)(S_1, S_2, S_3)
+(S1​,S2​,S3​), the supercell FFT grid must be set to (S1N1, S2N2, S3N3)(S_1 N_1,\, S_2 N_2,\, S_3 N_3)
+(S1​N1​,S2​N2​,S3​N3​). A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
+
+
+Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. Users are strongly recommended to verify consistency by comparing the total energy and atomic forces of the pristine supercell against those obtained by direct replication of the primitive cell before proceeding with the EDI calculation
+
 
 ### Step 2: Run DFT calculations
 
