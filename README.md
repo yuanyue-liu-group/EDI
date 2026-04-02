@@ -160,17 +160,19 @@ Note that the supercell structure need relaxation before the final scf calculati
 | Defect supercell SCF | `defect_super/scf.in` | supercell charge density | `extract_pot.x` (extracting potential) |
  
 The two supercell SCF calculations are independent of each other and of the primitive cell, so they can run in parallel.
+
+### Example commands
 ```bash
 # Primitive cell
 cd primitive
-mpirun -np 72 pw.x -nk 8 < scf.in  > scf.out
-mpirun -np 72 pw.x -nk 8 < nscf.in > nscf.out
+srun -n 72 pw.x -nk 8 < scf.in  > scf.out
+srun -n 72 pw.x -nk 8 < nscf.in > nscf.out
 
 # Supercells
 cd ../pristine_super
-mpirun -np 72 pw.x < scf.in > scf.out
+srun -n 72 pw.x < scf.in > scf.out
 cd ../defect_super
-mpirun -np 72 pw.x < scf.in > scf.out
+srun -n 72 pw.x < scf.in > scf.out
 ```
 
 ### Step 3: Extract potentials and Run EDI
@@ -191,6 +193,7 @@ After the DFT calculations, user can extract the pristine and defective potentia
 | **Input** | `edi.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
 | **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
 
+### Example commands
 ```bash
 cd edi
 srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
@@ -212,6 +215,16 @@ edi.x includes the post-processing part for calculating transport (mobility and 
 
 Users can also use their own scripts to calculated other quantities of their interests.
 
+### Example commands
+```bash
+cd edi
+srun -n 72 edi.x -nk 72 -i edi.in > edi.out
+```
+
+```bash
+cd edi
+srun -n 72 YOU_SCRIPTS > YOU_SCRIPTS.out
+```
 
 ## Input Reference
 
