@@ -80,6 +80,7 @@ Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
 EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
 **Important: Structural Consistency for Custom Defect Inputs**
+
 Users who employ external tools to generate defect supercell input files must ensure full consistency between the supercell and the primitive cell. Specifically, the following conditions must be satisfied:
 
 - **Lattice parameters.** The supercells' lattice vectors must be exact integer multiples of the primitive cell lattice vectors. Any discrepancy will corrupt the difference potential.
