@@ -83,9 +83,7 @@ Electron-defect matrix elements calculations need unperturbed wavefunctions from
 | `primitive/scf.in` | Primitive cell SCF | Direct copy of the source `scf.in` |
 | `primitive/nscf.in` | Primitive cell NSCF on a coarse k-grid | Same cell & pseudopotentials as `primitive/scf.in`; k-grid matches the supercell dimensions (e.g., 6×6×1) |
 | `pristine_super/scf.in` | Pristine supercell SCF (no defect) | Lattice = integer multiple of primitive cell; FFT grid commensurate with primitive cell |
-| `defect_super/scf.in` | Defect supercell SCF | Same lattice & FFT grid as `pristine_super/scf.in`; one site modified (vacancy / substitution / interstitial) |
-| `edi/edi.in` | EDI main input | References output directories of all DFT calculations above |
-| `run_all.sh` | Full pipeline job script | — |
+| `defect_super/scf.in` | Defect supercell SCF | Same lattice & FFT grid as `pristine_super/scf.in`; one site modified (vacancy / substitution / interstitial) | — |
 
 EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
