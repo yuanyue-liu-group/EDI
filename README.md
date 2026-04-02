@@ -160,6 +160,16 @@ defect_super/scf.in   ──► defect_super/scf   (defect supercell potential)
 ```
 Note that the supercell structure need relaxation before the final scf calculation to obtain the reliable Kohn-Sham potential.
 
+**Input → Output per calculation:**
+ 
+| Calculation | Input file | Key output | Used by |
+|---|---|---|---|
+| Primitive SCF | `primitive/scf.in` | Charge density, wavefunctions in `outdir` | Primitive NSCF |
+| Primitive NSCF | `primitive/nscf.in` + SCF charge density | Bloch states on coarse k-grid | `edi.x` (Wannierization) |
+| Pristine supercell SCF | `pristine_super/scf.in` | Total local potential | `extract_pot.x` (difference potential) |
+| Defect supercell SCF | `defect_super/scf.in` | Total local potential | `extract_pot.x` (difference potential) |
+ 
+The two supercell SCF calculations are independent of each other and of the primitive cell, so they can run in parallel.
 ```bash
 # Primitive cell
 cd primitive
