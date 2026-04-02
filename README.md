@@ -76,7 +76,7 @@ A typical EDI workflow proceeds in 4 steps:
 ### Step 1: Prepare inputs for DFT calculation by QE 
 Electron-defect matrix elements calculations need unperturbed wavefunctions from primitive cell and Kohn-Sham potentials from pristine and defective supercells. Therefore, user need to prepare the pw.x input files for those calculations.
 
-**inputs for DFT calculations by QE:**
+**inputs need to be prepared:**
  
 | File | Description|
 |------|--------------|
