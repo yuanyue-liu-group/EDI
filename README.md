@@ -165,9 +165,9 @@ Note that the supercell structure need relaxation before the final scf calculati
 | Calculation | Input file | Key output | Used by |
 |---|---|---|---|
 | Primitive SCF | `primitive/scf.in` | Charge density, wavefunctions in `outdir` | Primitive NSCF |
-| Primitive NSCF | `primitive/nscf.in` + SCF charge density | Bloch states on coarse k-grid | `edi.x` (Wannierization) |
-| Pristine supercell SCF | `pristine_super/scf.in` | Total local potential | `extract_pot.x` (difference potential) |
-| Defect supercell SCF | `defect_super/scf.in` | Total local potential | `extract_pot.x` (difference potential) |
+| Primitive NSCF | `primitive/nscf.in` + SCF charge density | Bloch states on coarse k-grid | `edi.x` (Wannierization & Bloch e-d matrix elements) |
+| Pristine supercell SCF | `pristine_super/scf.in` | supercell charge density | `extract_pot.x` (extracting potential) |
+| Defect supercell SCF | `defect_super/scf.in` | supercell charge density | `extract_pot.x` (extracting potential) |
  
 The two supercell SCF calculations are independent of each other and of the primitive cell, so they can run in parallel.
 ```bash
