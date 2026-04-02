@@ -194,7 +194,10 @@ After the DFT calculations, user can extract the pristine and defective potentia
 
 `edi.x` will read the `V_d.cube` and `V_p.cube` and calculate the local and nonlocal perturbation potentals.
 
-
+| edi.x | Description |
+|---|---|
+| **Input** | `edi.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
+| **What it does** | Wannier interpolation of bands → double Fourier transform to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k/q-grid → scattering rates → mobility (SERTA & MRTA) |
 
 ```bash
 cd edi
