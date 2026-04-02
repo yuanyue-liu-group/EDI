@@ -190,7 +190,7 @@ After the DFT calculations, user can extract the pristine and defective potentia
 
 | edi.x | Description |
 |---|---|
-| **Input** | `edi.setup.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
+| **Input** | `edi.setup.in`, which read primitive cell NSCF output (Bloch states) and supercell potentials from Step 3 |
 | **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
 
 ### Example commands
