@@ -35,7 +35,7 @@ Previous version: [EDI-1.0](https://github.com/yuanyue-liu-group/EDI_old)
 - FFTW3 library
 - Python 3 with NumPy (for setup scripts only)
 
-## Building
+## Installation
 
 If you are using Anvil, before compilation, the modules can be set up as:
 
@@ -64,21 +64,18 @@ To build only `edi.x` (assuming QE libraries are already compiled):
 cd src
 make
 ```
-??? Usage
+## Usage
 
-A typical EDI calculation proceeds in 2 stages:
+A typical EDI workflow proceeds in 4 steps:
+- Step 1: Prepare inputs for DFT calculation by QE
+- Step 2: Run DFT calculations (pw.x)
+- Step 3: Extract potentials and Run EDI (extract_pot.x and edi.x)
+- Step 4: Post-processing
 
-```
-Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
-  Primitive cell SCF                Wannierize bands
-  Primitive cell NSCF               Compute M(R, R') via double-FT
-  Pristine supercell SCF            Interpolate M to fine k-grid
-  Defect supercell SCF              Compute scattering rates & mobility
-```
 
 ### Step 1: Prepare inputs for DFT calculation by QE 
 
-??? describe input files first. Move python script to example
+
 
 EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
