@@ -146,6 +146,19 @@ python script/gen_supercell.py --input scf.in --nx 3 --ny 3 --nz 3 \
 
 
 ### Step 2: Run DFT calculations
+After the perparation of input files for DFT calculation, we need to perform those calculations. Their logical dependencies are:
+
+```
+primitive/scf.in ──► primitive/scf (ground state charge density)
+                          │
+                          ▼
+                     primitive/nscf (Bloch states on coarse k-grid)
+ 
+pristine_super/scf.in ──► pristine_super/scf (pristine supercell potential)
+ 
+defect_super/scf.in   ──► defect_super/scf   (defect supercell potential)
+```
+Note that the supercell structure need relaxation before the final scf calculation to obtain the reliable Kohn-Sham potential.
 
 ```bash
 # Primitive cell
