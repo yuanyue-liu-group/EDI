@@ -74,16 +74,16 @@ A typical EDI workflow proceeds in 4 steps:
 
 
 ### Step 1: Prepare inputs for DFT calculation by QE 
-Electron-defect matrix elements calculations need unperturbed wavefunctions from primitive cell and Kohn-Sham potentials from pristine and defective supercells. Therefore, user need to prepare the input files for scf and nscf calculations by QE pw.x.
+Electron-defect matrix elements calculations need unperturbed wavefunctions from primitive cell and Kohn-Sham potentials from pristine and defective supercells. Therefore, user need to prepare the pw.x input files for those calculations.
 
 **inputs for DFT calculations by QE:**
  
-| File | Description | Key dependency |
-|------|-------------|----------------|
-| `primitive/scf.in` | Primitive cell SCF | scf input file for the targeted structure` |
-| `primitive/nscf.in` | Primitive cell NSCF on a coarse k-grid | Same cell & pseudopotentials as `primitive/scf.in`; k-grid matches the supercell dimensions (e.g., 6×6×1) |
-| `pristine_super/scf.in` | Pristine supercell SCF (no defect) | Lattice = integer multiple of primitive cell; FFT grid commensurate with primitive cell |
-| `defect_super/scf.in` | Defect supercell SCF | Same lattice & FFT grid as `pristine_super/scf.in`; one site modified (vacancy / substitution / interstitial) | — |
+| File | Description|
+|------|--------------|
+| `primitive/scf.in` | Primitive cell SCF  |
+| `primitive/nscf.in` | Primitive cell NSCF on a coarse k-grid |
+| `pristine_super/scf.in` | Pristine supercell SCF (no defect)  |
+| `defect_super/scf.in` | Defect supercell SCF | — |
 
 EDI provides python scripts to help user to generate the input files. **Users can also modify the input to customize their defect, but must take care of the follow conditions**
 
