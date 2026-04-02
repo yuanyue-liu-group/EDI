@@ -197,7 +197,7 @@ After the DFT calculations, user can extract the pristine and defective potentia
 | edi.x | Description |
 |---|---|
 | **Input** | `edi.in`, which references: (1) primitive cell NSCF output (Bloch states), (2) difference potential from Step 3a |
-| **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid → scattering rates → mobility (SERTA & MRTA) |
+| **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
 
 ```bash
 cd edi
@@ -207,15 +207,18 @@ srun -n 72 edi.x -nk 72 -i edi.in > edi.out
 
 The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
 
-### Step 4: Output files
+### Step 4: Post-processing
 
-EDI produces:
+edi.x includes the post-processing part for calculating transport (mobility and scattering rates). 
 
-| File | Description |
+| Outputs File when `do_transport=.true.` | Description |
 |------|-------------|
 | `prefix_transport.dat` | Mobility vs temperature (SERTA and MRTA, xx and yy components) |
 | `prefix_inv_tau.dat` | State-resolved inverse lifetimes 1/tau(n,k) and tau(n,k) |
 | `prefix_edmatw_2d.bin` | Wannier-basis matrix elements M(R, R'), reusable with `edwread = .true.` |
+
+Users can also use their own scripts to calculated other quantities of their interests.
+
 
 ## Input Reference
 
