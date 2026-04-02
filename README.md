@@ -152,7 +152,7 @@ After the perparation of input files for DFT calculation, we need to perform tho
 primitive/scf.in ──► primitive/scf (ground state charge density)
                           │
                           ▼
-                     primitive/nscf (Bloch states on coarse k-grid)
+primitive/nscf.in ──► primitive/nscf (Bloch states on coarse k-grid)
  
 pristine_super/scf.in ──► pristine_super/scf (pristine supercell potential)
  
