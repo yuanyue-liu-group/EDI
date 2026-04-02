@@ -103,7 +103,7 @@ Users who employ external tools to generate defect supercell input files must en
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. **Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 **
 
-### Example
+### Example commands
 Below is an example of using EDI python scripts:
 
 Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
@@ -133,6 +133,9 @@ edi_run/
 
 
 ### Step 2: Run DFT calculations
+
+### General description
+
 After the perparation of input files for DFT calculation, we need to perform those calculations. Their logical dependencies are:
 
 ```
@@ -172,6 +175,8 @@ mpirun -np 72 pw.x < scf.in > scf.out
 
 ### Step 3: Extract potentials and Run EDI
 
+### General description
+
 After the DFT calculations, user can extract the pristine and defective potentials by `extract_pot.x`
 
 | extract_pot.x | Description |
@@ -195,6 +200,8 @@ srun -n 72 edi.x -nk 72 -i edi.in > edi.out
 The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
 
 ### Step 4: Post-processing
+
+### General description
 
 edi.x includes the post-processing part for calculating transport (mobility and scattering rates). 
 
