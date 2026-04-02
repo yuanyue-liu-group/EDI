@@ -298,7 +298,7 @@ EDI reads a single Fortran namelist `&edinput_nml` from the input file.
 /
 ```
 
-### Reuse previously computed Wannier matrix elements (skip Part A)
+### Reuse previously computed Wannier matrix elements
 
 ```fortran
 &edinput_nml
