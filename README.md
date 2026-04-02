@@ -65,7 +65,7 @@ cd src
 make
 ```
 
-A typical EDI calculation proceeds in four stages:
+A typical EDI calculation proceeds in 2 stages:
 
 ```
 Stage 1: DFT (pw.x)              Stage 2: EDI (edi.x)
