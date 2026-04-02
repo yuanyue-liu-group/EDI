@@ -215,7 +215,6 @@ edi.x includes the post-processing part for calculating transport (mobility and 
 |------|-------------|
 | `prefix_transport.dat` | Mobility vs temperature (SERTA and MRTA, xx and yy components) |
 | `prefix_inv_tau.dat` | State-resolved inverse lifetimes 1/tau(n,k) and tau(n,k) |
-| `prefix_edmatw_2d.bin` | Wannier-basis matrix elements M(R, R'), reusable with `edwread = .true.` |
 
 Users can also use their own scripts to calculated other quantities of their interests.
 
