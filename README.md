@@ -130,7 +130,7 @@ Users who employ external tools to generate defect supercell input files must en
 
 - **Atomic coordinates.** The positions of host atoms (i.e., those not associated with the defect) must correspond precisely to the equivalent crystallographic sites in the pristine primitive cell upon folding back. A different origin convention, coordinate rounding, or independent relaxation of the pristine supercell will introduce spurious contributions to the defect perturbation potential.
 
-- **SCF FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercell is constructed with scaling factors $(S_1, S_2, S_3)$, the supercell FFT grid must be set to $(S_1 N_1,\, S_2 N_2,\, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
+- **SCF FFT grid.** The FFT grid dimensions used in the supercell SCF calculation must be commensurate with those of the primitive cell. For example, if the primitive cell uses an FFT grid of $(N_1, N_2, N_3)$ and the supercell is constructed with scaling factors $(S_1, S_2, S_3)$, the supercell FFT grid must be set to $(S_1 N_1, S_2 N_2, S_3 N_3)$. A mismatched grid will lead to inconsistent real-space sampling and erroneous difference potentials.
 
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. Users are strongly recommended to verify consistency by comparing the total energy and atomic forces of the pristine supercell against those obtained by direct replication of the primitive cell before proceeding with the EDI calculation
 
