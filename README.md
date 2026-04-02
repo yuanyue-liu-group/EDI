@@ -190,7 +190,11 @@ After the DFT calculations, user can extract the pristine and defective potentia
 | extract_pot.x | Description |
 |---|---|                                                                                                                                                                                                                                                                                                                                                                                                                                      
 | **Input** | `extract_pot.in`, which references the `outdir` of both supercell SCF calculations |
-| **Output** | `V_d.cube` and `V_p.cube`: Local potentials on the supercell real-space grid and atomic coordinates|
+| **Output** | `V_d.cube` and `V_p.cube`: Local potentials on the supercell real-space grid and atomic coordinates |
+
+`edi.x` will read the `V_d.cube` and `V_p.cube` and calculate the local and nonlocal perturbation potentals.
+
+
 
 ```bash
 cd edi
