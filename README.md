@@ -80,7 +80,7 @@ Electron-defect matrix elements calculations need unperturbed wavefunctions from
  
 | File | Description | Key dependency |
 |------|-------------|----------------|
-| `primitive/scf.in` | Primitive cell SCF | Direct copy of the source `scf.in` |
+| `primitive/scf.in` | Primitive cell SCF | scf input file for the targeted structure` |
 | `primitive/nscf.in` | Primitive cell NSCF on a coarse k-grid | Same cell & pseudopotentials as `primitive/scf.in`; k-grid matches the supercell dimensions (e.g., 6×6×1) |
 | `pristine_super/scf.in` | Pristine supercell SCF (no defect) | Lattice = integer multiple of primitive cell; FFT grid commensurate with primitive cell |
 | `defect_super/scf.in` | Defect supercell SCF | Same lattice & FFT grid as `pristine_super/scf.in`; one site modified (vacancy / substitution / interstitial) | — |
