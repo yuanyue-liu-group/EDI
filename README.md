@@ -75,7 +75,6 @@ A typical EDI workflow proceeds in 4 steps:
 
 ### Step 1: Prepare inputs for DFT calculation by QE 
 
-### General description
 
 Electron-defect matrix elements calculations need unperturbed wavefunctions from primitive cell and Kohn-Sham potentials from pristine and defective supercells. Therefore, user need to prepare the pw.x input files for those calculations.
 
@@ -102,35 +101,6 @@ Users who employ external tools to generate defect supercell input files must en
 
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. **Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 **
-
-### Example commands
-Below is an example of using EDI python scripts:
-
-Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
-
-```bash
-# S vacancy in a 6x6x1 MoS2 supercell
-python script/gen_supercell.py \
-    --input scf.in \
-    --nx 6 --ny 6 --nz 1 \
-    --defect vacancy --site-species S \
-    --nprocs 72 --output ./edi_run/
-```
-
-This generates the following directory structure:
-
-```
-edi_run/
-  primitive/scf.in          # Primitive cell SCF
-  primitive/nscf.in         # Primitive cell NSCF on coarse k-grid
-  pristine_super/scf.in     # Pristine supercell SCF
-  defect_super/scf.in       # Defect supercell SCF
-  edi/edi.in                # EDI input file
-  run_all.sh                # Full pipeline job script
-```
-
-
-
 
 ### Step 2: Run DFT calculations
 
@@ -161,20 +131,6 @@ Note that the supercell structures need relaxations before the final scf calcula
  
 The two supercell SCF calculations are independent of each other and of the primitive cell, so they can run in parallel.
 
-### Example commands
-```bash
-# Primitive cell
-cd primitive
-srun -n 72 pw.x -nk 8 < scf.in  > scf.out
-srun -n 72 pw.x -nk 8 < nscf.in > nscf.out
-
-# Supercells
-cd ../pristine_super
-srun -n 72 pw.x < scf.in > scf.out
-cd ../defect_super
-srun -n 72 pw.x < scf.in > scf.out
-```
-
 ### Step 3: Extract potentials and Run EDI
 
 ### General description
@@ -192,15 +148,6 @@ After the DFT calculations, user can extract the pristine and defective potentia
 |---|---|
 | **Input** | `edi.setup.in`, which read primitive cell NSCF output (Bloch states) and supercell potentials from Step 3 |
 | **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
-
-### Example commands
-```bash
-cd edi
-srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
-srun -n 72 edi.setup.x -nk 72 -i edi.setup.in > edi.setup.out
-```
-
-The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
 
 ### Step 4: Post-processing
 
@@ -220,7 +167,53 @@ edi.x includes the post-processing part for calculating transport (mobility and 
 
 Users can also use their own scripts to calculated other quantities of their interests.
 
-### Example commands
+
+## Example commands
+
+Below is an example of using EDI:
+
+Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
+
+```bash
+# S vacancy in a 6x6x1 MoS2 supercell
+python script/gen_supercell.py \
+    --input scf.in \
+    --nx 6 --ny 6 --nz 1 \
+    --defect vacancy --site-species S \
+    --nprocs 72 --output ./edi_run/
+```
+
+This generates the following directory structure:
+
+```
+edi_run/
+  primitive/scf.in          # Primitive cell SCF
+  primitive/nscf.in         # Primitive cell NSCF on coarse k-grid
+  pristine_super/scf.in     # Pristine supercell SCF
+  defect_super/scf.in       # Defect supercell SCF
+  edi/edi.in                # EDI input file
+  run_all.sh                # Full pipeline job script
+```
+```bash
+# Primitive cell
+cd primitive
+srun -n 72 pw.x -nk 8 < scf.in  > scf.out
+srun -n 72 pw.x -nk 8 < nscf.in > nscf.out
+
+# Supercells
+cd ../pristine_super
+srun -n 72 pw.x < scf.in > scf.out
+cd ../defect_super
+srun -n 72 pw.x < scf.in > scf.out
+```
+```bash
+cd edi
+srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
+srun -n 72 edi.setup.x -nk 72 -i edi.setup.in > edi.setup.out
+```
+
+The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
+
 ```bash
 cd edi
 srun -n 72 edi.x -nk 72 -i edi.in > edi.out
