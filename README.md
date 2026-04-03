@@ -168,9 +168,11 @@ edi.x includes the post-processing part for calculating transport (mobility and 
 Users can also use their own scripts to calculated other quantities of their interests.
 
 
-## Example commands
+## Workflow example 
 
 Below is an example of using EDI:
+
+### Step 1
 
 Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
 
@@ -194,6 +196,9 @@ edi_run/
   edi/edi.in                # EDI input file
   run_all.sh                # Full pipeline job script
 ```
+
+### Step 2
+
 ```bash
 # Primitive cell
 cd primitive
@@ -206,6 +211,8 @@ srun -n 72 pw.x < scf.in > scf.out
 cd ../defect_super
 srun -n 72 pw.x < scf.in > scf.out
 ```
+### Step 3
+
 ```bash
 cd edi
 srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
@@ -213,6 +220,9 @@ srun -n 72 edi.setup.x -nk 72 -i edi.setup.in > edi.setup.out
 ```
 
 The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
+
+
+### Step 4
 
 ```bash
 cd edi
