@@ -172,7 +172,7 @@ Users can also use their own scripts to calculated other quantities of their int
 
 Below is an example of using EDI:
 
-### Step 1
+### Step 1: Prepare inputs for DFT calculation by QE 
 
 Use `gen_supercell.py` to automatically generate all QE input files from a primitive cell `scf.in`:
 
@@ -197,7 +197,9 @@ edi_run/
   run_all.sh                # Full pipeline job script
 ```
 
-### Step 2
+### Step 2: Run DFT calculations
+
+Perform DFT calculations by run pw.x
 
 ```bash
 # Primitive cell
@@ -211,23 +213,28 @@ srun -n 72 pw.x < scf.in > scf.out
 cd ../defect_super
 srun -n 72 pw.x < scf.in > scf.out
 ```
-### Step 3
+### Step 3: Extract potentials and Run EDI
+
+Extract the potentials from supercells DFT calculations using `extract_pot.x`. Set Set `do_transport=.false.`, `wannierization=.true.`, `edwread=.false.` in `edi.setup.in`and run `edi.x`
 
 ```bash
 cd edi
 srun -n 1 extract_pot.x -i extract_pot.in > extract_pot.out
-srun -n 72 edi.setup.x -nk 72 -i edi.setup.in > edi.setup.out
+srun -n 72 edi.x -nk 72 -i edi.setup.in > edi.setup.out
 ```
 
 The `-nk` flag sets the number of k-point pools for MPI parallelization. For transport calculations, use `-nk` equal to the total number of MPI ranks for best performance.
 
 
-### Step 4
+### Step 4: Post-processing
+
+Set `do_transport=.true.`, `wannierization=.false.`, `edwread=.true.` in `edi.in` and re-run `edi.x`
 
 ```bash
 cd edi
 srun -n 72 edi.x -nk 72 -i edi.in > edi.out
 ```
+Users can also use their own scripts to calculated other quantities of their interests.
 
 ```bash
 cd edi
