@@ -1,5 +1,12 @@
 include ../../make.inc
 
+# gfortran rejects free-form source lines longer than 132 columns by default
+# (ed_coarse.f90 has lines up to 158 characters); lift the limit for GNU builds
+ifneq (,$(findstring GNU,$(shell $(MPIF90) --version 2>/dev/null)))
+F90FLAGS += -ffree-line-length-none
+FFLAGS += -ffree-line-length-none
+endif
+
 MODFLAGS= $(BASEMOD_FLAGS) \
     	  $(MOD_FLAG)../../PW/src \
     	  $(MOD_FLAG)../../external/wannier90/src/obj \
