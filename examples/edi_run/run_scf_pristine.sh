@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A che190065
+#SBATCH -A your_allocation
 #SBATCH -p shared
 #SBATCH -N 1
 #SBATCH -n 128
@@ -8,15 +8,16 @@
 #SBATCH -o scf_prist.%j.out
 #SBATCH -e scf_prist.%j.err
 
+# Site-specific environment (Anvil example); adjust to your system
 module reset
 module load aocc/3.1.0 openmpi/4.1.6
 module load amdblis/3.0 amdlibflame/3.0 amdlibm/3.0 fftw
 
-QEDIR=/anvil/projects/x-che190065/rjguo/qe-7.5
+QEDIR=${QEDIR:-/path/to/qe-7.5}   # QE root containing edi-code/
 PW=$QEDIR/PW/src/pw.x
 NPROC=128
 
-cd /anvil/projects/x-che190065/rjguo/qe-7.5/edi-dev/test_edinterp/edi_run/pristine_super
+cd "${SLURM_SUBMIT_DIR:-$(dirname "$0")}/pristine_super"
 mkdir -p dout
 srun -n $NPROC $PW < scf.in > scf.out 2>&1
 grep "convergence has been achieved" scf.out && echo "Pristine SCF OK" || echo "Pristine SCF FAILED"

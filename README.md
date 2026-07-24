@@ -130,6 +130,8 @@ Users who employ external tools to generate defect supercell input files must en
 Failure to satisfy any of these conditions will yield unreliable electron-defect matrix elements. **Users are strongly recommended to verify consistency by comparing the lattice parameters, atomic coordinates and FFT grid of the supercells against primitive cell before proceeding with the EDI calculation.
 **
 
+**Pseudopotentials.** The example inputs use the [PseudoDojo](https://www.pseudo-dojo.org/) NC-SR v0.5 PBE stringent set. Download [nc-sr-05_pbe_stringent_upf.tgz](https://www.pseudo-dojo.org/pseudos/nc-sr-05_pbe_stringent_upf.tgz) and place the needed `.upf` files (for the MoS2 example: `Mo.upf`, `S.upf`) in `examples/edi_run/pseudo/`, which the inputs reference as `pseudo_dir = '../pseudo/'`.
+
 ### Step 2: Run DFT calculations
 
 ### General description
@@ -176,6 +178,8 @@ After the DFT calculations, user can extract the pristine and defective potentia
 |---|---|
 | **Input** | `edi.setup.in`, which read primitive cell NSCF output (Bloch states) and supercell potentials from Step 3 |
 | **Functions** | Calculate $M(\mathbf{k}, \mathbf{k'})$ → wannierize to obtain $M(\mathbf{R}, \mathbf{R}')$ → interpolation to fine k-grid |
+
+**Memory.** In the matrix-element stages every MPI rank holds the complete supercell real-space potentials plus wavefunction buffers (about 2 GB per rank for the 6x6 MoS2 example). On nodes with roughly 2 GB of memory per core, a full-rank launch gets OOM-killed rank by rank and the job then hangs silently right after the "Full double-FT" banner. In that case reduce the ranks per node and give each rank more cores, e.g. `--ntasks=64 --cpus-per-task=2` with `edi.x -nk 64` on a 128-core node.
 
 ### Step 4: Post-processing
 
@@ -346,6 +350,8 @@ EDI reads a single Fortran namelist `&edinput_nml` from the input file.
 | `filki_direct` / `filkf_direct` | string | | Input k-point files for direct mode (crystal coordinates) |
 | `edmat_interp_from_file` | logical | `.false.` | Interpolate M(ki,kf) for k-points listed in files |
 | `filki_interp` / `filkf_interp` | string | | Input k-point files for interpolation mode |
+
+**Direct mode is a two-step workflow.** `edmat_direct_from_file` evaluates M from stored NSCF wavefunctions and requires every listed ki/kf point to exist in the NSCF data; an arbitrary k-path shares only a few points with the coarse NSCF grid. On the first run EDI detects the missing k-points, writes an `nscf_custom.in` listing exactly those points, and stops. Run that NSCF (into its own outdir), point `edi_outdir` at it, and rerun the direct calculation.
 
 ## Example Input
 

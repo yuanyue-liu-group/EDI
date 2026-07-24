@@ -3,7 +3,7 @@
    verbosity='high'
    restart_mode='from_scratch',
    prefix='mos2_pristine',
-   pseudo_dir = '/home/x-rg47749/pseudo_dojo_nc_pbe_sr/nc-sr-05_pbe_stringent_upf/',
+   pseudo_dir = '../pseudo/',
    outdir='./dout/'
 /
 &system

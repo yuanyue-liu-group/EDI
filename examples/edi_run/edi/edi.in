@@ -27,8 +27,8 @@
   coarse_nk2 = 12
   coarse_nk3 = 1
 
-  fine_nk1 = 48
-  fine_nk2 = 48
+  fine_nk1 = 300
+  fine_nk2 = 300
   fine_nk3 = 1
 
 
@@ -69,9 +69,9 @@
     delta_method = 'gaussian'
     delta_sigma = 0.01
     
-    transport_win_max = -4.05       ! Fermi energy in eV (check from NSCF output)
+    transport_win_max = -4.10       ! Fermi energy in eV (check from NSCF output)
     transport_win_min = -4.25
-    carrier_conc =  1e11        
+    carrier_conc =  1e10
     defect_conc = 1.0e12       ! defect concentration: 10^12 cm^-2 (for 2D)
     nstemp = 3                 ! number of temperatures
     temps(1) = 100.0
