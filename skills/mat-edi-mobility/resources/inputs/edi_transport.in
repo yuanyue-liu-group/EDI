@@ -1,0 +1,41 @@
+&edinput_nml
+   ! --- Primitive cell (Bloch states from the NSCF) ---
+   edi_prefix       = 'mos2'
+   edi_outdir       = '../primitive/dout/'
+
+   ! --- Defect perturbation potential (from extract_pot.x) ---
+   potfile_d        = 'V_d.cube'
+   potfile_p        = 'V_p.cube'
+   pot_align        = 'vacuum'
+
+   ! --- Reuse the Wannier M(R,Rp) written by the setup pass ---
+   do_edmat         = .true.
+   edwread          = .true.        ! read mos2_edmatw_2d.bin, skip recomputation
+   wannierize       = .false.       ! reuse the existing Wannier90 checkpoint
+   nbndsub          = 5
+   auto_projections = .false.
+   proj(1)          = 'Mo:d'
+   bands_skipped    = 'exclude_bands = 1-12'
+
+   ! --- k-grids ---
+   coarse_nk1       = 12
+   coarse_nk2       = 12
+   coarse_nk3       = 1
+   fine_nk1         = 300           ! validation grid; use 48 for a fast smoke test
+   fine_nk2         = 300           ! (48x48x1 converges mu to within a few percent)
+   fine_nk3         = 1
+
+   ! --- Transport (SERTA + MRTA, defect-limited mobility) ---
+   do_transport     = .true.
+   transport_win_min = -4.25        ! energy window around the conduction-band edge (eV)
+   transport_win_max = -4.10        ! keep narrow; only carrier pocket states matter
+   carrier_conc     = 1.0e10        ! cm^-2 (2D); sets the Fermi level by bisection
+   defect_conc      = 1.0e12        ! cm^-2 (2D); mobility scales as 1/defect_conc
+   delta_method     = 'gaussian'    ! energy-conserving delta function
+   delta_sigma      = 0.01          ! Gaussian broadening (eV)
+   nstemp           = 3
+   temps(1)         = 100.0
+   temps(2)         = 200.0
+   temps(3)         = 300.0
+   ! -> writes mos2_transport.dat and mos2_inv_tau.dat
+/

@@ -1,0 +1,47 @@
+&edinput_nml
+   ! --- Direct-vs-interpolated M validation on the k-path (SKILL.md step 6b) ---
+   ! Direct mode recomputes M(k_i,k_f) from the NSCF wavefunctions at EVERY
+   ! point of ki.dat/kf.dat, so edi_outdir MUST point at an NSCF that contains
+   ! those k-points. Point it at the dedicated path NSCF (primitive_path/), NOT
+   ! the coarse 12x12x1 primitive NSCF (which only holds 8 of the path points).
+   edi_prefix       = 'mos2'
+   edi_outdir       = '../primitive_path/dout/'
+
+   ! --- Defect perturbation potential (from extract_pot.x) ---
+   potfile_d        = 'V_d.cube'
+   potfile_p        = 'V_p.cube'
+   pot_align        = 'vacuum'
+
+   ! --- Compute M(R,Rp) and Wannierize this pass (same manifold as setup) ---
+   do_edmat         = .true.
+   edwread          = .false.
+   wannierize       = .true.
+   nbndsub          = 5
+   auto_projections = .false.
+   proj(1)          = 'Mo:d'
+   bands_skipped    = 'exclude_bands = 1-12'
+   dis_win_min      = -7.0
+   dis_win_max      = -0.8
+   dis_froz_min     = -7.0
+   dis_froz_max     = -3.4
+   num_iter         = 1000
+   wdata(1)         = 'guiding_centres = .true.'
+
+   ! --- k-grids ---
+   coarse_nk1       = 12
+   coarse_nk2       = 12
+   coarse_nk3       = 1
+   fine_nk1         = 300
+   fine_nk2         = 300
+   fine_nk3         = 1
+
+   ! --- Both M sets on the SAME path, for a like-for-like comparison ---
+   edmat_interp_from_file = .true.   ! -> mos2_edmat_interp.dat (Wannier-subspace bands 1-5)
+   filki_interp     = 'ki.dat'
+   filkf_interp     = 'kf.dat'
+   edmat_direct_from_file = .true.   ! -> mos2_edmat_direct.dat (absolute NSCF band indices)
+   filki_direct     = 'ki.dat'
+   filkf_direct     = 'kf.dat'
+
+   do_transport     = .false.
+/
