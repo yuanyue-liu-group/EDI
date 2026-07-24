@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A che190065
+#SBATCH -A your_allocation
 #SBATCH -p shared
 #SBATCH -N 1
 #SBATCH -n 128
@@ -8,16 +8,17 @@
 #SBATCH -o edi_only.%j.out
 #SBATCH -e edi_only.%j.err
 
+# Site-specific environment (Anvil example); adjust to your system
 module reset
 module load aocc/3.1.0 openmpi/4.1.6
 module load amdblis/3.0 amdlibflame/3.0 amdlibm/3.0 fftw
 
-QEDIR=/anvil/projects/x-che190065/rjguo/qe-7.5
+QEDIR=${QEDIR:-/path/to/qe-7.5}   # QE root containing edi-code/
 PW=$QEDIR/PW/src/pw.x
-EDI=$QEDIR/edi-dev/src/edi.x
+EDI=$QEDIR/edi-code/src/edi.x
 NPROC=108
 
-cd /anvil/projects/x-che190065/rjguo/qe-7.5/edi-dev/test_edinterp/edi_run
+cd "${SLURM_SUBMIT_DIR:-$(dirname "$0")}"
 
 # Step 1: Primitive cell SCF + NSCF (skip if already done)
 #if [ ! -f primitive/dout/mos2.save/data-file-schema.xml ]; then
@@ -38,7 +39,7 @@ cd /anvil/projects/x-che190065/rjguo/qe-7.5/edi-dev/test_edinterp/edi_run
 # Step 2: Run EDI
 echo '>>> Running EDI (edi.x)...'
 cd edi
-srun -n 1 $QEDIR/edi-dev/extract_pot.x < extract_pot.in > extract_pot.out
+srun -n 1 $QEDIR/edi-code/src/extract_pot.x < extract_pot.in > extract_pot.out
 
 srun -n $NPROC $EDI -nk $NPROC -i edi.setup.in > edi.setup.out 
 srun -n $NPROC $EDI -nk $NPROC -i edi.in > edi.out 
