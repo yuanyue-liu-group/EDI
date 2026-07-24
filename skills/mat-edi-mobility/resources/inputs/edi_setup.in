@@ -1,0 +1,44 @@
+&edinput_nml
+   ! --- Primitive cell (Bloch states from the NSCF) ---
+   edi_prefix       = 'mos2'
+   edi_outdir       = '../primitive/dout/'
+
+   ! --- Defect perturbation potential (from extract_pot.x) ---
+   potfile_d        = 'V_d.cube'
+   potfile_p        = 'V_p.cube'
+   pot_align        = 'vacuum'      ! vacuum-level alignment for 2D systems
+
+   ! --- Matrix elements: compute the coarse-grid direct M(k,k') this pass ---
+   do_edmat         = .true.
+   edwread          = .false.       ! compute M(R,Rp), do not read from disk
+   edwwrite         = .true.        ! write mos2_edmatw_2d.bin for the transport pass
+
+   ! --- Wannierization (run Wannier90 minimization this pass) ---
+   wannierize       = .true.
+   nbndsub          = 5             ! 5 Wannier functions from the Mo-d manifold
+   auto_projections = .false.
+   proj(1)          = 'Mo:d'
+   bands_skipped    = 'exclude_bands = 1-12'
+   dis_win_min      = -7.0          ! outer disentanglement window (eV)
+   dis_win_max      = -0.8
+   dis_froz_min     = -7.0          ! frozen window (eV)
+   dis_froz_max     = -3.4
+   num_iter         = 1000
+   wdata(1)         = 'guiding_centres = .true.'   ! required for long-vacuum 2D cells
+
+   ! --- k-grids: coarse MUST equal the primitive NSCF grid ---
+   coarse_nk1       = 12
+   coarse_nk2       = 12
+   coarse_nk3       = 1
+   fine_nk1         = 300
+   fine_nk2         = 300
+   fine_nk3         = 1
+
+   ! --- Interpolated M(k_i,k_f) along the validation path (step 6b) ---
+   edmat_interp_from_file = .true.
+   filki_interp     = 'ki.dat'      ! 1 initial k-point (K)
+   filkf_interp     = 'kf.dat'      ! k-path Gamma-K-M-Gamma
+   ! -> writes mos2_edmat_interp.dat
+
+   do_transport     = .false.       ! transport is done in the second pass
+/

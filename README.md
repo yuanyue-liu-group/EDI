@@ -37,6 +37,32 @@ Previous version: [EDI-1.0](https://github.com/yuanyue-liu-group/EDI_old)
 - FFTW3 library
 - Python 3 with NumPy (for setup scripts only)
 
+## Agent Skill
+
+If you drive EDI with an AI coding agent (e.g. Claude Code), you do not need to
+follow the manual installation and usage steps below: the agent skill in
+[`skills/mat-edi-mobility/`](skills/mat-edi-mobility/) walks the agent through
+the full EDI workflow (build, DFT runs, potential extraction,
+setup/Wannierization, transport, and the direct-vs-interpolated matrix-element
+validation). It contains step-by-step instructions (`SKILL.md`), ready-to-run input
+decks (`resources/inputs/`), Python parsers for every EDI output file
+(`scripts/`), and a validated MoS2 S-vacancy walkthrough
+(`examples/mos2-s-vacancy/`) that reproduces the mobility reference in
+`examples/edi_run/reference/` within 1.3% and validates the Wannier
+interpolation against direct matrix elements to 0.5% on a 300-point k-path.
+
+To use it, copy the skill directory into your project:
+
+```bash
+cp -r skills/mat-edi-mobility /path/to/your/project/.claude/skills/
+```
+
+The parser scripts also run standalone, for example:
+
+```bash
+python skills/mat-edi-mobility/scripts/parse_transport.py mos2_transport.dat
+```
+
 ## Installation
 
 If you are using Anvil, before compilation, the modules can be set up as:
