@@ -74,7 +74,9 @@ Program extract_pot
   WRITE(stdout, '(/,5X,A,A)') 'Defect prefix:   ', TRIM(defect_prefix)
   WRITE(stdout, '(5X,A,A)')   'Defect outdir:   ', TRIM(defect_outdir)
 
-  CALL clean_pw(.TRUE.)
+  ! No clean_pw here: nothing has been read yet, and calling it on a fresh
+  ! process dereferences never-initialized pointers (segfault in
+  ! deallocate_radial_grid_s with gfortran builds)
   prefix = TRIM(defect_prefix)
   tmp_dir = trimcheck(TRIM(defect_outdir))
   wfc_is_collected = .FALSE.
