@@ -7,9 +7,9 @@
 A software package for first-principles calculations of electron-defect scattering matrix and related properties:
 spectral function, self energy (energy shift & lifetime), electrical conductivity, carrier mobility etc.
 
-Currently EDI supports the calculation of point defects. We are implementing the methods for extended defects (e.g. surfaces, grain boundaries). 
+Currently EDI supports the calculation of the transport properties under the scattering of point defects. We are implementing the methods for extended defects (e.g. surfaces, grain boundaries), as well as other properties. 
 
-For point defects, EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to obtain matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility in both 2D and 3D materials.
+For point defects, EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to obtain matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility.
 
 ## Features of EDI version 2.0
 
