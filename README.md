@@ -23,7 +23,6 @@ For point defects, EDI uses the supercell approach to extract defect perturbatio
 - **Automated setup**: Python scripts generate all supercell and primitive cell inputs from a single `scf.in`
 - **One-shot potential extraction** by extract_pot.x
 
-Previous version: [EDI-1.0](https://github.com/yuanyue-liu-group/EDI_old)
 
 ## Workflow
 <p align="center">
