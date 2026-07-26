@@ -4,7 +4,8 @@
 
 # EDI: Electron-Defect Interaction
  
-A Quantum ESPRESSO plugin for computing electron-defect scattering matrix elements and related quantities (e.g. carrier mobility) from first principles.
+A software package for first-principles calculations of electron-defect scattering matrix and related properties:
+spectral function, self energy (energy shift & lifetime), electrical conductivity, carrier mobility etc.
 
 Currently EDI supports the calculation of point defects. We are implementing the methods for extended defects (e.g. surfaces, grain boundaries). 
 
