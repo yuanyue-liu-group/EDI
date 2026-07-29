@@ -9,13 +9,16 @@ spectral function, self energy (energy shift & lifetime), electrical conductivit
 
 Currently EDI supports the calculation of the transport properties under the scattering of point defects. We are implementing the methods for extended defects (e.g. surfaces, grain boundaries), as well as other properties. 
 
+Depending on the type of defect under investigation, users can select from the following dedicated EDI modules:
+
+1. **Point-defect scattering**
+2. **Charged-defect scattering**, with descreening and rescreening
+3. **Surface scattering**
+4. **Grain-boundary scattering**
+
+
 For point defects, EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to obtain matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility.
 
-For different defect type, users can use specific code module:
-1) Point defect
-2) Charged defect (Descreening + Rescreening)
-3) Surface scattering
-4) Grain-boundary scattering
 
 ## Features of EDI version 2.0
 
