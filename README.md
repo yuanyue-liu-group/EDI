@@ -13,7 +13,7 @@ Depending on the type of defect under investigation, users can select from the f
 
 1. **Point-defect scattering**
 2. **Charged-defect scattering**, with descreening and rescreening
-3. **Surface scattering**
+3. [**Surface scattering**] (https://github.com/yuanyue-liu-group/surface_scattering)
 4. **Grain-boundary scattering**
 
 
