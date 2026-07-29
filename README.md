@@ -14,7 +14,7 @@ Depending on the type of defect under investigation, users can select from the f
 1. **Point-defect scattering**
 2. **Charged-defect scattering**, with descreening and rescreening
 3. [**Surface scattering**](https://github.com/yuanyue-liu-group/surface_scattering)
-4. **Grain-boundary scattering**
+4. **Grain-boundary scattering** (Under construction)
 
 
 For point defects, EDI uses the supercell approach to extract defect perturbation potentials, Wannier interpolation to obtain matrix elements on arbitrarily fine k-grids, and the Boltzmann transport equation (BTE) to compute defect-limited carrier mobility.
