@@ -12,7 +12,7 @@ Currently EDI supports the calculation of the transport properties under the sca
 Depending on the type of defect under investigation, users can select from the following dedicated EDI modules:
 
 1. **Point-defect scattering** (See below)
-2. [**Charged-defect scattering**](https://github.com/yuanyue-liu-group/EDI-charged-defect) (External Repo, Under construction)
+2. [**Charged-defect scattering**](https://github.com/yuanyue-liu-group/charged-defect-scattering) (External Repo, Under construction)
 3. [**Surface scattering**](https://github.com/yuanyue-liu-group/surface_scattering) (External Repo)
 4. **Grain-boundary scattering** (External Repo, Under construction)
 
